@@ -15,29 +15,23 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
-#include <memory>
+#include <arithmetic.h>
+HalfAdder::HalfAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr sum, Wire_ptr cout) {
+  this->inputs = inputs;
+  this->sum = sum;
+  this->cout = cout;
 
-#include <gates.hpp>
-#include <wire.hpp>
+  for (auto w : this->inputs)
+    w->addUpdateAction([&]() {
+      XorGate xg(this->inputs, this->sum);
+      AndGate ag(this->inputs, this->cout);
+    });
+}
 
-int main(int argc, char** argv) {
-  auto a = std::make_shared<Wire>("a");
-  auto b = std::make_shared<Wire>("b");
-  
-  auto outor = std::make_shared<Wire>("outor");
-  OrGate o {{a, b}, outor};
-
-  auto outand1 = std::make_shared<Wire>("outand");
-  AndGate a1({a, b}, outand1);
-
-  auto nand = std::make_shared<Wire>("nand");
-  NotGate n1(outand1, nand);
-
-  auto out = std::make_shared<Wire>("output");
-  AndGate a2({nand, outor}, out);
-  
-  a->setCurrentState(State::LOW);
-  b->setCurrentState(State::LOW);
-  std::cout << to_str(out->getCurrentState()) << "\n";
+FullAdder::FullAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr cin,
+		     Wire_ptr sum, Wire_ptr cout) {
+  this->inputs = inputs;
+  this->cin = cin;
+  this->sum = sum;
+  this->cout = cout;
 }
