@@ -21,45 +21,21 @@
 #include <array>
 #include <wire.hpp>
 
-class Gate {
-protected:
-  std::vector<Wire_ptr> inputs;
-  Wire_ptr output;
-public:
-  Gate() {};
-};
-
-class AndGate : public Gate {
-public:
-  AndGate(std::vector<Wire_ptr> inputs, Wire_ptr output);
-};
-
-
-class OrGate : public Gate {
-public:
-  OrGate(std::vector<Wire_ptr> inputs, Wire_ptr output);
-};
-
-class NotGate : public Gate {
-public:
-  NotGate(Wire_ptr input, Wire_ptr output);
-};
-
-class NandGate : public Gate {
-public:
-  NandGate(std::vector<Wire_ptr> inputs, Wire_ptr output);
-};
-
-
-class NorGate : public Gate {
-public:
-  NorGate(std::vector<Wire_ptr> inputs, Wire_ptr output);
-};
-
-class XorGate {
+class HalfAdder {
 private:
   std::array<Wire_ptr, 2> inputs;
-  Wire_ptr output;
+  Wire_ptr sum;
+  Wire_ptr cout;
+
 public:
-  XorGate(std::array<Wire_ptr, 2> inputs, Wire_ptr output);
+  HalfAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr sum, Wire_ptr cout);
 };
+
+class FullAdder {
+  std::array<Wire_ptr, 2> inputs;
+  Wire_ptr sum;
+  Wire_ptr cin;
+  Wire_ptr cout;
+public:
+  FullAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr cin, Wire_ptr sum, Wire_ptr cout);
+}
