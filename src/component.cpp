@@ -15,30 +15,40 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
-#include <memory>
+#include <component.hpp>
 
-#include <gates.hpp>
-#include <wire.hpp>
-#include <arithmetic.hpp>
 
-int main(int argc, char** argv) {
-  std::cout << "Silicon (Simulation of Interconnected Logical Inputs, Circuits, and Output Nodes)"
-	    << "\n";
+Component::Component(std::vector<Bus> inputs,
+		     std::vector<Bus> outputs)
+{
+  this->inputs = inputs;
+  this->outputs = outputs;
 
-  auto a                 = Bus(4);
-  auto b                 = Bus(4);
-  auto sum               = Bus(4);
-  auto cout              = std::make_shared<Wire>();
+
+  for (auto inputBus : inputs)
+    for (auto w : inputBus)
+      if (!w)
+	assert(false);
   
-  AdderNBits adder({ a,b }, sum, cout);
-
-
-  a.setCurrentValue(0b0001);
-  b.setCurrentValue(0b1111);
-
-
-  int value = sum.getCurrentValue();
+  for (auto outputBus : outputs)
+    for (auto w : outputBus)
+      if (!w)
+	assert(false);
   
-  std::cout << "Hey!\n"; 
 }
+
+void Component::setAction(action a) {
+  this->act = std::make_shared<action>(a);
+  assert(this->act);
+  
+  for (auto bus : this->inputs)
+    for (auto w : bus)
+      w->addUpdateAction(this->act);
+}
+
+Component::~Component() {
+  for (auto bus : this->inputs)
+    for (auto w : bus)
+      w->deleteUpdateAction(this->act);
+}
+

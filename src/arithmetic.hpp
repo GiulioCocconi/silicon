@@ -20,22 +20,24 @@
 #include <memory>
 #include <array>
 #include <wire.hpp>
+#include <gates.hpp>
+#include <iostream>
 
-class HalfAdder {
-private:
-  std::array<Wire_ptr, 2> inputs;
-  Wire_ptr sum;
-  Wire_ptr cout;
-
+class HalfAdder : public Component {
 public:
+  HalfAdder() {};
   HalfAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr sum, Wire_ptr cout);
 };
 
-class FullAdder {
-  std::array<Wire_ptr, 2> inputs;
-  Wire_ptr sum;
-  Wire_ptr cin;
-  Wire_ptr cout;
+class FullAdder : public Component {
 public:
-  FullAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr cin, Wire_ptr sum, Wire_ptr cout);
-}
+  FullAdder() {};
+  FullAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr cin,
+	    Wire_ptr sum, Wire_ptr cout);
+};
+
+class AdderNBits : public Component {
+public:
+  AdderNBits() {};
+  AdderNBits(std::array<Bus, 2> inputs,Bus sum, Wire_ptr cout);
+};
