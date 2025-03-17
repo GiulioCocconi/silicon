@@ -22,6 +22,9 @@
 #include <algorithm>
 #include <memory>
 #include <string>
+#include <format>
+#include <initializer_list>
+#include <iterator> 
 
 // Each wire could hold one of three states
 enum State {
@@ -38,22 +41,47 @@ std::string to_str(State s);
 
 // Following SICP 3.3.4 there are no gates as devices but only wires with
 // associate update actions.
-using action  = std::function<void ()>;
+using action     = std::function<void ()>;
+using action_ptr = std::shared_ptr<action>; 
 
 class Wire {
-protected:
-  std::string          name;             // Unique name for the wire
-  State                currentState;
-  std::vector<Wire>    connectedWires;
-  std::vector<action> updateActions;
+private:
+  State                    currentState;
+  std::vector<action_ptr>  updateActions;
   
 public:
-  Wire() {};
-  Wire(std::string name);
-  State       getCurrentState() const;
-  void        setCurrentState(const State newState);
-  std::string getName() const;
-  void        addUpdateAction(const action a);
+  Wire();
+  Wire(State s);
+  
+  State getCurrentState() const;
+  void  setCurrentState(const State newState);
+  void  addUpdateAction(const action_ptr a);
+  void  deleteUpdateAction(const action_ptr a);
 };
+
 using Wire_ptr = std::shared_ptr<Wire>;
-bool operator == (const Wire& a, const Wire& b);
+
+class Bus {
+private:
+  std::vector<Wire_ptr> busData;
+
+public:
+  Bus() {};
+  Bus(unsigned short size);
+  Bus(std::vector<Wire_ptr> busData);
+  Bus(std::initializer_list<Wire> initList);
+  Bus(std::initializer_list<Wire_ptr> initList);
+  int setCurrentValue(const unsigned int value);
+  int getCurrentValue() const;
+  
+  Wire_ptr& operator[](unsigned short index)       { return this->busData.at(index); }
+  operator std::vector<Wire_ptr>()           const { return this->busData; }
+  operator std::vector<Wire_ptr>()                 { return this->busData; }
+  
+  auto begin()                     { return this->busData.begin(); }
+  auto end()                       { return this->busData.end();   }
+
+  [[nodiscard]] auto size()        { return this->busData.size();  }
+  [[nodiscard]] auto size() const  { return this->busData.size();  }
+  
+};

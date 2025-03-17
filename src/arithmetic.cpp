@@ -15,23 +15,76 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <arithmetic.h>
-HalfAdder::HalfAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr sum, Wire_ptr cout) {
-  this->inputs = inputs;
-  this->sum = sum;
-  this->cout = cout;
+#include <arithmetic.hpp>
+HalfAdder::HalfAdder(std::array<Wire_ptr, 2> inputs,
+		     Wire_ptr sum, Wire_ptr cout)
+  : Component({{inputs[0]}, {inputs[1]}}, {{sum}, {cout}}) {
+  
+  /* PIN MAP:
+     a    = inputs [0][0];
+     b    = inputs [1][0];
+     sum  = outputs[0][0];
+     cout = outputs[1][0];
+  */
+  
+  this->setAction([this]() {
+    XorGate xg({this->inputs[0][0], this->inputs[1][0]},
+	       this->outputs[0][0]);
 
-  for (auto w : this->inputs)
-    w->addUpdateAction([&]() {
-      XorGate xg(this->inputs, this->sum);
-      AndGate ag(this->inputs, this->cout);
-    });
+      AndGate ag({this->inputs[0][0], this->inputs[1][0]},
+		 this->outputs[1][0]);
+  });
 }
 
 FullAdder::FullAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr cin,
-		     Wire_ptr sum, Wire_ptr cout) {
-  this->inputs = inputs;
-  this->cin = cin;
-  this->sum = sum;
-  this->cout = cout;
+		     Wire_ptr sum, Wire_ptr cout)
+  : Component({{inputs[0]}, {inputs[1]}, {cin}}, {{sum}, {cout}}) {
+
+  /* PIN MAP:
+     a    = inputs [0][0];
+     b    = inputs [1][0];
+     cin  = inputs [2][0];
+     sum  = outputs[0][0];
+     cout = outputs[1][0]; */
+  
+  this->setAction([this]() {
+    auto partialSum1 = std::make_shared<Wire>();
+    auto partialCarry1 = std::make_shared<Wire>();
+    auto partialCarry2 = std::make_shared<Wire>();
+    
+    HalfAdder h1({this->inputs[0][0],  this->inputs[1][0]},
+		  partialSum1,         partialCarry1);
+    
+    HalfAdder h2({partialSum1,         this->inputs[2][0]},
+		  this->outputs[0][0], partialCarry2);
+    
+    OrGate o ({partialCarry1, partialCarry2}, this->outputs[1][0]);
+  });
+}
+
+AdderNBits::AdderNBits(std::array<Bus, 2> inputs, Bus sum, Wire_ptr cout)  
+  : Component({inputs[0], inputs[1]}, {sum, {cout}}) {
+  
+  /* PIN MAP:
+     a    = inputs [0][0:N];
+     b    = inputs [1][0:N];
+     sum  = outputs[0][0:N];
+     cout = outputs[1][ 0 ]; */
+
+  assert(inputs.size() == 2);
+  assert(inputs[0].size() == sum.size());
+  
+  
+  this->setAction([this]() {
+    int a = this->inputs[0].getCurrentValue();
+    int b = this->inputs[1].getCurrentValue();
+
+    std::cout << "a: " << a <<";\nb: " << b << ";\n";
+
+    int overflow = this->outputs[0].setCurrentValue(a + b);
+
+    this->outputs[1].setCurrentValue(overflow);
+
+    
+  });
 }

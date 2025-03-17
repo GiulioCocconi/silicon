@@ -20,43 +20,13 @@
 #include <memory>
 #include <array>
 #include <wire.hpp>
-#include <component.hpp>
 
-class Gate : public Component {
+class Component {
+protected:
+  std::vector<Wire_ptr> wires;
+  action_ptr act;
 public:
-  using Component::setAction;
-  Gate(std::vector<Wire_ptr> inputs, Wire_ptr output);
-  Gate() {};
-};
-
-class AndGate : public Gate {
-public:
-  AndGate(std::vector<Wire_ptr> inputs, Wire_ptr output);
-};
-
-
-class OrGate : public Gate {
-public:
-  OrGate(std::vector<Wire_ptr> inputs, Wire_ptr output);
-};
-
-class NotGate : public Gate {
-public:
-  NotGate(Wire_ptr input, Wire_ptr output);
-};
-
-class NandGate : public Gate {
-public:
-  NandGate(std::vector<Wire_ptr> inputs, Wire_ptr output);
-};
-
-
-class NorGate : public Gate {
-public:
-  NorGate(std::vector<Wire_ptr> inputs, Wire_ptr output);
-};
-
-class XorGate : public Gate {
-public:
-  XorGate(std::array<Wire_ptr,2> inputs, Wire_ptr output);
-};
+  Component() {};
+  void setAction(action a);
+  ~Component();
+}

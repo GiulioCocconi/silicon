@@ -15,15 +15,25 @@
 
 enable_testing()
 add_executable(logic_tests logic.cpp)
+add_executable(arithmetic_tests arithmetic.cpp)
 
-target_link_libraries(
-  logic_tests
-  GTest::gtest_main
-)
+target_link_libraries(logic_tests GTest::gtest_main)
+target_link_libraries(arithmetic_tests GTest::gtest_main)
 
-gtest_discover_tests(logic_tests)
 target_sources(logic_tests
   PRIVATE
   ${COMMON_SOURCE_FILES})
+
+
+target_sources(arithmetic_tests
+  PRIVATE
+  ${COMMON_SOURCE_FILES})
+
+gtest_discover_tests(logic_tests)
+gtest_discover_tests(arithmetic_tests)
+set(CMAKE_CTEST_ARGUMENTS "--gtest_break_on_failure;--output-on-failure")
+
+
+
 
 

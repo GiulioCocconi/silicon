@@ -16,8 +16,8 @@
 cmake_minimum_required(VERSION 3.26)
 
 project("SILICON" 
-	VERSION 0.1.0 # As defined at semver.org
-	LANGUAGES CXX)
+  VERSION 0.1.0 # As defined at semver.org
+  LANGUAGES CXX)
 
 include(GNUInstallDirs)
 include(InstallRequiredSystemLibraries)
@@ -27,26 +27,32 @@ include(GoogleTest)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
-set(src_dir "${CMAKE_SOURCE_DIR}/src")
+set(src_dir                        "${CMAKE_SOURCE_DIR}/src")
 
 include_directories(${src_dir})
 
 set(COMMON_SOURCE_FILES 
   ${src_dir}/wire.cpp
-  ${src_dir}/gates.cpp)
+  ${src_dir}/gates.cpp
+  ${src_dir}/component.cpp
+  ${src_dir}/arithmetic.cpp)
+
+set(CMAKE_CXX_FLAGS_DEBUG       "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+set(CMAKE_CXX_STANDARD          20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS        OFF)
 
 option(SILICON_BUILD_TESTS "Build silicon tests" ON)
 
-add_executable(logiFlow 
+add_executable(Silicon
   ${src_dir}/main.cpp)
 
-target_sources(logiFlow
+target_sources(Silicon
   PRIVATE
   ${COMMON_SOURCE_FILES})
 
-target_compile_options(logiFlow PRIVATE -Wall -Wextra)
-target_compile_features(logiFlow PRIVATE cxx_std_20)
-
+add_compile_options(-Wall -Wextra -fsanitize=address)
+add_link_options(-fsanitize=address -static-libasan)
 
 if(SILICON_BUILD_TESTS)
   find_package(GTest QUIET)
