@@ -15,8 +15,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <gates.hpp>
-#include <iostream>
+#include "gates.hpp"
 
 Gate::Gate(std::vector<Wire_ptr> inputs, Wire_ptr output) {
 

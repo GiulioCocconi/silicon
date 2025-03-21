@@ -19,8 +19,8 @@
 #include <cassert>
 #include <memory>
 #include <array>
-#include <wire.hpp>
-#include <component.hpp>
+#include <core/wire.hpp>
+#include <core/component.hpp>
 
 class Gate : public Component {
 public:

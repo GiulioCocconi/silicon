@@ -32,10 +32,9 @@ set(src_dir                        "${CMAKE_SOURCE_DIR}/src")
 include_directories(${src_dir})
 
 set(COMMON_SOURCE_FILES 
-  ${src_dir}/wire.cpp
-  ${src_dir}/gates.cpp
-  ${src_dir}/component.cpp
-  ${src_dir}/arithmetic.cpp)
+  ${src_dir}/core/wire.cpp
+  ${src_dir}/core/gates.cpp
+  ${src_dir}/core/component.cpp)
 
 set(CMAKE_CXX_FLAGS_DEBUG       "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 set(CMAKE_CXX_STANDARD          20)

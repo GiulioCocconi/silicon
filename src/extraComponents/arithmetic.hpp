@@ -19,8 +19,8 @@
 #include <cassert>
 #include <memory>
 #include <array>
-#include <wire.hpp>
-#include <gates.hpp>
+#include <core/wire.hpp>
+#include <core/gates.hpp>
 #include <iostream>
 
 class HalfAdder : public Component {
