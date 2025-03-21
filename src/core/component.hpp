@@ -19,14 +19,18 @@
 #include <cassert>
 #include <memory>
 #include <array>
-#include <wire.hpp>
+#include <core/wire.hpp>
 
 class Component {
 protected:
-  std::vector<Wire_ptr> wires;
+  std::vector<Bus> inputs;
+  std::vector<Bus> outputs;
+  
   action_ptr act;
 public:
   Component() {};
+  Component(std::vector<Bus> inputs,
+	    std::vector<Bus> outputs);
   void setAction(action a);
-  ~Component();
-}
+  virtual ~Component();
+};

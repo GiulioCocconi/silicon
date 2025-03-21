@@ -2,8 +2,8 @@
 #include <gtest/gtest.h>
 #include <memory>
 #include <cassert>
-#include <wire.hpp>
-#include <gates.hpp>
+#include <core/wire.hpp>
+#include <core/gates.hpp>
 
 extern "C" {
   void __ubsan_on_report() {

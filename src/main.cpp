@@ -18,27 +18,11 @@
 #include <iostream>
 #include <memory>
 
-#include <gates.hpp>
-#include <wire.hpp>
-#include <arithmetic.hpp>
+#include <core/gates.hpp>
+#include <core/wire.hpp>
 
 int main(int argc, char** argv) {
   std::cout << "Silicon (Simulation of Interconnected Logical Inputs, Circuits, and Output Nodes)"
 	    << "\n";
 
-  auto a                 = Bus(4);
-  auto b                 = Bus(4);
-  auto sum               = Bus(4);
-  auto cout              = std::make_shared<Wire>();
-  
-  AdderNBits adder({ a,b }, sum, cout);
-
-
-  a.setCurrentValue(0b0001);
-  b.setCurrentValue(0b1111);
-
-
-  int value = sum.getCurrentValue();
-  
-  std::cout << "Hey!\n"; 
 }

@@ -15,22 +15,40 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#pragma once
-#include <cassert>
-#include <memory>
-#include <array>
-#include <wire.hpp>
+#include "component.hpp"
 
-class Component {
-protected:
-  std::vector<Bus> inputs;
-  std::vector<Bus> outputs;
+
+Component::Component(std::vector<Bus> inputs,
+		     std::vector<Bus> outputs)
+{
+  this->inputs = inputs;
+  this->outputs = outputs;
+
+
+  for (auto inputBus : inputs)
+    for (auto w : inputBus)
+      if (!w)
+	assert(false);
   
-  action_ptr act;
-public:
-  Component() {};
-  Component(std::vector<Bus> inputs,
-	    std::vector<Bus> outputs);
-  void setAction(action a);
-  virtual ~Component();
-};
+  for (auto outputBus : outputs)
+    for (auto w : outputBus)
+      if (!w)
+	assert(false);
+  
+}
+
+void Component::setAction(action a) {
+  this->act = std::make_shared<action>(a);
+  assert(this->act);
+  
+  for (auto bus : this->inputs)
+    for (auto w : bus)
+      w->addUpdateAction(this->act);
+}
+
+Component::~Component() {
+  for (auto bus : this->inputs)
+    for (auto w : bus)
+      w->deleteUpdateAction(this->act);
+}
+

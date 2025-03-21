@@ -15,7 +15,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <arithmetic.hpp>
+#include "arithmetic.hpp"
+
 HalfAdder::HalfAdder(std::array<Wire_ptr, 2> inputs,
 		     Wire_ptr sum, Wire_ptr cout)
   : Component({{inputs[0]}, {inputs[1]}}, {{sum}, {cout}}) {

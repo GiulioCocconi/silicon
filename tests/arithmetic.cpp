@@ -19,7 +19,7 @@
 
 #include <vector>
 
-#include <arithmetic.hpp>
+#include <extraComponents/arithmetic.hpp>
 
 
 TEST(ArithmeticTest, HalfAdderCase) {

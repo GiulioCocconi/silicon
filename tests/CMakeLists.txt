@@ -27,11 +27,11 @@ target_sources(logic_tests
 
 target_sources(arithmetic_tests
   PRIVATE
+  ${src_dir}/extraComponents/arithmetic.cpp
   ${COMMON_SOURCE_FILES})
 
 gtest_discover_tests(logic_tests)
 gtest_discover_tests(arithmetic_tests)
-set(CMAKE_CTEST_ARGUMENTS "--gtest_break_on_failure;--output-on-failure")
 
 
 

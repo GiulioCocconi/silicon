@@ -15,8 +15,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <wire.hpp>
-#include <iostream>
+#include "wire.hpp"
 
 State operator && (const State& a, const State& b) {
   if (a == State::ERROR || b == State::ERROR)
