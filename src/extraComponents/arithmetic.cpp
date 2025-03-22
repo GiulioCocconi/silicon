@@ -80,8 +80,6 @@ AdderNBits::AdderNBits(std::array<Bus, 2> inputs, Bus sum, Wire_ptr cout)
     int a = this->inputs[0].getCurrentValue();
     int b = this->inputs[1].getCurrentValue();
 
-    std::cout << "a: " << a <<";\nb: " << b << ";\n";
-
     int overflow = this->outputs[0].setCurrentValue(a + b);
 
     this->outputs[1].setCurrentValue(overflow);
