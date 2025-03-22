@@ -20,8 +20,8 @@ _Logic circuits_
 
 _FSMs_
 
-TBD
+- [ ] TBD
 
 _Microcontrollers_
 
-TBD
+- [ ] TBD
