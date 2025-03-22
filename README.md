@@ -7,6 +7,7 @@ Since it's a pre-alpha product, there are quite a lot of things to be done:
 _Common_
 
 - [ ] GUI with QT6
+[GraphicsView](https://doc.qt.io/qt-6/graphicsview.html)
 
 _Logic circuits_
 
