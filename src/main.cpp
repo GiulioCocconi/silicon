@@ -18,11 +18,50 @@
 #include <iostream>
 #include <memory>
 
+#include <QApplication>
+#include <QMainWindow>
+#include <QSplashScreen>
+#include <QLabel>
+#include <QIcon>
+#include <QCommandLineParser>
+
 #include <core/gates.hpp>
 #include <core/wire.hpp>
+#include <ui/logiFlowWindow.hpp>
 
 int main(int argc, char** argv) {
-  std::cout << "Silicon (Simulation of Interconnected Logical Inputs, Circuits, and Output Nodes)"
-	    << "\n";
 
+  QApplication app(argc, argv);
+  app.setApplicationName("SILICON");
+  app.setStyle("Fusion");
+  app.setApplicationVersion(SILICON_VERSION);
+
+  // TODO: Create an icon!!!
+  // app.setWindowIcon(QIcon)
+
+  // Command Line Parser
+  
+  QCommandLineParser parser;
+  parser.setApplicationDescription("SILICON: Simulation of Interconnected Logical Inputs, Circuits, and Output Nodes");
+  parser.addHelpOption();
+  parser.addVersionOption();
+  parser.process(app);
+
+  
+
+  // Splash screen
+  QSplashScreen splashScreen(QPixmap(":/splash.jpg"));
+  splashScreen.show();
+  splashScreen.showMessage("Loading...",
+			   Qt::AlignBottom | Qt::AlignHCenter, Qt::white);
+
+  // Force processing of events to show the splash screen immediately
+  app.processEvents();
+
+
+  LogiFlowWindow lfWin {};
+  lfWin.show();
+  
+  splashScreen.finish(&lfWin);
+  return app.exec();
 }
