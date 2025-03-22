@@ -1,6 +1,4 @@
-# Silicon 💻⚡
-_Simulation of Interconnected Logical Inputs, Circuits, and Output Nodes_
-
+![Silicon](./resources/banner.png)
 An Open Source Suite for simulating Circuits, Finite State Machines and Microcontrollers (WIP)
 
 ## TODOs

@@ -43,12 +43,17 @@ set(CMAKE_CXX_EXTENSIONS        OFF)
 
 option(SILICON_BUILD_TESTS "Build silicon tests" ON)
 
-add_executable(Silicon
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
+qt_standard_project_setup()
+
+qt_add_executable(Silicon
   ${src_dir}/main.cpp)
 
 target_sources(Silicon
   PRIVATE
   ${COMMON_SOURCE_FILES})
+
+target_link_libraries(Silicon PRIVATE Qt6::Widgets)
 
 add_compile_options(-Wall -Wextra -fsanitize=address)
 add_link_options(-fsanitize=address -static-libasan)
