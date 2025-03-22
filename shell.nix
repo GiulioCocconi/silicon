@@ -1,7 +1,18 @@
 { pkgs ? import <nixpkgs> {}, ...}:
 pkgs.mkShell {
   name = "Silicon";
-  packages = with pkgs; [ gtest.dev cmake yosys gdb ddd valgrind qt6.full ];
+  packages = with pkgs; [
+    vulkan-headers 
+    libxkbcommon.dev
+    gtest.dev
+    qt6.full
+    qtcreator
+    cmake
+    yosys
+    gdb
+    ddd
+    valgrind
+  ];
   hardeningDisable = [ "all" ];
 }
 
