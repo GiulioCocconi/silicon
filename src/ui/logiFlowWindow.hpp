@@ -18,11 +18,11 @@ public:
   LogiFlowWindow();
 
 protected:
-  
+
 #ifndef QT_NO_CONTEXTMENU
   void contextMenuEvent(QContextMenuEvent *event) override;
 #endif // QT_NO_CONTEXTMENU
-							    
+
 private slots:
   void newFile() {}
   void open() {}

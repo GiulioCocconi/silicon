@@ -27,16 +27,16 @@ TEST(ArithmeticTest, HalfAdderCase) {
   auto b    = std::make_shared<Wire>(State::LOW);
   auto sum  = std::make_shared<Wire>();
   auto cout = std::make_shared<Wire>();
-  
+
   HalfAdder ha({a,b}, sum, cout);
   ASSERT_EQ(sum->getCurrentState(),  State::LOW);
   ASSERT_EQ(cout->getCurrentState(), State::LOW);
 
-  b->setCurrentState(State::HIGH);
+  b->forceSetCurrentState(State::HIGH);
   ASSERT_EQ(sum->getCurrentState(),  State::HIGH);
   ASSERT_EQ(cout->getCurrentState(), State::LOW);
 
-  a->setCurrentState(State::HIGH);
+  a->forceSetCurrentState(State::HIGH);
   ASSERT_EQ(sum->getCurrentState(),  State::LOW);
   ASSERT_EQ(cout->getCurrentState(), State::HIGH);
 }
@@ -46,9 +46,9 @@ TEST(ArithmeticTest, AdderNBitsFromComponents) {
   auto a                 = Bus(4);
   auto b                 = Bus(4);
   auto sum               = Bus(4);
-  
+
   auto partialCarryWires = Bus(5); // We need one more!
-  
+
   std::vector<FullAdder> fullAdders;
   fullAdders.reserve(4);
 
@@ -57,34 +57,34 @@ TEST(ArithmeticTest, AdderNBitsFromComponents) {
   // The first Carry-in should be LOW (that's the default value
   // for Busses so we don't need to explicitly set it).
   assert(partialCarryWires[0]->getCurrentState() == State::LOW);
-    
+
   for (int i = 0; i < 4; i++)
     fullAdders.emplace_back(std::array<Wire_ptr, 2>{a[i], b[i]},
 			      partialCarryWires[i],
 			      sum[i], partialCarryWires[i+1]);
 
 
-  a.setCurrentValue(0);
-  b.setCurrentValue(0);
-  
+  a.forceSetCurrentValue(0);
+  b.forceSetCurrentValue(0);
+
   ASSERT_EQ(cout->getCurrentState(), State::LOW);
   ASSERT_EQ(sum.getCurrentValue(),   0);
-  
-  a.setCurrentValue(0b1100);
-  b.setCurrentValue(0b0011);
-  
-  ASSERT_EQ(cout->getCurrentState(), State::LOW);
-  ASSERT_EQ(sum.getCurrentValue(),   0b1111);
 
-  b.setCurrentValue(0b1100);
-  a.setCurrentValue(0b0011);
+  a.forceSetCurrentValue(0b1100);
+  b.forceSetCurrentValue(0b0011);
 
   ASSERT_EQ(cout->getCurrentState(), State::LOW);
   ASSERT_EQ(sum.getCurrentValue(),   0b1111);
 
-  a.setCurrentValue(0b1111);
-  b.setCurrentValue(0b0001);
-  
+  b.forceSetCurrentValue(0b1100);
+  a.forceSetCurrentValue(0b0011);
+
+  ASSERT_EQ(cout->getCurrentState(), State::LOW);
+  ASSERT_EQ(sum.getCurrentValue(),   0b1111);
+
+  a.forceSetCurrentValue(0b1111);
+  b.forceSetCurrentValue(0b0001);
+
   ASSERT_EQ(cout->getCurrentState(), State::HIGH);
   ASSERT_EQ(sum.getCurrentValue(),   0);
 }
@@ -96,28 +96,28 @@ TEST(ArithmeticTest, AdderNBitsAtomic) {
   auto cout              = std::make_shared<Wire>();
 
   AdderNBits adder({a, b}, sum, cout);
-  
-  a.setCurrentValue(0);
-  b.setCurrentValue(0);
+
+  a.forceSetCurrentValue(0);
+  b.forceSetCurrentValue(0);
 
   ASSERT_EQ(cout->getCurrentState(), State::LOW);
   ASSERT_EQ(sum.getCurrentValue(),   0);
-  
-  a.setCurrentValue(0b1100);
-  b.setCurrentValue(0b0011);
-  
-  ASSERT_EQ(cout->getCurrentState(), State::LOW);
-  ASSERT_EQ(sum.getCurrentValue(),   0b1111);
 
-  b.setCurrentValue(0b1100);
-  a.setCurrentValue(0b0011);
+  a.forceSetCurrentValue(0b1100);
+  b.forceSetCurrentValue(0b0011);
 
   ASSERT_EQ(cout->getCurrentState(), State::LOW);
   ASSERT_EQ(sum.getCurrentValue(),   0b1111);
 
-  a.setCurrentValue(0b1111);
-  b.setCurrentValue(0b0001);
-  
+  b.forceSetCurrentValue(0b1100);
+  a.forceSetCurrentValue(0b0011);
+
+  ASSERT_EQ(cout->getCurrentState(), State::LOW);
+  ASSERT_EQ(sum.getCurrentValue(),   0b1111);
+
+  a.forceSetCurrentValue(0b1111);
+  b.forceSetCurrentValue(0b0001);
+
   ASSERT_EQ(cout->getCurrentState(), State::HIGH);
   ASSERT_EQ(sum.getCurrentValue(),   0);
 

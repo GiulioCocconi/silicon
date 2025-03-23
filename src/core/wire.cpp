@@ -47,6 +47,15 @@ State operator ! (const State& a) {
   return State::LOW;
 }
 
+State operator ^ (const State& a, const State& b) {
+  if (a == State::ERROR || b == State::ERROR)
+    return State::ERROR;
+
+  if (a != b) return State::HIGH;
+
+  return State::LOW;
+}
+
 std::string to_str(State s) {
 
   switch (s) {
@@ -61,25 +70,37 @@ std::string to_str(State s) {
 }
 
 Wire::Wire() {
-  this->currentState   = State::ERROR;
-  this->updateActions  = {};
+  this->currentState        = State::ERROR;
+  this->updateActions       = {};
 }
 
 Wire::Wire(State s) {
-  this->currentState = s;
+  this->currentState        = s;
 }
 
 State Wire::getCurrentState() const {
   return this->currentState;
 }
 
-void Wire::setCurrentState(const State newState) {
+void Wire::forceSetCurrentState(const State newState) {
   if (this->currentState == newState) return;
 
   this->currentState = newState;
 
   for (action_ptr a : this->updateActions)
     if (a) (*a)();
+}
+
+void Wire::setCurrentState(const State newState,
+			   const Component_ptr requestedBy) {
+
+  if (!this->authorizedComponent.lock())
+    this->authorizedComponent = requestedBy;
+
+  State s = (this->authorizedComponent.lock() == requestedBy.lock())
+    ? newState : State::ERROR;
+
+  this->forceSetCurrentState(s);
 }
 
 void Wire::deleteUpdateAction(const action_ptr a) {
@@ -95,11 +116,10 @@ void Wire::addUpdateAction(const action_ptr a) {
   assert(a);
 
   this->updateActions.push_back(a);
-  
-  // When I add the action I need to run it right away in order to make it work 
+
+  // When I add the action I need to run it right away in order to make it work
   // when the state of the inputs is changed before the component is created!
   (*a)();
-
 }
 
 Bus::Bus(unsigned short size) {
@@ -131,14 +151,24 @@ Bus::Bus(std::initializer_list<Wire> initList) : busData(initList.size()) {
   }
 }
 
-int Bus::setCurrentValue(const unsigned int value) {
+int Bus::forceSetCurrentValue(const unsigned int value) {
   for (unsigned short i = 0; i < this->size(); i++) {
     State s = (value >> i) & 1 ? State::HIGH : State::LOW;
-    this->busData[i]->setCurrentState(s);
+    this->busData[i]->forceSetCurrentState(s);
   }
   return (value >= (1u << this->size()));
 }
 
+int Bus::setCurrentValue(const unsigned int value,
+			 const Component_ptr requestedBy) {
+
+  for (unsigned short i = 0; i < this->size(); i++) {
+    State s = (value >> i) & 1 ? State::HIGH : State::LOW;
+    this->busData[i]->setCurrentState(s, requestedBy);
+  }
+  return (value >= (1u << this->size()));
+
+}
 
 int Bus::getCurrentValue() const {
   unsigned int res  = 0;

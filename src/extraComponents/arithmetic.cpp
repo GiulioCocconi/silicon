@@ -20,20 +20,26 @@
 HalfAdder::HalfAdder(std::array<Wire_ptr, 2> inputs,
 		     Wire_ptr sum, Wire_ptr cout)
   : Component({{inputs[0]}, {inputs[1]}}, {{sum}, {cout}}) {
-  
+
   /* PIN MAP:
      a    = inputs [0][0];
      b    = inputs [1][0];
      sum  = outputs[0][0];
      cout = outputs[1][0];
   */
-  
-  this->setAction([this]() {
-    XorGate xg({this->inputs[0][0], this->inputs[1][0]},
-	       this->outputs[0][0]);
 
-      AndGate ag({this->inputs[0][0], this->inputs[1][0]},
-		 this->outputs[1][0]);
+  this->setAction([this]() {
+
+    State cout = (this->inputs[0][0]->getCurrentState() &&
+		  this->inputs[1][0]->getCurrentState());
+
+    State sum  = (this->inputs[0][0]->getCurrentState() ^
+		  this->inputs[1][0]->getCurrentState());
+
+
+    this->outputs[0][0]->setCurrentState(sum,  weak_from_this());
+    this->outputs[1][0]->setCurrentState(cout, weak_from_this());
+
   });
 }
 
@@ -47,43 +53,45 @@ FullAdder::FullAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr cin,
      cin  = inputs [2][0];
      sum  = outputs[0][0];
      cout = outputs[1][0]; */
-  
+
   this->setAction([this]() {
     auto partialSum1 = std::make_shared<Wire>();
     auto partialCarry1 = std::make_shared<Wire>();
     auto partialCarry2 = std::make_shared<Wire>();
-    
-    HalfAdder h1({this->inputs[0][0],  this->inputs[1][0]},
-		  partialSum1,         partialCarry1);
-    
-    HalfAdder h2({partialSum1,         this->inputs[2][0]},
-		  this->outputs[0][0], partialCarry2);
-    
-    OrGate o ({partialCarry1, partialCarry2}, this->outputs[1][0]);
-  });
-}
 
-AdderNBits::AdderNBits(std::array<Bus, 2> inputs, Bus sum, Wire_ptr cout)  
-  : Component({inputs[0], inputs[1]}, {sum, {cout}}) {
-  
-  /* PIN MAP:
-     a    = inputs [0][0:N];
-     b    = inputs [1][0:N];
-     sum  = outputs[0][0:N];
-     cout = outputs[1][ 0 ]; */
+    auto h1 = std::make_shared<HalfAdder>(std::array<Wire_ptr, 2>{this->inputs[0][0], this->inputs[1][0]},
+					  partialSum1, partialCarry1);
 
-  assert(inputs.size() == 2);
-  assert(inputs[0].size() == sum.size());
-  
-  
-  this->setAction([this]() {
-    int a = this->inputs[0].getCurrentValue();
-    int b = this->inputs[1].getCurrentValue();
+    auto h2 = std::make_shared<HalfAdder>(std::array<Wire_ptr,2>{partialSum1, this->inputs[2][0]},
+	this->outputs[0][0], partialCarry2);
 
-    int overflow = this->outputs[0].setCurrentValue(a + b);
+      auto og = std::make_shared<OrGate>(std::vector<Wire_ptr>{partialCarry1, partialCarry2},
+					 this->outputs[1][0]);
+      });
+    }
 
-    this->outputs[1].setCurrentValue(overflow);
+    AdderNBits::AdderNBits(std::array<Bus, 2> inputs, Bus sum, Wire_ptr cout)
+    : Component({inputs[0], inputs[1]}, {sum, {cout}}) {
 
-    
-  });
-}
+    /* PIN MAP:
+       a    = inputs [0][0:N];
+       b    = inputs [1][0:N];
+       sum  = outputs[0][0:N];
+       cout = outputs[1][ 0 ]; */
+
+    assert(inputs.size() == 2);
+    assert(inputs[0].size() == sum.size());
+
+
+    this->setAction([this]() {
+      int a = this->inputs[0].getCurrentValue();
+      int b = this->inputs[1].getCurrentValue();
+
+      int overflow = this->outputs[0].setCurrentValue(a + b,
+						      weak_from_this());
+
+      this->outputs[1].setCurrentValue(overflow,
+				       weak_from_this());
+
+    });
+  }

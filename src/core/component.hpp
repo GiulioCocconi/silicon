@@ -21,11 +21,11 @@
 #include <array>
 #include <core/wire.hpp>
 
-class Component {
+class Component : public std::enable_shared_from_this<Component> {
 protected:
   std::vector<Bus> inputs;
   std::vector<Bus> outputs;
-  
+
   action_ptr act;
 public:
   Component() {};

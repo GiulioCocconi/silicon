@@ -1,7 +1,7 @@
 #include "logiFlowWindow.hpp"
 
 LogiFlowWindow::LogiFlowWindow() {
-  
+
   QWidget *centralWidget = new QWidget;
   setCentralWidget(centralWidget);
 
@@ -41,7 +41,7 @@ void LogiFlowWindow::createActions() {
   copyAct        = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditCopy),        tr("&Copy"),      this);
   pasteAct       = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditPaste),       tr("&Paste"),     this);
   aboutAct       = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout),       tr("&About"),     this);
-  
+
   newAct->setShortcuts(QKeySequence::New);
   openAct->setShortcuts(QKeySequence::Open);
   saveAct->setShortcuts(QKeySequence::Save);
@@ -53,7 +53,7 @@ void LogiFlowWindow::createActions() {
   copyAct->setShortcuts(QKeySequence::Copy);
   pasteAct->setShortcuts(QKeySequence::Paste);
 
-  
+
   newAct->setStatusTip(tr("Create a new file"));
   openAct->setStatusTip(tr("Open an existing logiFlow file"));
   saveAct->setStatusTip(tr("Save the circuit to disk"));
@@ -64,7 +64,7 @@ void LogiFlowWindow::createActions() {
   cutAct->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
   pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
   aboutAct->setStatusTip(tr("Show the application's About box"));
-  
+
   connect(newAct,         &QAction::triggered, this, &LogiFlowWindow::newFile);
   connect(openAct,        &QAction::triggered, this, &LogiFlowWindow::open);
   connect(saveAct,        &QAction::triggered, this, &LogiFlowWindow::save);

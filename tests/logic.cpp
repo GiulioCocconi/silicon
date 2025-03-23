@@ -21,39 +21,39 @@ TEST(LogicTest, And) {
   auto a = std::make_shared<Wire>();
   auto b = std::make_shared<Wire>();
   auto o = std::make_shared<Wire>();
-  
-  AndGate g({a, b}, o);
 
-  a->setCurrentState(State::ERROR);
-  b->setCurrentState(State::ERROR);
+  auto g = std::make_shared<AndGate>(std::vector<Wire_ptr>{a, b}, o);
+
+  a->forceSetCurrentState(State::ERROR);
+  b->forceSetCurrentState(State::ERROR);
 
   State outputState = o->getCurrentState();
   EXPECT_EQ(outputState, State::ERROR)
     << "AND(ERROR, ERROR) = " << to_str(outputState);
 
-  b->setCurrentState(State::HIGH);
+  b->forceSetCurrentState(State::HIGH);
   outputState = o->getCurrentState();
   EXPECT_EQ(outputState, State::ERROR)
     << "AND(ERROR, HIGH) = " << to_str(outputState);
-  
-  b->setCurrentState(State::LOW);
+
+  b->forceSetCurrentState(State::LOW);
   outputState = o->getCurrentState();
   EXPECT_EQ(outputState, State::ERROR)
     << "AND(ERROR, LOW) = " << to_str(outputState);
 
-  a->setCurrentState(State::LOW);
+  a->forceSetCurrentState(State::LOW);
   outputState = o->getCurrentState();
   EXPECT_EQ(outputState, State::LOW)
     << "AND(LOW, LOW) = " << to_str(outputState);
 
-  
-  a->setCurrentState(State::HIGH);
+
+  a->forceSetCurrentState(State::HIGH);
   outputState = o->getCurrentState();
   EXPECT_EQ(outputState, State::LOW)
     << "AND(HIGH, LOW) = " << to_str(outputState);
 
-  
-  b->setCurrentState(State::HIGH);
+
+  b->forceSetCurrentState(State::HIGH);
   outputState = o->getCurrentState();
   EXPECT_EQ(outputState, State::HIGH)
     << "AND(HIGH, HIGH) = " << to_str(outputState);
@@ -63,39 +63,39 @@ TEST(LogicTest, Or) {
   auto a = std::make_shared<Wire>();
   auto b = std::make_shared<Wire>();
   auto o = std::make_shared<Wire>();
-  
-  OrGate g({a, b}, o);
 
-  a->setCurrentState(State::ERROR);
-  b->setCurrentState(State::ERROR);
+  auto g = std::make_shared<OrGate>(std::vector<Wire_ptr>{a, b}, o);
+
+  a->forceSetCurrentState(State::ERROR);
+  b->forceSetCurrentState(State::ERROR);
 
   State outputState = o->getCurrentState();
   EXPECT_EQ(outputState, State::ERROR)
     << "OR(ERROR, ERROR) = " << to_str(outputState);
 
-  b->setCurrentState(State::HIGH);
+  b->forceSetCurrentState(State::HIGH);
   outputState = o->getCurrentState();
   EXPECT_EQ(outputState, State::ERROR)
     << "OR(ERROR, HIGH) = " << to_str(outputState);
-  
-  b->setCurrentState(State::LOW);
+
+  b->forceSetCurrentState(State::LOW);
   outputState = o->getCurrentState();
   EXPECT_EQ(outputState, State::ERROR)
     << "OR(ERROR, LOW) = " << to_str(outputState);
 
-  a->setCurrentState(State::LOW);
+  a->forceSetCurrentState(State::LOW);
   outputState = o->getCurrentState();
   EXPECT_EQ(outputState, State::LOW)
     << "OR(LOW, LOW) = " << to_str(outputState);
 
-  
-  a->setCurrentState(State::HIGH);
+
+  a->forceSetCurrentState(State::HIGH);
   outputState = o->getCurrentState();
   EXPECT_EQ(outputState, State::HIGH)
     << "OR(HIGH, LOW) = " << to_str(outputState);
 
-  
-  b->setCurrentState(State::HIGH);
+
+  b->forceSetCurrentState(State::HIGH);
   outputState = o->getCurrentState();
   EXPECT_EQ(outputState, State::HIGH)
     << "OR(HIGH, HIGH) = " << to_str(outputState);
@@ -105,39 +105,40 @@ TEST(LogicTest, Xor) {
   auto a = std::make_shared<Wire>();
   auto b = std::make_shared<Wire>();
   auto o = std::make_shared<Wire>();
-  
-  XorGate g({a, b}, o);
 
-  a->setCurrentState(State::ERROR);
-  b->setCurrentState(State::ERROR);
+
+  auto g = std::make_shared<XorGate>(std::array<Wire_ptr, 2>{a, b}, o);
+
+  a->forceSetCurrentState(State::ERROR);
+  b->forceSetCurrentState(State::ERROR);
 
   State outputState = o->getCurrentState();
   EXPECT_EQ(outputState, State::ERROR)
     << "XOR(ERROR, ERROR) = " << to_str(outputState);
 
-  b->setCurrentState(State::HIGH);
+  b->forceSetCurrentState(State::HIGH);
   outputState = o->getCurrentState();
   EXPECT_EQ(outputState, State::ERROR)
     << "XOR(ERROR, HIGH) = " << to_str(outputState);
-  
-  b->setCurrentState(State::LOW);
+
+  b->forceSetCurrentState(State::LOW);
   outputState = o->getCurrentState();
   EXPECT_EQ(outputState, State::ERROR)
     << "XOR(ERROR, LOW) = " << to_str(outputState);
 
-  a->setCurrentState(State::LOW);
+  a->forceSetCurrentState(State::LOW);
   outputState = o->getCurrentState();
   EXPECT_EQ(outputState, State::LOW)
     << "XOR(LOW, LOW) = " << to_str(outputState);
 
-  
-  a->setCurrentState(State::HIGH);
+
+  a->forceSetCurrentState(State::HIGH);
   outputState = o->getCurrentState();
   EXPECT_EQ(outputState, State::HIGH)
     << "XOR(HIGH, LOW) = " << to_str(outputState);
 
-  
-  b->setCurrentState(State::HIGH);
+
+  b->forceSetCurrentState(State::HIGH);
   outputState = o->getCurrentState();
   EXPECT_EQ(outputState, State::LOW)
     << "XOR(HIGH, HIGH) = " << to_str(outputState);
@@ -146,25 +147,27 @@ TEST(LogicTest, Xor) {
 TEST(LogicTest, CircuitEditing) {
   auto a = std::make_shared<Wire>();
   auto b = std::make_shared<Wire>();
-  
+
   auto o = std::make_shared<Wire>(State::HIGH);
 
-  a->setCurrentState(State::HIGH);
-  b->setCurrentState(State::LOW);
-  
-  {
-    XorGate g({a, b}, o);
-    EXPECT_EQ(o->getCurrentState(), State::HIGH);
-  }  
+  a->forceSetCurrentState(State::HIGH);
+  b->forceSetCurrentState(State::LOW);
 
   {
-    AndGate ag({a, b}, o);
+
+    auto g = std::make_shared<XorGate>(std::array<Wire_ptr, 2>{a, b}, o);
+    EXPECT_EQ(o->getCurrentState(), State::HIGH);
+  }
+
+  {
+
+    auto g = std::make_shared<AndGate>(std::vector<Wire_ptr>{a, b}, o);
     EXPECT_EQ(o->getCurrentState(), State::LOW);
   }
 
   {
-    b->setCurrentState(State::HIGH);
-    OrGate og({a, b}, o);
+    b->forceSetCurrentState(State::HIGH);
+    auto g = std::make_shared<OrGate>(std::vector<Wire_ptr>{a, b}, o);
     EXPECT_EQ(o->getCurrentState(), State::HIGH);
   }
 }

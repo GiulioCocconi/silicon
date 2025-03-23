@@ -20,7 +20,7 @@
 Gate::Gate(std::vector<Wire_ptr> inputs, Wire_ptr output) {
 
   assert(inputs.size() != 0);
-  
+
   for (auto input : inputs)
     this->inputs.push_back({input});
   this->outputs = {{output}};
@@ -35,10 +35,10 @@ AndGate::AndGate(std::vector<Wire_ptr> inputs, Wire_ptr output) :
 
     for (auto input : this->inputs)
       s = s && input[0]->getCurrentState();
-      
-    this->outputs[0][0]->setCurrentState(s);
+
+    this->outputs[0][0]->setCurrentState(s, weak_from_this());
   });
-} 
+}
 
 OrGate::OrGate(std::vector<Wire_ptr> inputs, Wire_ptr output) :
   Gate(inputs, output)
@@ -49,31 +49,34 @@ OrGate::OrGate(std::vector<Wire_ptr> inputs, Wire_ptr output) :
 
     for (auto input : this->inputs)
       s = s || input[0]->getCurrentState();
-      
-    this->outputs[0][0]->setCurrentState(s);
+
+    this->outputs[0][0]->setCurrentState(s, weak_from_this());
   });
-} 
+}
 
 NotGate::NotGate(Wire_ptr input, Wire_ptr output) :
   Gate({input}, output)
 {
-  const auto a = std::make_shared<action>([&]() {
-    this->outputs[0][0]->setCurrentState(!this->inputs[0][0]->getCurrentState());
+  const auto a = std::make_shared<action>([this]() {
+    State s = !this->inputs[0][0]->getCurrentState();
+    this->outputs[0][0]->setCurrentState(s, weak_from_this());
   });
-  
+
   this->inputs[0][0]->addUpdateAction(a);
-} 
+}
 
 NandGate::NandGate(std::vector<Wire_ptr> inputs, Wire_ptr output) :
   Gate(inputs, output)
 {
   assert(inputs.size() >= 2);
   this->setAction([this]() {
-    auto a = std::make_shared<Wire>();
-    auto n = std::make_shared<Wire>();
-    AndGate ag({this->inputs[0][0], this->inputs[1][0]}, a);
-    NotGate ng(a, n);
-    this->outputs[0][0]->setCurrentState(n->getCurrentState());
+
+    State s = State::HIGH;
+
+    for (auto input : this->inputs)
+      s = s && input[0]->getCurrentState();
+
+    this->outputs[0][0]->setCurrentState(!s, weak_from_this());
   });
 
 }
@@ -83,11 +86,13 @@ NorGate::NorGate(std::vector<Wire_ptr> inputs, Wire_ptr output) :
 {
   assert(inputs.size() >= 2);
   this->setAction([this]() {
-    auto o = std::make_shared<Wire>();
-    auto n = std::make_shared<Wire>();
-    OrGate  og(this->inputs[0], o);
-    NotGate ng(o, n);
-    this->outputs[0][0]->setCurrentState(n->getCurrentState());
+
+    State s = State::LOW;
+
+    for (auto input : this->inputs)
+      s = s || input[0]->getCurrentState();
+
+    this->outputs[0][0]->setCurrentState(!s, weak_from_this());
   });
 }
 
@@ -96,12 +101,8 @@ XorGate::XorGate(std::array<Wire_ptr, 2> inputs, Wire_ptr output) :
 {
   assert(inputs.size() >= 2);
   this->setAction([this]() {
-    auto ow = std::make_shared<Wire>();
-    auto nandw = std::make_shared<Wire>();
-    auto outw = std::make_shared<Wire>();
-    OrGate og({this->inputs[1][0], this->inputs[0][0]}, ow);
-    NandGate nandg({this->inputs[0][0], this->inputs[1][0]}, nandw);
-    AndGate andg({ow, nandw}, outw);
-    this->outputs[0][0]->setCurrentState(outw->getCurrentState());
+    State s = (this->inputs[0][0]->getCurrentState() ^
+	       this->inputs[1][0]->getCurrentState());
+    this->outputs[0][0]->setCurrentState(s, weak_from_this());
   });
 }

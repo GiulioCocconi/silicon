@@ -29,6 +29,7 @@ public:
   Gate() {};
 };
 
+
 class AndGate : public Gate {
 public:
   AndGate(std::vector<Wire_ptr> inputs, Wire_ptr output);

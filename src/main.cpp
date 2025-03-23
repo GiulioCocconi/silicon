@@ -29,6 +29,20 @@
 #include <core/wire.hpp>
 #include <ui/logiFlowWindow.hpp>
 
+#if SILICON_DEBUG
+int main(int argc, char** argv) {
+  auto a = std::make_shared<Wire>();
+  auto b = std::make_shared<Wire>();
+  auto o = std::make_shared<Wire>();
+
+  auto g = std::make_shared<AndGate>(std::vector<Wire_ptr>{a, b}, o);
+
+  a->forceSetCurrentState(State::ERROR);
+  b->forceSetCurrentState(State::ERROR);
+}
+
+#else
+
 int main(int argc, char** argv) {
 
   QApplication app(argc, argv);
@@ -40,14 +54,14 @@ int main(int argc, char** argv) {
   // app.setWindowIcon(QIcon)
 
   // Command Line Parser
-  
+
   QCommandLineParser parser;
   parser.setApplicationDescription("SILICON: Simulation of Interconnected Logical Inputs, Circuits, and Output Nodes");
   parser.addHelpOption();
   parser.addVersionOption();
   parser.process(app);
 
-  
+
 
   // Splash screen
   QSplashScreen splashScreen(QPixmap(":/splash.jpg"));
@@ -61,7 +75,9 @@ int main(int argc, char** argv) {
 
   LogiFlowWindow lfWin {};
   lfWin.show();
-  
+
   splashScreen.finish(&lfWin);
   return app.exec();
 }
+
+#endif

@@ -29,24 +29,26 @@ Component::Component(std::vector<Bus> inputs,
     for (auto w : inputBus)
       if (!w)
 	assert(false);
-  
+
   for (auto outputBus : outputs)
     for (auto w : outputBus)
       if (!w)
 	assert(false);
-  
+
 }
 
 void Component::setAction(action a) {
   this->act = std::make_shared<action>(a);
   assert(this->act);
-  
+
   for (auto bus : this->inputs)
     for (auto w : bus)
       w->addUpdateAction(this->act);
 }
 
 Component::~Component() {
+
+  // Remove update actions
   for (auto bus : this->inputs)
     for (auto w : bus)
       w->deleteUpdateAction(this->act);

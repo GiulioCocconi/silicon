@@ -24,7 +24,7 @@
 #include <string>
 #include <format>
 #include <initializer_list>
-#include <iterator> 
+#include <iterator>
 
 // Each wire could hold one of three states
 enum State {
@@ -35,26 +35,35 @@ enum State {
 
 State operator && (const State& a, const State& b);
 State operator || (const State& a, const State& b);
+State operator ^ (const State& a, const State& b);
 State operator !  (const State& a);
 
 std::string to_str(State s);
 
 // Following SICP 3.3.4 there are no gates as devices but only wires with
 // associate update actions.
-using action     = std::function<void ()>;
-using action_ptr = std::shared_ptr<action>; 
+using action        = std::function<void ()>;
+using action_ptr    = std::shared_ptr<action>;
+
+class Component;
+using Component_ptr = std::weak_ptr<Component>;
 
 class Wire {
 private:
-  State                    currentState;
-  std::vector<action_ptr>  updateActions;
-  
+  State                         currentState;
+  std::vector<action_ptr>       updateActions;
+  Component_ptr                 authorizedComponent;
+
 public:
   Wire();
   Wire(State s);
-  
+
   State getCurrentState() const;
-  void  setCurrentState(const State newState);
+  void  forceSetCurrentState(const State newState);
+
+  void  setCurrentState(const State newState,
+			const Component_ptr requestedBy);
+
   void  addUpdateAction(const action_ptr a);
   void  deleteUpdateAction(const action_ptr a);
 };
@@ -71,17 +80,21 @@ public:
   Bus(std::vector<Wire_ptr> busData);
   Bus(std::initializer_list<Wire> initList);
   Bus(std::initializer_list<Wire_ptr> initList);
-  int setCurrentValue(const unsigned int value);
-  int getCurrentValue() const;
-  
-  Wire_ptr& operator[](unsigned short index)       { return this->busData.at(index); }
-  operator std::vector<Wire_ptr>()           const { return this->busData; }
-  operator std::vector<Wire_ptr>()                 { return this->busData; }
-  
-  auto begin()                     { return this->busData.begin(); }
-  auto end()                       { return this->busData.end();   }
+  int forceSetCurrentValue(const unsigned int value);
 
-  [[nodiscard]] auto size()        { return this->busData.size();  }
-  [[nodiscard]] auto size() const  { return this->busData.size();  }
-  
+  int setCurrentValue(const unsigned int value,
+		      const Component_ptr requestedBy);
+
+  int getCurrentValue() const;
+
+  Wire_ptr& operator[](unsigned short index)       { return this->busData.at(index); }
+  operator std::vector<Wire_ptr>()           const { return this->busData;           }
+  operator std::vector<Wire_ptr>()                 { return this->busData;           }
+
+  auto begin()                                     { return this->busData.begin();   }
+  auto end()                                       { return this->busData.end();     }
+
+  [[nodiscard]] auto size()                        { return this->busData.size();    }
+  [[nodiscard]] auto size()                  const { return this->busData.size();    }
+
 };
