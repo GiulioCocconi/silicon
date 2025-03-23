@@ -91,8 +91,15 @@ void Wire::forceSetCurrentState(const State newState) {
     if (a) (*a)();
 }
 
+
 void Wire::setCurrentState(const State newState,
 			   const Component_ptr requestedBy) {
+
+
+  // Every wire has a mechanism to detect graphs error: the component that
+  // controls the wire can be only one at a time and it's stored in the
+  // authorizedComponent pointer. If another component tries to modify its
+  // status then the wire go into the ERROR state, since the graph is malformed.
 
   if (!this->authorizedComponent.lock())
     this->authorizedComponent = requestedBy;
@@ -156,6 +163,8 @@ int Bus::forceSetCurrentValue(const unsigned int value) {
     State s = (value >> i) & 1 ? State::HIGH : State::LOW;
     this->busData[i]->forceSetCurrentState(s);
   }
+
+  // Overflow flag
   return (value >= (1u << this->size()));
 }
 
