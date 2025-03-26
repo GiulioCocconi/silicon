@@ -1,0 +1,144 @@
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg xmlns="http://www.w3.org/2000/svg"  xmlns:xlink="http://www.w3.org/1999/xlink" width='52.177mm' height='40.903mm' viewBox="0 0 52.177 40.903">
+
+<title>Exported SVG</title>
+
+<style><![CDATA[
+polygon {
+shape-rendering:crispEdges;
+stroke-width:0.052177;
+}
+.s0 {
+stroke:#000000;
+stroke-width:0.086806;
+stroke-linecap:round;
+stroke-linejoin:round;
+fill:none;
+}
+.s1 {
+stroke:#000000;
+stroke-width:0.086806;
+stroke-linecap:round;
+stroke-linejoin:round;
+fill:none;
+}
+.s2 {
+stroke:#19b219;
+stroke-width:0.086806;
+stroke-linecap:round;
+stroke-linejoin:round;
+fill:none;
+}
+.s3 {
+stroke:#7f4c00;
+stroke-width:0.086806;
+stroke-linecap:round;
+stroke-linejoin:round;
+fill:none;
+}
+.s4 {
+stroke:#00cc00;
+stroke-width:0.086806;
+stroke-linecap:round;
+stroke-linejoin:round;
+fill:none;
+}
+.s5 {
+stroke:#000000;
+stroke-width:0.057870;
+stroke-linecap:round;
+stroke-linejoin:round;
+fill:none;
+}
+.s6 {
+stroke:#ff19ff;
+stroke-width:0.057870;
+stroke-linecap:round;
+stroke-linejoin:round;
+fill:none;
+}
+.s7 {
+stroke:#ff0000;
+stroke-width:0.086806;
+stroke-linecap:round;
+stroke-linejoin:round;
+fill:none;
+}
+.s8 {
+stroke:#ffff00;
+stroke-width:0.086806;
+stroke-linecap:round;
+stroke-linejoin:round;
+fill:none;
+}
+.s9 {
+stroke:#001919;
+stroke-width:0.057870;
+stroke-linecap:round;
+stroke-linejoin:round;
+fill:none;
+}
+.sa {
+stroke:#006666;
+stroke-width:0.057870;
+stroke-linecap:round;
+stroke-linejoin:round;
+fill:none;
+}
+.sb {
+stroke:#00ffff;
+stroke-width:0.173611;
+stroke-linecap:round;
+stroke-linejoin:round;
+fill:none;
+}
+.sc {
+stroke:#ff0000;
+stroke-width:0.462963;
+stroke-linecap:round;
+stroke-linejoin:round;
+fill:none;
+}
+.sd {
+stroke:#191919;
+stroke-width:0.057870;
+stroke-linecap:round;
+stroke-linejoin:round;
+fill:none;
+}
+.se {
+stroke:#000000;
+stroke-width:0.057870;
+stroke-linecap:round;
+stroke-linejoin:round;
+stroke-dasharray:0.868,0.868;
+fill:none;
+}
+.sf {
+stroke:#000000;
+stroke-width:0.173611;
+stroke-linecap:round;
+stroke-linejoin:round;
+fill:none;
+}
+]]></style>
+<path d='M46.898 14.722 L45.509,14.722 L45.509,16.111 L46.898,16.111 L46.898,14.722 ' class='s6' />
+<path d='M34.398 33.241 L33.009,33.241 L33.009,34.630 L34.398,34.630 L34.398,33.241 ' class='s6' />
+<path d='M6.792 7.038 L6.792,33.962 L33.715,33.962 A13.462,13.462 0 0,0 47.067,20.500 A13.462,13.462 0 0,0 33.715,7.038 L6.792,7.038 ' class='s1' />
+<path d='M34.630 19.815 L35.035,21.088 L35.440,19.815 ' class='s6' />
+<path d='M19.931 6.273 L19.931,5.000 ' class='s6' />
+<path d='M20.625 6.273 L20.625,5.000 ' class='s6' />
+<path d='M19.931 5.566 L20.625,5.566 ' class='s6' />
+<path d='M5.000 19.815 L5.463,21.088 L5.926,19.815 ' class='s6' />
+<path d='M19.931 35.903 L19.931,34.630 ' class='s6' />
+<path d='M20.625 35.903 L20.625,34.630 ' class='s6' />
+<path d='M19.931 35.195 L20.625,35.195 ' class='s6' />
+<path d='M24.792 5.926 L24.792,8.241 ' class='s6' />
+<path d='M5.579 15.995 L7.894,15.995 ' class='s6' />
+<path d='M24.792 19.352 L24.792,21.667 ' class='s6' />
+<path d='M15.764 35.093 L15.764,32.778 ' class='s6' />
+<path d='M20.972 19.815 L20.972,21.204 L19.583,21.204 L19.583,19.815 L20.972,19.815 ' class='s6' />
+<path d='M7.431 19.815 L7.431,21.204 L6.042,21.204 L6.042,19.815 L7.431,19.815 ' class='s6' />
+<path d='M34.398 19.815 L34.398,21.204 L33.009,21.204 L33.009,19.815 L34.398,19.815 ' class='s6' />
+
+</svg>

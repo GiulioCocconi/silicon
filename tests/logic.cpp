@@ -144,7 +144,7 @@ TEST(LogicTest, Xor) {
     << "XOR(HIGH, HIGH) = " << to_str(outputState);
 }
 
-TEST(LogicTest, CircuitEditing) {
+TEST(LogicTest, CircuitEditing1) {
   auto a = std::make_shared<Wire>();
   auto b = std::make_shared<Wire>();
 
@@ -170,4 +170,22 @@ TEST(LogicTest, CircuitEditing) {
     auto g = std::make_shared<OrGate>(std::vector<Wire_ptr>{a, b}, o);
     EXPECT_EQ(o->getCurrentState(), State::HIGH);
   }
+}
+
+TEST(LogicTest, CircuitEditing2) {
+  auto a = std::make_shared<Wire>(State::HIGH);
+  auto b = std::make_shared<Wire>(State::HIGH);
+  auto c = std::make_shared<Wire>(State::HIGH);
+  
+  auto o = std::make_shared<Wire>();
+
+  auto ag = std::make_shared<AndGate>(std::vector<Wire_ptr>{a, b}, o);
+  ag->setInputs({{c}, {b}});
+
+  a->forceSetCurrentState(State::ERROR); // Should not influence the gate anymore
+  
+  EXPECT_EQ(o->getCurrentState(), State::HIGH);
+
+  c->forceSetCurrentState(State::LOW);
+  EXPECT_EQ(o->getCurrentState(), State::LOW);
 }

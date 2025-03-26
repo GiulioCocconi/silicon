@@ -16,33 +16,25 @@
 */
 
 #pragma once
-#include <cassert>
-#include <memory>
-#include <array>
-#include <string>
 
-#include <core/wire.hpp>
+#include "graphicalComponent.hpp"
 
-class Component : public std::enable_shared_from_this<Component> {
+#include <QGraphicsSvgItem>
+
+
+#include <core/gates.hpp>
+
+class GraphicalGate : public GraphicalComponent {
 protected:
-  std::vector<Bus> inputs;
-  std::vector<Bus> outputs;
+  GraphicalGate(const std::weak_ptr<Gate> gate,
+		QGraphicsItem*            shape,
+		std::vector<QPoint>       inputPortsPos,
+		QPoint                    outputPortPos,
+		QGraphicsItem*            parent = nullptr);
+};
 
-  std::string name;
-  
-  action_ptr act;
+class GraphicalAnd : public GraphicalGate {
 public:
-  Component() {};
-  Component(std::vector<Bus> inputs, std::vector<Bus> outputs,
-	    std::string name);
-
-  void setAction(action a);
-  void setInputs(std::vector<Bus> newInputs);
-
-  std::vector<Bus> getInputs()  { return inputs;  }
-  std::vector<Bus> getOutputs() { return outputs; }
-  std::string      getName()    { return name;    }
-  
-  
-  virtual ~Component();
+  GraphicalAnd(const std::weak_ptr<AndGate> gate,
+	       QGraphicsItem* parent = nullptr);
 };

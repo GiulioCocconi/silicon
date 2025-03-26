@@ -19,7 +19,7 @@
 
 HalfAdder::HalfAdder(std::array<Wire_ptr, 2> inputs,
 		     Wire_ptr sum, Wire_ptr cout)
-  : Component({{inputs[0]}, {inputs[1]}}, {{sum}, {cout}}) {
+  : Component({{inputs[0]}, {inputs[1]}}, {{sum}, {cout}}, "HalfAdder") {
 
   /* PIN MAP:
      a    = inputs [0][0];
@@ -45,7 +45,7 @@ HalfAdder::HalfAdder(std::array<Wire_ptr, 2> inputs,
 
 FullAdder::FullAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr cin,
 		     Wire_ptr sum, Wire_ptr cout)
-  : Component({{inputs[0]}, {inputs[1]}, {cin}}, {{sum}, {cout}}) {
+  : Component({{inputs[0]}, {inputs[1]}, {cin}}, {{sum}, {cout}}, "FullAdder") {
 
   /* PIN MAP:
      a    = inputs [0][0];
@@ -63,35 +63,35 @@ FullAdder::FullAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr cin,
 					  partialSum1, partialCarry1);
 
     auto h2 = std::make_shared<HalfAdder>(std::array<Wire_ptr,2>{partialSum1, this->inputs[2][0]},
-	this->outputs[0][0], partialCarry2);
+					  this->outputs[0][0], partialCarry2);
 
-      auto og = std::make_shared<OrGate>(std::vector<Wire_ptr>{partialCarry1, partialCarry2},
-					 this->outputs[1][0]);
-      });
-    }
+    auto og = std::make_shared<OrGate>(std::vector<Wire_ptr>{partialCarry1, partialCarry2},
+				       this->outputs[1][0]);
+  });
+}
 
-    AdderNBits::AdderNBits(std::array<Bus, 2> inputs, Bus sum, Wire_ptr cout)
-    : Component({inputs[0], inputs[1]}, {sum, {cout}}) {
+AdderNBits::AdderNBits(std::array<Bus, 2> inputs, Bus sum, Wire_ptr cout)
+  : Component({inputs[0], inputs[1]}, {sum, {cout}}, "AdderNBits") {
 
-    /* PIN MAP:
-       a    = inputs [0][0:N];
-       b    = inputs [1][0:N];
-       sum  = outputs[0][0:N];
-       cout = outputs[1][ 0 ]; */
+  /* PIN MAP:
+     a    = inputs [0][0:N];
+     b    = inputs [1][0:N];
+     sum  = outputs[0][0:N];
+     cout = outputs[1][ 0 ]; */
 
-    assert(inputs.size() == 2);
-    assert(inputs[0].size() == sum.size());
+  assert(inputs.size() == 2);
+  assert(inputs[0].size() == sum.size());
 
 
-    this->setAction([this]() {
-      int a = this->inputs[0].getCurrentValue();
-      int b = this->inputs[1].getCurrentValue();
+  this->setAction([this]() {
+    int a = this->inputs[0].getCurrentValue();
+    int b = this->inputs[1].getCurrentValue();
 
-      int overflow = this->outputs[0].setCurrentValue(a + b,
-						      weak_from_this());
+    int overflow = this->outputs[0].setCurrentValue(a + b,
+						    weak_from_this());
 
-      this->outputs[1].setCurrentValue(overflow,
-				       weak_from_this());
+    this->outputs[1].setCurrentValue(overflow,
+				     weak_from_this());
 
-    });
-  }
+  });
+}

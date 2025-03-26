@@ -5,7 +5,7 @@ pkgs.mkShell {
     vulkan-headers 
     libxkbcommon.dev
     gtest.dev
-    qt6.full
+    (enableDebugging qt6)
     qtcreator
     cmake
     yosys

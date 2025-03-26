@@ -1,27 +1,77 @@
+/*
+  Copyright (C) 2025 Giulio Cocconi
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "logiFlowWindow.hpp"
 
 LogiFlowWindow::LogiFlowWindow() {
 
-  QWidget *centralWidget = new QWidget;
+  auto centralWidget = new QWidget;
   setCentralWidget(centralWidget);
 
-  QWidget *topFiller = new QWidget;
-  topFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-  QWidget *bottomFiller = new QWidget;
-  bottomFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-  QVBoxLayout *layout = new QVBoxLayout;
+  auto layout = new QHBoxLayout;
   layout->setContentsMargins(5, 5, 5, 5);
-  layout->addWidget(topFiller);
-  layout->addWidget(bottomFiller);
   centralWidget->setLayout(layout);
+
+  componentsDock = new QDockWidget(this);
+  propertyDock   = new QDockWidget(this);
+  addDockWidget(Qt::LeftDockWidgetArea, componentsDock);
+  addDockWidget(Qt::LeftDockWidgetArea, propertyDock);
+  propertyDock->setFeatures(QDockWidget::DockWidgetMovable);
+  componentsDock->setFeatures(QDockWidget::DockWidgetMovable);
+
+  propertyDock->setWindowTitle("Properties");
+  componentsDock->setWindowTitle("Components");
+  
+  splitDockWidget(componentsDock, propertyDock, Qt::Vertical);
+  
+
+  graphicsScene = new QGraphicsScene();
+  graphicsScene->setBackgroundBrush(QBrush(QColor(255, 238, 140),
+					   Qt::Dense5Pattern));
+  
+  diagramView = new DiagramView(this);
+  diagramView->setScene(graphicsScene);
+
+  
+
+  // DEBUG
+  #if 0
+  auto a = new QGraphicsSvgItem(":/gates/AND_ANSI.svg");
+  a->setFlags(QGraphicsItem::ItemIsMovable
+	      | QGraphicsItem::ItemIsSelectable);
+  #endif
+
+  
+  auto a = std::make_shared<Wire>(State::HIGH);
+  auto o = std::make_shared<Wire>();
+  auto ag = std::make_shared<AndGate>(std::vector<Wire_ptr>{a,a}, o);
+  GraphicalAnd* graphicalAnd = new GraphicalAnd(ag);
+  
+  graphicsScene->addItem(graphicalAnd);
+  
+  layout->addWidget(diagramView);
+
+  toolBar = new QToolBar(this);
+  addToolBar(toolBar);
 
   createActions();
   createMenus();
 
-  QString message = tr("A context menu is available by right-clicking");
-  statusBar()->showMessage(message);
+  statusBar()->showMessage(tr("Ready"));
 
   setWindowTitle(tr("Silicon LogiFlow"));
   setMinimumSize(160, 160);
@@ -81,35 +131,35 @@ void LogiFlowWindow::createActions() {
 
 void LogiFlowWindow::createMenus() {
 
-    fileMenu = menuBar()->addMenu(tr("&File"));
-    fileMenu->addAction(newAct);
-    fileMenu->addAction(openAct);
-    fileMenu->addAction(saveAct);
-    fileMenu->addAction(exportImageAct);
-    fileMenu->addSeparator();
-    fileMenu->addAction(exitAct);
+  fileMenu = menuBar()->addMenu(tr("&File"));
+  fileMenu->addAction(newAct);
+  fileMenu->addAction(openAct);
+  fileMenu->addAction(saveAct);
+  fileMenu->addAction(exportImageAct);
+  fileMenu->addSeparator();
+  fileMenu->addAction(exitAct);
 
-    editMenu = menuBar()->addMenu(tr("&Edit"));
-    editMenu->addAction(undoAct);
-    editMenu->addAction(redoAct);
-    editMenu->addSeparator();
-    editMenu->addAction(cutAct);
-    editMenu->addAction(copyAct);
-    editMenu->addAction(pasteAct);
-    editMenu->addSeparator();
+  editMenu = menuBar()->addMenu(tr("&Edit"));
+  editMenu->addAction(undoAct);
+  editMenu->addAction(redoAct);
+  editMenu->addSeparator();
+  editMenu->addAction(cutAct);
+  editMenu->addAction(copyAct);
+  editMenu->addAction(pasteAct);
+  editMenu->addSeparator();
 
-    helpMenu = menuBar()->addMenu(tr("&Help"));
-    helpMenu->addAction(aboutAct);
+  helpMenu = menuBar()->addMenu(tr("&Help"));
+  helpMenu->addAction(aboutAct);
 
 }
 
 #ifndef QT_NO_CONTEXTMENU
 void LogiFlowWindow::contextMenuEvent(QContextMenuEvent *event)
 {
-    QMenu menu(this);
-    menu.addAction(cutAct);
-    menu.addAction(copyAct);
-    menu.addAction(pasteAct);
-    menu.exec(event->globalPos());
+  QMenu menu(this);
+  menu.addAction(cutAct);
+  menu.addAction(copyAct);
+  menu.addAction(pasteAct);
+  menu.exec(event->globalPos());
 }
 #endif // QT_NO_CONTEXTMENU

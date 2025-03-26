@@ -39,6 +39,9 @@ set(COMMON_SOURCE_FILES
 
 
 set(UI_SOURCE_FILES
+  ${src_dir}/ui/components/graphicalComponent.cpp
+  ${src_dir}/ui/components/graphicalGates.cpp
+  ${src_dir}/ui/diagramView.cpp
   ${src_dir}/ui/logiFlowWindow.cpp)
 
 set(CMAKE_CXX_FLAGS_DEBUG       "${CMAKE_CXX_FLAGS_DEBUG} -O0")
@@ -56,7 +59,7 @@ add_compile_definitions(
     SILICON_DEBUG=$<CONFIG:Debug>
 )
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets)
+find_package(Qt6 REQUIRED COMPONENTS Widgets SvgWidgets)
 qt_standard_project_setup()
 
 qt_add_executable(Silicon
@@ -67,11 +70,15 @@ target_sources(Silicon
   ${COMMON_SOURCE_FILES}
   ${UI_SOURCE_FILES})
 
-target_link_libraries(Silicon PRIVATE Qt6::Widgets)
+target_link_libraries(Silicon PRIVATE Qt6::Widgets Qt6::SvgWidgets)
 
 qt_add_resources(Silicon "images" BASE ${resources_dir}
   FILES
   ${resources_dir}/splash.jpg)
+
+qt_add_resources(Silicon "ANSI_icons" BASE ${resources_dir}
+  FILES
+  ${resources_dir}/gates/AND_ANSI.svg)
 
 add_compile_options(-Wall -Wextra -fsanitize=address)
 add_link_options(-fsanitize=address -static-libasan)

@@ -18,11 +18,11 @@
 #include "component.hpp"
 
 
-Component::Component(std::vector<Bus> inputs,
-		     std::vector<Bus> outputs)
-{
-  this->inputs = inputs;
+Component::Component(std::vector<Bus> inputs, std::vector<Bus> outputs,
+		     std::string name) {
+  this->inputs  = inputs;
   this->outputs = outputs;
+  this->name    = name;
 
 
   for (auto inputBus : inputs)
@@ -35,6 +35,30 @@ Component::Component(std::vector<Bus> inputs,
       if (!w)
 	assert(false);
 
+}
+
+void Component::setInputs(std::vector<Bus> newInputs) {
+  // If I change the inputs after the component creation I need to remove the
+  // update action from the former inputs.
+
+  // If the former inputs are the same as the new inputs then do nothing:
+  if (this->inputs == newInputs)
+    return;
+  
+
+  // If the action is already defined then we should remove it from the inputs:
+  if (this->act)
+    for (auto bus : this->inputs)
+      for (auto w : bus)
+	w->deleteUpdateAction(this->act);
+
+  // Then we set the new inputs and add the update action to them:
+  this->inputs = newInputs;
+
+  if (this->act)
+    for (auto bus : this->inputs)
+      for (auto w : bus)
+	w->addUpdateAction(this->act);
 }
 
 void Component::setAction(action a) {

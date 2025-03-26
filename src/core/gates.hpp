@@ -19,13 +19,15 @@
 #include <cassert>
 #include <memory>
 #include <array>
+#include <string>
 #include <core/wire.hpp>
 #include <core/component.hpp>
 
 class Gate : public Component {
 public:
   using Component::setAction;
-  Gate(std::vector<Wire_ptr> inputs, Wire_ptr output);
+  Gate(std::vector<Wire_ptr> inputs, Wire_ptr output,
+       std::string name);
   Gate() {};
 };
 

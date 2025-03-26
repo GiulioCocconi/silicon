@@ -104,8 +104,9 @@ void Wire::setCurrentState(const State newState,
   if (!this->authorizedComponent.lock())
     this->authorizedComponent = requestedBy;
 
-  State s = (this->authorizedComponent.lock() == requestedBy.lock())
-    ? newState : State::ERROR;
+  bool changeIsAuthorized = this->authorizedComponent.lock() == requestedBy.lock();
+  
+  State s = changeIsAuthorized ? newState : State::ERROR;
 
   this->forceSetCurrentState(s);
 }

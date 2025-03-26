@@ -1,11 +1,19 @@
 #pragma once
 
+#include <QColor>
 #include <QLabel>
+#include <QBrush>
 #include <QMenu>
 #include <QMenuBar>
 #include <QStatusBar>
-#include <QVBoxLayout>
+#include <QToolBar>
+#include <QHBoxLayout>
+#include <QDockWidget>
+#include <QGraphicsScene>
+#include <QGraphicsSvgItem>
 #include <QMainWindow>
+
+#include <ui/diagramView.hpp>
 
 #ifndef QT_NO_CONTEXTMENU
     #include <QContextMenuEvent>
@@ -38,19 +46,28 @@ private slots:
 private:
   void createActions();
   void createMenus();
-  QMenu *fileMenu;
-  QMenu *editMenu;
-  QMenu *helpMenu;
-  QAction *newAct;
-  QAction *openAct;
-  QAction *saveAct;
-  QAction *exportImageAct;
-  QAction *exitAct;
-  QAction *undoAct;
-  QAction *redoAct;
-  QAction *cutAct;
-  QAction *copyAct;
-  QAction *pasteAct;
-  QAction *aboutAct;
-  QLabel *infoLabel;
+
+  QToolBar* toolBar;
+
+  QDockWidget* componentsDock;
+  QDockWidget* propertyDock;
+
+  QGraphicsScene* graphicsScene;
+  DiagramView*    diagramView;
+
+  QMenu* fileMenu;
+  QMenu* editMenu;
+  QMenu* helpMenu;
+  QAction* newAct;
+  QAction* openAct;
+  QAction* saveAct;
+  QAction* exportImageAct;
+  QAction* exitAct;
+  QAction* undoAct;
+  QAction* redoAct;
+  QAction* cutAct;
+  QAction* copyAct;
+  QAction* pasteAct;
+  QAction* aboutAct;
+  QLabel* infoLabel;
 };

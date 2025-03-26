@@ -87,14 +87,17 @@ public:
 
   int getCurrentValue() const;
 
-  Wire_ptr& operator[](unsigned short index)       { return this->busData.at(index); }
-  operator std::vector<Wire_ptr>()           const { return this->busData;           }
-  operator std::vector<Wire_ptr>()                 { return this->busData;           }
+  Wire_ptr& operator[](unsigned short index)       { return this->busData.at(index);        }
+  operator std::vector<Wire_ptr>()           const { return this->busData;                  }
+  operator std::vector<Wire_ptr>()                 { return this->busData;                  }
 
-  auto begin()                                     { return this->busData.begin();   }
-  auto end()                                       { return this->busData.end();     }
+  auto begin()                                     { return this->busData.begin();          }
+  auto end()                                       { return this->busData.end();            }
 
-  [[nodiscard]] auto size()                        { return this->busData.size();    }
-  [[nodiscard]] auto size()                  const { return this->busData.size();    }
+  [[nodiscard]] auto size()                        { return this->busData.size();           }
+  [[nodiscard]] auto size()                  const { return this->busData.size();           }
+  
+  bool operator==(const Bus& other)          const { return this->busData == other.busData; }
 
 };
+

@@ -17,17 +17,20 @@
 
 #include "gates.hpp"
 
-Gate::Gate(std::vector<Wire_ptr> inputs, Wire_ptr output) {
+Gate::Gate(std::vector<Wire_ptr> inputs, Wire_ptr output,
+	   std::string name) {
 
   assert(inputs.size() != 0);
 
+  this->name = name;
+  
   for (auto input : inputs)
     this->inputs.push_back({input});
   this->outputs = {{output}};
 }
 
 AndGate::AndGate(std::vector<Wire_ptr> inputs, Wire_ptr output) :
-  Gate(inputs, output)
+  Gate(inputs, output, "And")
 {
   assert(inputs.size() >= 2);
   this->setAction([this]() {
@@ -41,7 +44,7 @@ AndGate::AndGate(std::vector<Wire_ptr> inputs, Wire_ptr output) :
 }
 
 OrGate::OrGate(std::vector<Wire_ptr> inputs, Wire_ptr output) :
-  Gate(inputs, output)
+  Gate(inputs, output, "Or")
 {
   assert(inputs.size() >= 2);
   this->setAction([this]() {
@@ -55,7 +58,7 @@ OrGate::OrGate(std::vector<Wire_ptr> inputs, Wire_ptr output) :
 }
 
 NotGate::NotGate(Wire_ptr input, Wire_ptr output) :
-  Gate({input}, output)
+  Gate({input}, output, "Not")
 {
   const auto a = std::make_shared<action>([this]() {
     State s = !this->inputs[0][0]->getCurrentState();
@@ -66,7 +69,7 @@ NotGate::NotGate(Wire_ptr input, Wire_ptr output) :
 }
 
 NandGate::NandGate(std::vector<Wire_ptr> inputs, Wire_ptr output) :
-  Gate(inputs, output)
+  Gate(inputs, output, "Nand")
 {
   assert(inputs.size() >= 2);
   this->setAction([this]() {
@@ -82,7 +85,7 @@ NandGate::NandGate(std::vector<Wire_ptr> inputs, Wire_ptr output) :
 }
 
 NorGate::NorGate(std::vector<Wire_ptr> inputs, Wire_ptr output) :
-  Gate(inputs, output)
+  Gate(inputs, output, "Nor")
 {
   assert(inputs.size() >= 2);
   this->setAction([this]() {
@@ -97,7 +100,7 @@ NorGate::NorGate(std::vector<Wire_ptr> inputs, Wire_ptr output) :
 }
 
 XorGate::XorGate(std::array<Wire_ptr, 2> inputs, Wire_ptr output) :
-  Gate({inputs[0], inputs[1]}, output)
+  Gate({inputs[0], inputs[1]}, output, "Xor")
 {
   assert(inputs.size() >= 2);
   this->setAction([this]() {
