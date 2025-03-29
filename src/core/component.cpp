@@ -20,20 +20,19 @@
 
 Component::Component(std::vector<Bus> inputs, std::vector<Bus> outputs,
 		     std::string name) {
+
+  for (auto inputBus : inputs)
+    for (auto w : inputBus)
+      assert(w);
+
+  for (auto outputBus : outputs)
+    for (auto w : outputBus)
+      assert(w);
+
   this->inputs  = inputs;
   this->outputs = outputs;
   this->name    = name;
 
-
-  for (auto inputBus : inputs)
-    for (auto w : inputBus)
-      if (!w)
-	assert(false);
-
-  for (auto outputBus : outputs)
-    for (auto w : outputBus)
-      if (!w)
-	assert(false);
 
 }
 
@@ -44,7 +43,7 @@ void Component::setInputs(std::vector<Bus> newInputs) {
   // If the former inputs are the same as the new inputs then do nothing:
   if (this->inputs == newInputs)
     return;
-  
+
 
   // If the action is already defined then we should remove it from the inputs:
   if (this->act)
@@ -65,6 +64,8 @@ void Component::setAction(action a) {
   this->act = std::make_shared<action>(a);
   assert(this->act);
 
+
+  // The action is to be set for all the inputs of the component:
   for (auto bus : this->inputs)
     for (auto w : bus)
       w->addUpdateAction(this->act);
@@ -72,7 +73,7 @@ void Component::setAction(action a) {
 
 Component::~Component() {
 
-  // Remove update actions
+  // Remove the associated update action from all the inputs:
   for (auto bus : this->inputs)
     for (auto w : bus)
       w->deleteUpdateAction(this->act);
