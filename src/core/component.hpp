@@ -29,7 +29,7 @@ protected:
   std::vector<Bus> outputs;
 
   std::string name;
-  
+
   action_ptr act;
 public:
   Component() {};
@@ -42,7 +42,7 @@ public:
   std::vector<Bus> getInputs()  { return inputs;  }
   std::vector<Bus> getOutputs() { return outputs; }
   std::string      getName()    { return name;    }
-  
-  
+
+
   virtual ~Component();
 };
