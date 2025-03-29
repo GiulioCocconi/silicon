@@ -96,7 +96,7 @@ public:
 
   [[nodiscard]] auto size()                        { return this->busData.size();           }
   [[nodiscard]] auto size()                  const { return this->busData.size();           }
-  
+
   bool operator==(const Bus& other)          const { return this->busData == other.busData; }
 
 };

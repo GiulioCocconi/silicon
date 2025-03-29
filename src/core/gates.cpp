@@ -23,7 +23,7 @@ Gate::Gate(std::vector<Wire_ptr> inputs, Wire_ptr output,
   assert(inputs.size() != 0);
 
   this->name = name;
-  
+
   for (auto input : inputs)
     this->inputs.push_back({input});
   this->outputs = {{output}};
