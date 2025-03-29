@@ -24,9 +24,9 @@ GraphicalComponent::GraphicalComponent(const Component_ptr component,
 				       QGraphicsItem* parent)
   : QGraphicsItem(parent)
 {
-  
+
   this->isEditable = true;
-  
+
   setFlags(QGraphicsItem::ItemIsMovable
 	   | QGraphicsItem::ItemIsSelectable
 	   | QGraphicsItem::ItemIsFocusable
@@ -43,27 +43,27 @@ GraphicalComponent::GraphicalComponent(const Component_ptr component,
   qDebug() << "Bottom left: "  << this->shape->boundingRect().bottomLeft();
   qDebug() << "Bottom right: " << this->shape->boundingRect().bottomRight();
   qDebug() << "Center: "       << this->shape->boundingRect().center();
-  
+
   this->associatedComponent = component;
 }
 
 void GraphicalComponent::setPorts(const std::vector<std::pair<std::string, QPoint>> busToPortInputs,
 				  const std::vector<std::pair<std::string, QPoint>> busToPortOutputs)
 {
-  
+
   std::vector<Bus> componentInputs  = associatedComponent.lock()->getInputs();
   std::vector<Bus> componentOutputs = associatedComponent.lock()->getOutputs();
-  
+
   assert(componentInputs.size()  == busToPortInputs.size());
   assert(componentOutputs.size() == busToPortOutputs.size());
-  
+
   for (int i = 0; i < busToPortInputs.size(); i++) {
     Port p {};
     p.name          = busToPortInputs[i].first;
     p.position      = busToPortInputs[i].second;
     p.associatedBus = componentInputs[i];
-    p.boundingRect  = QRect(p.position - QPoint(5, 5), QSize(5, 5)); 
     this->inputPorts.push_back(p);
+    this->setPortLine(p);
   }
 
   for (int i = 0; i < busToPortOutputs.size(); i++) {
@@ -71,10 +71,9 @@ void GraphicalComponent::setPorts(const std::vector<std::pair<std::string, QPoin
     p.name          = busToPortOutputs[i].first;
     p.position      = busToPortOutputs[i].second;
     p.associatedBus = componentOutputs[i];
-    p.boundingRect  = QRect(p.position - QPoint(5, 5), QSize(10, 10)); 
-    
     this->outputPorts.push_back(p);
-  }  
+    this->setPortLine(p);
+  }
 }
 
 QRectF GraphicalComponent::boundingRect() const {
@@ -82,15 +81,8 @@ QRectF GraphicalComponent::boundingRect() const {
   assert(shape);
   QRectF rect = shape->boundingRect(); // Start with shape bounds
 
-  // Expand to include input ports
-  for (const auto &port : inputPorts) {
-    rect = rect.united(port.boundingRect);
-  }
-
-  // Expand to include output ports
-  for (const auto &port : outputPorts) {
-    rect = rect.united(port.boundingRect);
-  }
+  for (QGraphicsItem *child : childItems())
+    rect = rect.united(child->boundingRect());
 
   return rect;
 }
@@ -100,22 +92,48 @@ void GraphicalComponent::paint(QPainter *painter,
 			       const QStyleOptionGraphicsItem *option,
 			       QWidget *widget)
 {
-  // Paint the ports
-  painter->setRenderHint(QPainter::Antialiasing);
-  painter->setPen(Qt::black);
-  painter->setBrush(Qt::blue); // Or a different color for input/output
 
-  //Draw Input Ports
-  for (const auto &port : inputPorts) {
-    painter->drawRect(port.boundingRect);
+}
+
+void GraphicalComponent::setPortLine(Port& port) {
+  // The port must be inside the shape
+  assert(shape->boundingRect().contains(port.position));
+
+  // The port mustn't be in the diagonal
+  assert(port.position.x() != port.position.y());
+
+  const auto width  = shape->boundingRect().width();
+  const auto height = shape->boundingRect().height();
+
+
+  qDebug() << width;
+  qDebug() << height;
+
+  const auto length = 10;
+
+  // Left side
+  if (port.position.x() == 0) {
+    port.realPosition = QPoint(-length, port.position.y());
   }
+  // Right side
+  else if (port.position.x() == width)
+    port.realPosition = QPoint(width + length, port.position.y());
 
-  //Draw Output Ports
-  painter->setBrush(Qt::red);
-  for (const auto &port : outputPorts) {
-    painter->drawRect(port.boundingRect);
-  }
+  // Up side
+  else if (port.position.y() == 0)
+    port.realPosition = QPoint(port.position.x(), -length);
 
-  // The shape is then painted cause it is its children!
-  
+  // Down side
+  else if (port.position.y() == height)
+    port.realPosition = QPoint(port.position.x(), height + length);
+  else
+    assert(false);
+
+
+  port.line = new QGraphicsLineItem(QLineF(port.realPosition, port.position),
+				    this);
+  port.line->setPen(QPen(QBrush(Qt::black), 3));
+
+
+
 }

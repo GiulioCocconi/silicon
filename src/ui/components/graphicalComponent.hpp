@@ -30,12 +30,12 @@
 #include <core/component.hpp>
 
 struct Port {
-  QPoint      position;
-  QRect       boundingRect;
-  Bus         associatedBus;
-  std::string name;
+  QPoint             position;
+  QPoint             realPosition;
+  Bus                associatedBus;
+  QGraphicsLineItem* line;
+  std::string        name;
 };
-
 
 class GraphicalComponent : public QGraphicsItem {
 protected:
@@ -43,15 +43,15 @@ protected:
   std::vector<Port> inputPorts;
   std::vector<Port> outputPorts;
   Component_ptr     associatedComponent;
-  
-  QGraphicsItem*     shape; // Without ports
-  
-  bool isEditable;
 
+  QGraphicsItem*     shape; // Without ports
+
+  bool isEditable;
 
   QRectF boundingRect() const override;
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
-  
+  void setPortLine(Port& port);
+
 public:
 
   GraphicalComponent(const Component_ptr component,
