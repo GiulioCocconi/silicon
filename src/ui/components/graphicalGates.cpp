@@ -17,7 +17,6 @@
 
 #include "graphicalGates.hpp"
 
-// FIXME!!!!
 
 GraphicalGate::GraphicalGate(const std::weak_ptr<Gate> gate,
 			     QGraphicsItem*            shape,
@@ -32,25 +31,38 @@ GraphicalGate::GraphicalGate(const std::weak_ptr<Gate> gate,
 
 
   isEditable = false;
-  
+
   std::vector<std::pair<std::string, QPoint>> inputVec;
   inputVec.reserve(2);
-  
+
   inputVec.emplace_back("a",
-			 inputPortsPos[0]);
-  
+			QPoint(0,10));
+
   inputVec.emplace_back("b",
-			 inputPortsPos[1]);
+			QPoint(0,30));
+
+  const auto outputPoint = QPoint(this->shape->boundingRect().width(),
+				  this->shape->boundingRect().center().y());
 
   setPorts(inputVec,
-	   {std::pair<std::string, QPoint>{"o", outputPortPos}});
-  
+	   {std::pair<std::string, QPoint>{"o", outputPoint}});
+
 }
 
-GraphicalAnd::GraphicalAnd(const std::weak_ptr<AndGate> gate,
-			   QGraphicsItem*               parent)
-  : GraphicalGate(gate,
-		  new QGraphicsSvgItem(":/gates/AND_ANSI.svg"),
-		  {QPoint(0, 10), QPoint(0, 30)},
-		  QPoint(40, 20),
-		  parent) { }
+GraphicalNot::GraphicalNot(const std::weak_ptr<NotGate> gate,
+			   QGraphicsItem* parent)
+  : GraphicalComponent(gate,
+		       new QGraphicsSvgItem(":/gates/NOT_ANSI.svg"),
+		       parent)
+{
+  isEditable = false;
+
+  assert(gate.lock()->getInputs().size() == 1);
+
+  isEditable = false;
+
+  setPorts({std::pair<std::string, QPoint>{"i", QPoint(0, 22.5)}},
+	   {std::pair<std::string, QPoint>{"o", QPoint(50, 22.5)}});
+
+}
+

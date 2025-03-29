@@ -36,5 +36,64 @@ protected:
 class GraphicalAnd : public GraphicalGate {
 public:
   GraphicalAnd(const std::weak_ptr<AndGate> gate,
+	       QGraphicsItem* parent = nullptr)
+    : GraphicalGate(gate,
+		  new QGraphicsSvgItem(":/gates/AND_ANSI.svg"),
+		  {QPoint(0, 10), QPoint(0, 30)},
+		  QPoint(40, 20),
+		  parent) { }
+
+};
+
+class GraphicalOr : public GraphicalGate {
+public:
+  GraphicalOr(const std::weak_ptr<OrGate> gate,
+	       QGraphicsItem* parent = nullptr)
+    : GraphicalGate(gate,
+		    new QGraphicsSvgItem(":/gates/OR_ANSI.svg"),
+		    {QPoint(0, 10), QPoint(0, 30)},
+		    QPoint(49, 20),
+		    parent) { }
+};
+
+
+class GraphicalNot : public GraphicalComponent {
+public:
+  GraphicalNot(const std::weak_ptr<NotGate> gate,
 	       QGraphicsItem* parent = nullptr);
+};
+
+class GraphicalNand : public GraphicalGate {
+public:
+  GraphicalNand(const std::weak_ptr<NandGate> gate,
+	       QGraphicsItem* parent = nullptr)
+    : GraphicalGate(gate,
+		    new QGraphicsSvgItem(":/gates/NAND_ANSI.svg"),
+		    {QPoint(0, 10), QPoint(0, 30)},
+		    QPoint(40, 20),
+		    parent) {};
+};
+
+
+class GraphicalNor : public GraphicalGate {
+public:
+  GraphicalNor(const std::weak_ptr<NorGate> gate,
+	       QGraphicsItem* parent = nullptr)
+    : GraphicalGate(gate,
+		    new QGraphicsSvgItem(":/gates/NOR_ANSI.svg"),
+		    {QPoint(0, 10), QPoint(0, 30)},
+		    QPoint(55, 20),
+		    parent) {};
+};
+
+class GraphicalXor : public GraphicalGate {
+public:
+  GraphicalXor(const std::weak_ptr<XorGate> gate,
+	       QGraphicsItem* parent = nullptr)
+
+    : GraphicalGate(gate,
+		    new QGraphicsSvgItem(":/gates/XOR_ANSI.svg"),
+		    {QPoint(0, 10), QPoint(0, 30)},
+		    QPoint(54, 20),
+		    parent) {};
 };

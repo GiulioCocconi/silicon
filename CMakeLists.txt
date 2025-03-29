@@ -78,7 +78,13 @@ qt_add_resources(Silicon "images" BASE ${resources_dir}
 
 qt_add_resources(Silicon "ANSI_icons" BASE ${resources_dir}
   FILES
-  ${resources_dir}/gates/AND_ANSI.svg)
+  ${resources_dir}/gates/AND_ANSI.svg
+  ${resources_dir}/gates/OR_ANSI.svg
+  ${resources_dir}/gates/NOT_ANSI.svg
+  ${resources_dir}/gates/NAND_ANSI.svg
+  ${resources_dir}/gates/NOR_ANSI.svg
+  ${resources_dir}/gates/XOR_ANSI.svg
+)
 
 add_compile_options(-Wall -Wextra -fsanitize=address)
 add_link_options(-fsanitize=address -static-libasan)
