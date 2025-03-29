@@ -9,7 +9,7 @@ void DiagramView::wheelEvent(QWheelEvent *event) {
   const bool zoomDirection = event->angleDelta().y() > 0;
 
   zoom(zoomDirection);
-  centerOn(QCursor::pos());
+  centerOn(mapToScene(event->position().toPoint()));
   event->accept();
 }
 
