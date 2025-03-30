@@ -20,14 +20,11 @@
 
 GraphicalGate::GraphicalGate(const std::weak_ptr<Gate> gate,
 			     QGraphicsItem*            shape,
-			     std::vector<QPoint>       inputPortsPos,
-			     QPoint                    outputPortPos,
 			     QGraphicsItem*            parent)
   : GraphicalComponent(gate, shape, parent)
 {
   // TODO: ADD SUPPORT FOR OVER 2 INPUTS GATES
   assert(gate.lock()->getInputs().size() == 2);
-  assert(inputPortsPos.size() == 2);
 
 
   isEditable = false;
@@ -61,8 +58,8 @@ GraphicalNot::GraphicalNot(const std::weak_ptr<NotGate> gate,
 
   isEditable = false;
 
-  setPorts({std::pair<std::string, QPoint>{"i", QPoint(0, 22.5)}},
-	   {std::pair<std::string, QPoint>{"o", QPoint(50, 22.5)}});
+  setPorts({std::pair<std::string, QPoint>{"i", QPoint(0,  20)}},
+	   {std::pair<std::string, QPoint>{"o", QPoint(70, 20)}});
 
 }
 

@@ -28,41 +28,37 @@ LogiFlowWindow::LogiFlowWindow() {
 
   componentsDock = new QDockWidget(this);
   propertyDock   = new QDockWidget(this);
+
   addDockWidget(Qt::LeftDockWidgetArea, componentsDock);
   addDockWidget(Qt::LeftDockWidgetArea, propertyDock);
+
   propertyDock->setFeatures(QDockWidget::DockWidgetMovable);
   componentsDock->setFeatures(QDockWidget::DockWidgetMovable);
 
   propertyDock->setWindowTitle("Properties");
   componentsDock->setWindowTitle("Components");
-  
+
   splitDockWidget(componentsDock, propertyDock, Qt::Vertical);
-  
+
 
   graphicsScene = new QGraphicsScene();
   graphicsScene->setBackgroundBrush(QBrush(QColor(255, 238, 140),
 					   Qt::Dense5Pattern));
-  
+
   diagramView = new DiagramView(this);
   diagramView->setScene(graphicsScene);
 
-  
 
-  // DEBUG
-  #if 0
-  auto a = new QGraphicsSvgItem(":/gates/AND_ANSI.svg");
-  a->setFlags(QGraphicsItem::ItemIsMovable
-	      | QGraphicsItem::ItemIsSelectable);
-  #endif
-
-  
   auto a = std::make_shared<Wire>(State::HIGH);
   auto o = std::make_shared<Wire>();
-  auto ag = std::make_shared<AndGate>(std::vector<Wire_ptr>{a,a}, o);
-  GraphicalAnd* graphicalAnd = new GraphicalAnd(ag);
-  
-  graphicsScene->addItem(graphicalAnd);
-  
+  auto xg = std::make_shared<XorGate>(std::array<Wire_ptr, 2>{a, a}, o);
+  auto ng = std::make_shared<NotGate>(a, o);
+  auto graphicalXor = new GraphicalXor(xg);
+  auto graphicalNot = new GraphicalNot(ng);
+
+  graphicsScene->addItem(graphicalXor);
+  graphicsScene->addItem(graphicalNot);
+
   layout->addWidget(diagramView);
 
   toolBar = new QToolBar(this);

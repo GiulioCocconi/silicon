@@ -105,11 +105,7 @@ void GraphicalComponent::setPortLine(Port& port) {
   const auto width  = shape->boundingRect().width();
   const auto height = shape->boundingRect().height();
 
-
-  qDebug() << width;
-  qDebug() << height;
-
-  const auto length = 10;
+  const auto length = 20;
 
   // Left side
   if (port.position.x() == 0) {
@@ -133,7 +129,36 @@ void GraphicalComponent::setPortLine(Port& port) {
   port.line = new QGraphicsLineItem(QLineF(port.realPosition, port.position),
 				    this);
   port.line->setPen(QPen(QBrush(Qt::black), 3));
-
-
-
 }
+
+
+
+QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVariant &value) {
+  if (change == ItemPositionChange && scene()) {
+    // 'value' is the new proposed position.
+    auto proposedPos = value.toPointF();
+
+    // Calculate the bounding rectangle at the *new* position in scene coordinates.
+    // Use the item's bounding rectangle, offset by the proposed new position.
+    auto newRect = this->boundingRect().translated(proposedPos);
+
+    // Get a list of items that would collide with this item at the new position.
+    // Use the bounding rect for collision check.
+    auto colliding_items = scene()->items(newRect,
+					  Qt::IntersectsItemBoundingRect);
+    //TODO: Use Qt::IntersectsItemShape for more precise collision based on shape().
+
+    for (QGraphicsItem *colliding_item : colliding_items) {
+      // Skip collision with self or children
+      if (colliding_item == this || childItems().contains(colliding_item))
+	continue;
+
+      qDebug() << this << "Collision detected with" << colliding_item; // Optional debug
+      return pos(); // Return current position, rejecting the change
+    }
+  }
+
+  // For all other changes (or if there isn't any colliding object),
+  // call the base class implementation
+  return QGraphicsItem::itemChange(change, value);
+};

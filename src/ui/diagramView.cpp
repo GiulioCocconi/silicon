@@ -3,6 +3,8 @@
 DiagramView::DiagramView(QWidget* parent) : QGraphicsView(parent) {
   setMouseTracking(true);
   //setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
+  setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+  setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 }
 
 void DiagramView::wheelEvent(QWheelEvent *event) {
@@ -17,7 +19,7 @@ void DiagramView::zoom(bool dir) {
 
   const int sign = dir ? 1 : -1;
   zoom(zoomLevel + sign * 20);
-  
+
 }
 
 void DiagramView::zoom(int level) {
@@ -33,7 +35,7 @@ void DiagramView::updateZoom() {
   resetTransform();
 
   const float FACTOR = (float) zoomLevel / 100;
-  
+
   scale(FACTOR, FACTOR);
 }
 

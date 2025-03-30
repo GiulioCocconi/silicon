@@ -28,8 +28,6 @@ class GraphicalGate : public GraphicalComponent {
 protected:
   GraphicalGate(const std::weak_ptr<Gate> gate,
 		QGraphicsItem*            shape,
-		std::vector<QPoint>       inputPortsPos,
-		QPoint                    outputPortPos,
 		QGraphicsItem*            parent = nullptr);
 };
 
@@ -39,8 +37,6 @@ public:
 	       QGraphicsItem* parent = nullptr)
     : GraphicalGate(gate,
 		  new QGraphicsSvgItem(":/gates/AND_ANSI.svg"),
-		  {QPoint(0, 10), QPoint(0, 30)},
-		  QPoint(40, 20),
 		  parent) { }
 
 };
@@ -51,8 +47,6 @@ public:
 	       QGraphicsItem* parent = nullptr)
     : GraphicalGate(gate,
 		    new QGraphicsSvgItem(":/gates/OR_ANSI.svg"),
-		    {QPoint(0, 10), QPoint(0, 30)},
-		    QPoint(49, 20),
 		    parent) { }
 };
 
@@ -69,9 +63,7 @@ public:
 	       QGraphicsItem* parent = nullptr)
     : GraphicalGate(gate,
 		    new QGraphicsSvgItem(":/gates/NAND_ANSI.svg"),
-		    {QPoint(0, 10), QPoint(0, 30)},
-		    QPoint(40, 20),
-		    parent) {};
+		    parent) {}
 };
 
 
@@ -81,9 +73,7 @@ public:
 	       QGraphicsItem* parent = nullptr)
     : GraphicalGate(gate,
 		    new QGraphicsSvgItem(":/gates/NOR_ANSI.svg"),
-		    {QPoint(0, 10), QPoint(0, 30)},
-		    QPoint(55, 20),
-		    parent) {};
+		    parent) {}
 };
 
 class GraphicalXor : public GraphicalGate {
@@ -93,7 +83,5 @@ public:
 
     : GraphicalGate(gate,
 		    new QGraphicsSvgItem(":/gates/XOR_ANSI.svg"),
-		    {QPoint(0, 10), QPoint(0, 30)},
-		    QPoint(54, 20),
-		    parent) {};
+		    parent) {}
 };

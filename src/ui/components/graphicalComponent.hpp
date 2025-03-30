@@ -25,6 +25,7 @@
 #include <QRect>
 #include <QPainter>
 #include <QGraphicsItem>
+#include <QGraphicsScene>
 
 #include <core/wire.hpp>
 #include <core/component.hpp>
@@ -36,6 +37,8 @@ struct Port {
   QGraphicsLineItem* line;
   std::string        name;
 };
+
+// TODO: Implement shape function in order to fix port lines hanging to void!
 
 class GraphicalComponent : public QGraphicsItem {
 protected:
@@ -50,6 +53,7 @@ protected:
 
   QRectF boundingRect() const override;
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+  QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
   void setPortLine(Port& port);
 
 public:
