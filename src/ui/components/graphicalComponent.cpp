@@ -144,16 +144,11 @@ void GraphicalComponent::setPortLine(Port& port) {
 }
 
 
-
 QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVariant &value) {
   if (change == ItemPositionChange && scene()) {
 
-    // 'value' is the new proposed position.
-    auto proposedPos = value.toPointF();
-
-    // Snap to grid:
-    proposedPos = QPointF(round(proposedPos.x()/DiagramScene::GRID_SIZE)*DiagramScene::GRID_SIZE,
-			  round(proposedPos.y()/DiagramScene::GRID_SIZE)*DiagramScene::GRID_SIZE);
+    // 'value' is the new proposed position, snapped to the grid.
+    auto proposedPos = DiagramScene::snapToGrid(value.toPointF());
 
     // Collision detection:
     this->isColliding = false;

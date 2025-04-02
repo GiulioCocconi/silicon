@@ -8,7 +8,11 @@ class DiagramScene : public QGraphicsScene {
 public:
   explicit DiagramScene(QObject* parent = nullptr) : QGraphicsScene(parent) {}
 
+  static QPointF snapToGrid(QPointF point);
+
   static const int GRID_SIZE = 10;
+
+
 
 private:
   void drawBackground(QPainter *painter, const QRectF &rect) override;
