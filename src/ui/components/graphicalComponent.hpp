@@ -32,13 +32,11 @@
 
 struct Port {
   QPoint             position;
-  QPoint             realPosition;
   Bus                associatedBus;
   QGraphicsLineItem* line;
   std::string        name;
 };
 
-// TODO: Implement shape function in order to fix port lines hanging to void!
 
 class GraphicalComponent : public QGraphicsItem {
 protected:
@@ -61,6 +59,7 @@ public:
   GraphicalComponent(const Component_ptr component,
 		     QGraphicsItem* shape,
 		     QGraphicsItem* parent = nullptr);
+
   void setPorts(const std::vector<std::pair<std::string, QPoint>> busToPortInputs,
 		const std::vector<std::pair<std::string, QPoint>> busToPortOutputs);
 

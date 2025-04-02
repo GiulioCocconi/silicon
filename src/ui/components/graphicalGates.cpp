@@ -33,13 +33,12 @@ GraphicalGate::GraphicalGate(const std::weak_ptr<Gate> gate,
   inputVec.reserve(2);
 
   inputVec.emplace_back("a",
-			QPoint(0,10));
+			QPoint(-20,10));
 
   inputVec.emplace_back("b",
-			QPoint(0,30));
+			QPoint(-20,30));
 
-  const auto outputPoint = QPoint(this->shape->boundingRect().width(),
-				  this->shape->boundingRect().center().y());
+  const auto outputPoint = QPoint(80, 20);
 
   setPorts(inputVec,
 	   {std::pair<std::string, QPoint>{"o", outputPoint}});
@@ -58,8 +57,8 @@ GraphicalNot::GraphicalNot(const std::weak_ptr<NotGate> gate,
 
   isEditable = false;
 
-  setPorts({std::pair<std::string, QPoint>{"i", QPoint(0,  20)}},
-	   {std::pair<std::string, QPoint>{"o", QPoint(70, 20)}});
+  setPorts({std::pair<std::string, QPoint>{"i", QPoint(-20,  20)}},
+	   {std::pair<std::string, QPoint>{"o", QPoint(80,   20)}});
 
 }
 

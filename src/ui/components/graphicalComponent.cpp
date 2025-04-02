@@ -87,46 +87,48 @@ QRectF GraphicalComponent::boundingRect() const {
   return rect;
 }
 
-
 void GraphicalComponent::paint(QPainter *painter,
 			       const QStyleOptionGraphicsItem *option,
 			       QWidget *widget)
 {
 
+  if (isSelected()) {
+    auto color = this->isColliding ? Qt::red       : Qt::black;
+    auto style = this->isColliding ? Qt::SolidLine : Qt::DotLine;
+
+    painter->setPen(QPen(color, 3, style));
+    painter->drawRect(this->boundingRectWithoutMargins());
+  }
+
 }
 
 void GraphicalComponent::setPortLine(Port& port) {
-  // The port must be inside the shape
-  assert(shape->boundingRect().contains(port.position));
-
-  // The port mustn't be in the diagonal
-  assert(port.position.x() != port.position.y());
 
   const auto width  = shape->boundingRect().width();
   const auto height = shape->boundingRect().height();
 
-  const auto length = 20;
+  auto projectionOnShape = QPoint();
 
   // Left side
-  if (port.position.x() == 0) {
-    port.realPosition = QPoint(-length, port.position.y());
+  if (port.position.x() < 0) {
+    projectionOnShape = QPoint(0, port.position.y());
   }
   // Right side
-  else if (port.position.x() == width)
-    port.realPosition = QPoint(width + length, port.position.y());
+  else if (port.position.x() > width)
+    projectionOnShape = QPoint(width, port.position.y());
 
   // Up side
-  else if (port.position.y() == 0)
-    port.realPosition = QPoint(port.position.x(), -length);
+  else if (port.position.y() < 0)
+    projectionOnShape = QPoint(port.position.x(), 0);
 
   // Down side
-  else if (port.position.y() == height)
-    port.realPosition = QPoint(port.position.x(), height + length);
+  else if (port.position.y() > height)
+    projectionOnShape = QPoint(port.position.x(), height);
   else
     assert(false);
 
 
-  port.line = new QGraphicsLineItem(QLineF(port.realPosition, port.position),
+  port.line = new QGraphicsLineItem(QLineF(port.position, projectionOnShape),
 				    this);
   port.line->setPen(QPen(QBrush(Qt::black), 3));
 }
