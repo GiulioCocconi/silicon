@@ -42,3 +42,4 @@ void DiagramView::updateZoom() {
 int DiagramView::getZoomLevel() {
   return zoomLevel;
 }
+

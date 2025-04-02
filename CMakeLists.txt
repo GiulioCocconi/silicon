@@ -42,6 +42,7 @@ set(UI_SOURCE_FILES
   ${src_dir}/ui/components/graphicalComponent.cpp
   ${src_dir}/ui/components/graphicalGates.cpp
   ${src_dir}/ui/diagramView.cpp
+  ${src_dir}/ui/diagramScene.cpp
   ${src_dir}/ui/logiFlowWindow.cpp)
 
 set(CMAKE_CXX_FLAGS_DEBUG       "${CMAKE_CXX_FLAGS_DEBUG} -O0")

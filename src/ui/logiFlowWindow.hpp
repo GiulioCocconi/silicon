@@ -13,6 +13,7 @@
 #include <QGraphicsSvgItem>
 #include <QMainWindow>
 
+#include <ui/diagramScene.hpp>
 #include <ui/diagramView.hpp>
 
 #ifndef QT_NO_CONTEXTMENU

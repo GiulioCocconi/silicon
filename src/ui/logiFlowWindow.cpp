@@ -41,7 +41,7 @@ LogiFlowWindow::LogiFlowWindow() {
   splitDockWidget(componentsDock, propertyDock, Qt::Vertical);
 
 
-  graphicsScene = new QGraphicsScene();
+  graphicsScene = new DiagramScene(this);
   graphicsScene->setBackgroundBrush(QBrush(QColor(255, 238, 140),
 					   Qt::Dense5Pattern));
 

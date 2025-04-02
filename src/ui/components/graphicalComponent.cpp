@@ -16,7 +16,7 @@
 */
 
 #include "graphicalComponent.hpp"
-
+#include "ui/diagramScene.hpp"
 
 
 GraphicalComponent::GraphicalComponent(const Component_ptr component,
@@ -104,8 +104,8 @@ void GraphicalComponent::paint(QPainter *painter,
 {
 
   if (isSelected()) {
-    auto color = this->isColliding ? Qt::red       : Qt::black;
-    auto style = this->isColliding ? Qt::SolidLine : Qt::DotLine;
+    auto color = isColliding ? Qt::red       : Qt::black;
+    auto style = isColliding ? Qt::SolidLine : Qt::DotLine;
 
     painter->setPen(QPen(color, 3, style));
     painter->drawRect(this->boundingRectWithoutMargins());
@@ -148,11 +148,16 @@ void GraphicalComponent::setPortLine(Port& port) {
 
 QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVariant &value) {
   if (change == ItemPositionChange && scene()) {
-
-    this->isColliding = false;
-
+    
     // 'value' is the new proposed position.
     auto proposedPos = value.toPointF();
+    
+    // Snap to grid:
+    proposedPos = QPointF(round(proposedPos.x()/DiagramScene::GRID_SIZE)*DiagramScene::GRID_SIZE,
+			  round(proposedPos.y()/DiagramScene::GRID_SIZE)*DiagramScene::GRID_SIZE);
+
+    // Collision detection:
+    this->isColliding = false;
 
     // Calculate the bounding rectangle at the *new* position in scene coordinates.
     // Use the item's bounding rectangle, offset by the proposed new position.
@@ -160,22 +165,24 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
 
     // Get a list of items that would collide with this item at the new position.
     // Use the bounding rect for collision check.
-    auto colliding_items = scene()->items(newRect,
-					  Qt::IntersectsItemBoundingRect);
+    auto collidingItems = scene()->items(newRect,
+					 Qt::IntersectsItemBoundingRect);
     //TODO: Use Qt::IntersectsItemShape for more precise collision based on shape().
 
-    for (QGraphicsItem *colliding_item : colliding_items) {
+    for (QGraphicsItem *collidingItem : collidingItems) {
       // Skip collision with self or children
-      if (colliding_item == this || childItems().contains(colliding_item))
+      if (collidingItem == this || childItems().contains(collidingItem))
 	continue;
 
       this->isColliding = true;
-      update();
+      this->update();
       return pos(); // Return current position, rejecting the change
     }
+    
+    // If there isn't any collision return the proposed position
+    return proposedPos;
   }
 
-  // For all other changes (or if there isn't any colliding object),
-  // call the base class implementation
+  // For all other changes call the base class implementation
   return QGraphicsItem::itemChange(change, value);
 };

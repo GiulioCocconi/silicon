@@ -25,10 +25,11 @@
 #include <QRect>
 #include <QPainter>
 #include <QGraphicsItem>
-#include <QGraphicsScene>
 
 #include <core/wire.hpp>
 #include <core/component.hpp>
+
+#include <ui/diagramScene.hpp>
 
 struct Port {
   QPoint             position;
