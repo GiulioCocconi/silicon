@@ -9,8 +9,8 @@ public:
   explicit DiagramScene(QObject* parent = nullptr) : QGraphicsScene(parent) {}
 
   static const int GRID_SIZE = 10;
-  
+
 private:
   void drawBackground(QPainter *painter, const QRectF &rect) override;
-  
+
 };
