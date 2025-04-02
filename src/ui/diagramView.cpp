@@ -10,25 +10,31 @@ DiagramView::DiagramView(QWidget* parent) : QGraphicsView(parent) {
 void DiagramView::wheelEvent(QWheelEvent *event) {
   const bool zoomDirection = event->angleDelta().y() > 0;
 
-  zoom(zoomDirection);
-  centerOn(mapToScene(event->position().toPoint()));
+  if (zoom(zoomDirection))
+    centerOn(mapToScene(event->position().toPoint()));
   event->accept();
 }
 
-void DiagramView::zoom(bool dir) {
+bool DiagramView::zoom(bool dir) {
 
   const int sign = dir ? 1 : -1;
-  zoom(zoomLevel + sign * 20);
+  return zoom(zoomLevel + sign * 20);
 
 }
 
-void DiagramView::zoom(int level) {
+bool DiagramView::zoom(int level) {
 
-  if      (level > MAX_ZOOM_LEVEL) zoomLevel = MAX_ZOOM_LEVEL;
-  else if (level < MIN_ZOOM_LEVEL) zoomLevel = MIN_ZOOM_LEVEL;
-  else                             zoomLevel = level;
 
-  updateZoom();
+  if      (level > MAX_ZOOM_LEVEL) level = MAX_ZOOM_LEVEL;
+  else if (level < MIN_ZOOM_LEVEL) level = MIN_ZOOM_LEVEL;
+
+  if (level != this->zoomLevel) {
+    this->zoomLevel = level;
+    updateZoom();
+    return true;
+  }
+
+  return false;
 }
 
 void DiagramView::updateZoom() {

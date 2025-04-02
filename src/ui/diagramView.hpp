@@ -11,8 +11,8 @@ class DiagramView : public QGraphicsView {
   Q_OBJECT
 public:
   explicit DiagramView(QWidget *parent = nullptr);
-  void zoom(bool dir);
-  void zoom(int level);
+  bool zoom(bool dir);
+  bool zoom(int level);
   int getZoomLevel();
 protected:
   void wheelEvent(QWheelEvent *event) override;
