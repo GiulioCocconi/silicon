@@ -49,7 +49,11 @@ protected:
 
   bool isEditable;
 
+  bool isColliding;
+
   QRectF boundingRect() const override;
+  QRectF boundingRectWithoutMargins() const;
+
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
   QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
   void setPortLine(Port& port);

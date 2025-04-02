@@ -2,9 +2,9 @@
 
 DiagramView::DiagramView(QWidget* parent) : QGraphicsView(parent) {
   setMouseTracking(true);
-  //setViewportUpdateMode(QGraphicsView::NoViewportUpdate);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
   setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+  setDragMode(QGraphicsView::RubberBandDrag);
 }
 
 void DiagramView::wheelEvent(QWheelEvent *event) {

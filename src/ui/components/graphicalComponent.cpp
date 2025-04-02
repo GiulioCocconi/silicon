@@ -27,6 +27,8 @@ GraphicalComponent::GraphicalComponent(const Component_ptr component,
 
   this->isEditable = true;
 
+  this->isColliding = false;
+
   setFlags(QGraphicsItem::ItemIsMovable
 	   | QGraphicsItem::ItemIsSelectable
 	   | QGraphicsItem::ItemIsFocusable
@@ -79,6 +81,15 @@ void GraphicalComponent::setPorts(const std::vector<std::pair<std::string, QPoin
 QRectF GraphicalComponent::boundingRect() const {
 
   assert(shape);
+
+  const qreal margin = isSelected() ? 0 : 4; // Pen width is 3
+  auto rect = boundingRectWithoutMargins();
+  rect.adjust(-margin, -margin, margin, margin);
+
+  return rect;
+}
+
+QRectF GraphicalComponent::boundingRectWithoutMargins() const {
   QRectF rect = shape->boundingRect(); // Start with shape bounds
 
   for (QGraphicsItem *child : childItems())
@@ -137,6 +148,9 @@ void GraphicalComponent::setPortLine(Port& port) {
 
 QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVariant &value) {
   if (change == ItemPositionChange && scene()) {
+
+    this->isColliding = false;
+
     // 'value' is the new proposed position.
     auto proposedPos = value.toPointF();
 
@@ -155,7 +169,8 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
       if (colliding_item == this || childItems().contains(colliding_item))
 	continue;
 
-      qDebug() << this << "Collision detected with" << colliding_item; // Optional debug
+      this->isColliding = true;
+      update();
       return pos(); // Return current position, rejecting the change
     }
   }
