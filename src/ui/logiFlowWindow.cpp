@@ -56,6 +56,8 @@ LogiFlowWindow::LogiFlowWindow() {
   auto graphicalXor = new GraphicalXor(xg);
   auto graphicalNot = new GraphicalNot(ng);
 
+  graphicalXor->setPos(0, 50);
+
   graphicsScene->addItem(graphicalXor);
   graphicsScene->addItem(graphicalNot);
 
