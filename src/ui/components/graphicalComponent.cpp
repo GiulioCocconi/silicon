@@ -16,7 +16,6 @@
 */
 
 #include "graphicalComponent.hpp"
-#include "ui/diagramScene.hpp"
 
 
 GraphicalComponent::GraphicalComponent(const Component_ptr component,
@@ -148,10 +147,10 @@ void GraphicalComponent::setPortLine(Port& port) {
 
 QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVariant &value) {
   if (change == ItemPositionChange && scene()) {
-    
+
     // 'value' is the new proposed position.
     auto proposedPos = value.toPointF();
-    
+
     // Snap to grid:
     proposedPos = QPointF(round(proposedPos.x()/DiagramScene::GRID_SIZE)*DiagramScene::GRID_SIZE,
 			  round(proposedPos.y()/DiagramScene::GRID_SIZE)*DiagramScene::GRID_SIZE);
@@ -178,7 +177,7 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
       this->update();
       return pos(); // Return current position, rejecting the change
     }
-    
+
     // If there isn't any collision return the proposed position
     return proposedPos;
   }
