@@ -29,7 +29,7 @@
 #include <core/wire.hpp>
 #include <core/component.hpp>
 
-#include <ui/diagramScene.hpp>
+#include <ui/common/diagramScene.hpp>
 
 struct Port {
   QPoint             position;

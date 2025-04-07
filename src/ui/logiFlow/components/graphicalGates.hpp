@@ -17,12 +17,11 @@
 
 #pragma once
 
-#include "graphicalComponent.hpp"
 
 #include <QGraphicsSvgItem>
 
-
 #include <core/gates.hpp>
+#include <ui/logiFlow/components/graphicalComponent.hpp>
 
 class GraphicalGate : public GraphicalComponent {
 protected:

@@ -2,10 +2,7 @@
 #include <QGraphicsView>
 #include <QWheelEvent>
 
-#include <ui/diagramScene.hpp> // Needed for the grid size
-#include <ui/components/graphicalComponent.hpp>
-#include <ui/components/graphicalGates.hpp>
-
+#include <ui/common/diagramScene.hpp> // Needed for the grid size
 
 class DiagramView : public QGraphicsView {
   Q_OBJECT

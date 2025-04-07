@@ -27,9 +27,7 @@
 
 #include <core/gates.hpp>
 #include <core/wire.hpp>
-#include <ui/logiFlowWindow.hpp>
-
-#include <ui/components/graphicalComponent.hpp>
+#include <ui/logiFlow/logiFlowWindow.hpp>
 
 int siliconMain(int argc, char** argv) {
 

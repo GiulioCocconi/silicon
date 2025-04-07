@@ -7,9 +7,8 @@ Since it's a pre-alpha product, there are quite a lot of things to be done:
 _Common_
 
 - [ ] GUI with QT6
-  * [ ] [GraphicsView](https://doc.qt.io/qt-6/graphicsview.html)
 
-_Logic circuits_
+_Logic circuits (Silicon LogiFlow)_
 
 - [ ] Multiplexers & demultiplexers
 - [ ] Timed simulation
@@ -22,7 +21,8 @@ _Logic circuits_
   * [ ] [Slang](https://github.com/MikePopoloski/slang) for parsing
   * [ ] [Inja](https://github.com/pantor/inja) for reverse parsing (needs template file)
 - [ ] File format
-  * Using verilog & Slang?
+  * [ ] Implement [Quine-McCluskey method](https://en.wikipedia.org/wiki/Quine%E2%80%93McCluskey_algorithm) to minimize the combinatorial logic net
+  * [ ] Using verilog & Slang?
 
 _FSMs_
 
