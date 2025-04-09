@@ -6,7 +6,6 @@ pkgs.mkShell {
     libxkbcommon.dev
     gtest.dev
     qt6.full
-    qtcreator
     cmake
     yosys
     gdb

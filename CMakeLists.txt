@@ -41,6 +41,7 @@ set(COMMON_SOURCE_FILES
 set(UI_SOURCE_FILES
   ${src_dir}/ui/common/diagramView.cpp
   ${src_dir}/ui/common/diagramScene.cpp
+  ${src_dir}/ui/common/graphicalWire.cpp
   ${src_dir}/ui/logiFlow/components/graphicalComponent.cpp
   ${src_dir}/ui/logiFlow/components/graphicalGates.cpp
   ${src_dir}/ui/logiFlow/logiFlowWindow.cpp)
