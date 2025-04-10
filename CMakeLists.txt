@@ -61,6 +61,14 @@ add_compile_definitions(
     SILICON_DEBUG=$<CONFIG:Debug>
 )
 
+# Export compile_commands.json
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
+
+if(CMAKE_EXPORT_COMPILE_COMMANDS)
+  set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES
+    ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+endif()
+
 find_package(Qt6 REQUIRED COMPONENTS Widgets SvgWidgets)
 qt_standard_project_setup()
 

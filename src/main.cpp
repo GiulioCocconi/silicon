@@ -15,9 +15,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <iostream>
-#include <memory>
-
 #include <QApplication>
 #include <QMainWindow>
 #include <QSplashScreen>
@@ -48,8 +45,6 @@ int siliconMain(int argc, char** argv) {
   parser.addVersionOption();
   parser.process(app);
 
-
-
   // Splash screen
   QSplashScreen splashScreen(QPixmap(":/splash.jpg"));
   splashScreen.show();
@@ -68,6 +63,8 @@ int siliconMain(int argc, char** argv) {
 }
 
 #if 0
+#include <iostream>
+#include <memory>
 #include <ui/components/graphicalGates.cpp>
 
 #include <QGraphicsEllipseItem>

@@ -4,3 +4,5 @@ bin/
 *.out
 vgcore.*
 Testing/
+.cache/
+compile_commands.json

@@ -8,11 +8,13 @@ pkgs.mkShell {
     qt6.full
     ninja
     cmake
+    clang-tools
     yosys
     gdb
     ddd
     valgrind
   ];
   hardeningDisable = [ "all" ];
+  NIX_LANG_CPP = "TRUE";
 }
 

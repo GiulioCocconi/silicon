@@ -31,3 +31,23 @@ _FSMs_
 _Microcontrollers_
 
 - [ ] TBD
+
+## Compiling develop edition
+SILICON uses [Nix](https://nixos.org) and [CMAKE](https://cmake.org) in order to manage dependencies. It's recomended to use [Ninja Build](https://ninja-build.org) as a generator. Run the commands below to compile the develop edition of SILICON:
+
+```
+git clone github.com/GiulioCocconi/silicon
+cd silicon
+git checkout develop
+nix-shell
+mkdir build && cd build
+cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug ..
+ninja
+```
+
+Clangd uses the file `compile_commands.json`, that should be placed in the project root. CMAKE generates it in the build subdirectory so you need to symlink it:
+
+```
+cd <project-root>
+ln -s ./build/compile_commands.json compile_commands.json
+```
