@@ -13,7 +13,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-cmake_minimum_required(VERSION 3.26)
+cmake_minimum_required(VERSION 3.25)
 
 project("SILICON" 
   VERSION 0.1.0 # As defined at semver.org
@@ -45,6 +45,8 @@ set(UI_SOURCE_FILES
   ${src_dir}/ui/logiFlow/components/graphicalComponent.cpp
   ${src_dir}/ui/logiFlow/components/graphicalGates.cpp
   ${src_dir}/ui/logiFlow/logiFlowWindow.cpp)
+
+set(CMAKE_COLOR_DIAGNOSTICS     ON)
 
 set(CMAKE_CXX_FLAGS_DEBUG       "${CMAKE_CXX_FLAGS_DEBUG} -O0")
 set(CMAKE_CXX_STANDARD          20)
