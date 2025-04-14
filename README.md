@@ -7,7 +7,7 @@ Since it's a pre-alpha product, there are quite a lot of things to be done:
 _Common_
 
 - [ ] GUI with QT6
-
+- [ ] Deployment (setup packages for Win & Mac). See [here](https://www.qt.io/blog/cmake-deployment-api)
 _Logic circuits (Silicon LogiFlow)_
 
 - [ ] Multiplexers & demultiplexers
