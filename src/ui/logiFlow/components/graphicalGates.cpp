@@ -21,7 +21,7 @@
 GraphicalGate::GraphicalGate(const std::weak_ptr<Gate> gate,
 			     QGraphicsItem*            shape,
 			     QGraphicsItem*            parent)
-  : GraphicalComponent(gate, shape, parent)
+  : GraphicalLogicComponent(gate, shape, parent)
 {
   // TODO: ADD SUPPORT FOR OVER 2 INPUTS GATES
   assert(gate.lock()->getInputs().size() == 2);
@@ -47,7 +47,7 @@ GraphicalGate::GraphicalGate(const std::weak_ptr<Gate> gate,
 
 GraphicalNot::GraphicalNot(const std::weak_ptr<NotGate> gate,
 			   QGraphicsItem* parent)
-  : GraphicalComponent(gate,
+  : GraphicalLogicComponent(gate,
 		       new QGraphicsSvgItem(":/gates/NOT_ANSI.svg"),
 		       parent)
 {

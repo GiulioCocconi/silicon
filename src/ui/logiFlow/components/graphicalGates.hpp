@@ -21,9 +21,10 @@
 #include <QGraphicsSvgItem>
 
 #include <core/gates.hpp>
-#include <ui/logiFlow/components/graphicalComponent.hpp>
+#include <ui/logiFlow/components/graphicalLogicComponent.hpp>
 
-class GraphicalGate : public GraphicalComponent {
+class GraphicalGate : public GraphicalLogicComponent {
+  Q_OBJECT
 protected:
   GraphicalGate(const std::weak_ptr<Gate> gate,
 		QGraphicsItem*            shape,
@@ -31,6 +32,7 @@ protected:
 };
 
 class GraphicalAnd : public GraphicalGate {
+  Q_OBJECT
 public:
   GraphicalAnd(const std::weak_ptr<AndGate> gate,
 	       QGraphicsItem* parent = nullptr)
@@ -41,6 +43,7 @@ public:
 };
 
 class GraphicalOr : public GraphicalGate {
+  Q_OBJECT
 public:
   GraphicalOr(const std::weak_ptr<OrGate> gate,
 	       QGraphicsItem* parent = nullptr)
@@ -50,13 +53,15 @@ public:
 };
 
 
-class GraphicalNot : public GraphicalComponent {
+class GraphicalNot : public GraphicalLogicComponent {
+  Q_OBJECT
 public:
   GraphicalNot(const std::weak_ptr<NotGate> gate,
 	       QGraphicsItem* parent = nullptr);
 };
 
 class GraphicalNand : public GraphicalGate {
+  Q_OBJECT
 public:
   GraphicalNand(const std::weak_ptr<NandGate> gate,
 	       QGraphicsItem* parent = nullptr)
@@ -67,6 +72,7 @@ public:
 
 
 class GraphicalNor : public GraphicalGate {
+  Q_OBJECT
 public:
   GraphicalNor(const std::weak_ptr<NorGate> gate,
 	       QGraphicsItem* parent = nullptr)
@@ -76,6 +82,7 @@ public:
 };
 
 class GraphicalXor : public GraphicalGate {
+  Q_OBJECT
 public:
   GraphicalXor(const std::weak_ptr<XorGate> gate,
 	       QGraphicsItem* parent = nullptr)

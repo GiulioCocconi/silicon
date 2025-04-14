@@ -17,34 +17,17 @@
 
 #pragma once
 
-#include <vector>
-#include <string>
-#include <utility>
-
 #include <QPoint>
 #include <QRect>
 #include <QPainter>
 #include <QGraphicsItem>
 
-#include <core/wire.hpp>
 #include <core/component.hpp>
-
 #include <ui/common/diagramScene.hpp>
 
-struct Port {
-  QPoint             position;
-  Bus                associatedBus;
-  QGraphicsLineItem* line;
-  std::string        name;
-};
-
-
-class GraphicalComponent : public QGraphicsItem {
+class GraphicalComponent : public QGraphicsObject {
+  Q_OBJECT
 protected:
-
-  std::vector<Port> inputPorts;
-  std::vector<Port> outputPorts;
-  Component_ptr     associatedComponent;
 
   QGraphicsItem*     shape; // Without ports
 
@@ -57,17 +40,11 @@ protected:
 
   void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
   QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
-  void setPortLine(Port& port);
 
 public:
 
-  GraphicalComponent(const Component_ptr component,
-		     QGraphicsItem* shape,
+  GraphicalComponent(QGraphicsItem* shape,
 		     QGraphicsItem* parent = nullptr);
-
-  void setPorts(const std::vector<std::pair<std::string, QPoint>> busToPortInputs,
-		const std::vector<std::pair<std::string, QPoint>> busToPortOutputs);
-
 
 };
 

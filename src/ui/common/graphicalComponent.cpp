@@ -18,10 +18,9 @@
 #include "graphicalComponent.hpp"
 
 
-GraphicalComponent::GraphicalComponent(const Component_ptr component,
-				       QGraphicsItem* shape,
+GraphicalComponent::GraphicalComponent(QGraphicsItem* shape,
 				       QGraphicsItem* parent)
-  : QGraphicsItem(parent)
+  : QGraphicsObject(parent)
 {
 
   this->isEditable = true;
@@ -41,41 +40,8 @@ GraphicalComponent::GraphicalComponent(const Component_ptr component,
   this->shape = shape;
   this->shape->setParentItem(this);
 
-  qDebug() << "Bottom left: "  << this->shape->boundingRect().bottomLeft();
-  qDebug() << "Bottom right: " << this->shape->boundingRect().bottomRight();
-  qDebug() << "Center: "       << this->shape->boundingRect().center();
-
-  this->associatedComponent = component;
 }
 
-void GraphicalComponent::setPorts(const std::vector<std::pair<std::string, QPoint>> busToPortInputs,
-				  const std::vector<std::pair<std::string, QPoint>> busToPortOutputs)
-{
-
-  std::vector<Bus> componentInputs  = associatedComponent.lock()->getInputs();
-  std::vector<Bus> componentOutputs = associatedComponent.lock()->getOutputs();
-
-  assert(componentInputs.size()  == busToPortInputs.size());
-  assert(componentOutputs.size() == busToPortOutputs.size());
-
-  for (int i = 0; i < busToPortInputs.size(); i++) {
-    Port p {};
-    p.name          = busToPortInputs[i].first;
-    p.position      = busToPortInputs[i].second;
-    p.associatedBus = componentInputs[i];
-    this->inputPorts.push_back(p);
-    this->setPortLine(p);
-  }
-
-  for (int i = 0; i < busToPortOutputs.size(); i++) {
-    Port p {};
-    p.name          = busToPortOutputs[i].first;
-    p.position      = busToPortOutputs[i].second;
-    p.associatedBus = componentOutputs[i];
-    this->outputPorts.push_back(p);
-    this->setPortLine(p);
-  }
-}
 
 QRectF GraphicalComponent::boundingRect() const {
 
@@ -110,37 +76,6 @@ void GraphicalComponent::paint(QPainter *painter,
     painter->drawRect(this->boundingRectWithoutMargins());
   }
 
-}
-
-void GraphicalComponent::setPortLine(Port& port) {
-
-  const auto width  = shape->boundingRect().width();
-  const auto height = shape->boundingRect().height();
-
-  auto projectionOnShape = QPoint();
-
-  // Left side
-  if (port.position.x() < 0) {
-    projectionOnShape = QPoint(0, port.position.y());
-  }
-  // Right side
-  else if (port.position.x() > width)
-    projectionOnShape = QPoint(width, port.position.y());
-
-  // Up side
-  else if (port.position.y() < 0)
-    projectionOnShape = QPoint(port.position.x(), 0);
-
-  // Down side
-  else if (port.position.y() > height)
-    projectionOnShape = QPoint(port.position.x(), height);
-  else
-    assert(false);
-
-
-  port.line = new QGraphicsLineItem(QLineF(port.position, projectionOnShape),
-				    this);
-  port.line->setPen(QPen(QBrush(Qt::black), 3));
 }
 
 
@@ -179,4 +114,4 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
 
   // For all other changes call the base class implementation
   return QGraphicsItem::itemChange(change, value);
-};
+}
