@@ -32,6 +32,11 @@ _Microcontrollers_
 
 - [ ] TBD
 
+## Using clangd
+This project is currently being developed using EMACS. The following packages will be usefull:
+- [lsp-mode](https://emacs-lsp.github.io/) for clangd integration.
+- [dir-config.el](https://github.com/jamescherti/dir-config.el) to load this project specific config.
+
 ## Compiling develop edition
 SILICON uses [Nix](https://nixos.org) and [CMAKE](https://cmake.org) in order to manage dependencies. It's recomended to use [Ninja Build](https://ninja-build.org) as a generator. Run the commands below to compile the develop edition of SILICON:
 
