@@ -36,11 +36,11 @@ public:
   QRectF boundingRect() const override  { return this->rect; }
 
   void setText(const std::string text);
-  void setCenterPos(const QPointF pos) { this->setPos(pos - center().boundingRect()); }
+  void setCenterPos(const QPointF pos) { this->setPos(pos - this->center().boundingRect()); }
   
   
 private:
   QRectF rect;
-  std::QString text;
+  QString text;
   
 }

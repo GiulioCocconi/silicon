@@ -7,6 +7,13 @@ DiagramView::DiagramView(QWidget* parent) : QGraphicsView(parent) {
   setDragMode(QGraphicsView::RubberBandDrag);
 }
 
+void DiagramView::setScene(DiagramScene* scene) {
+  connect(scene, &DiagramScene::modeChanged,
+	  this,  &DiagramView::modeChanged);
+  
+  QGraphicsView::setScene(scene);
+}
+
 void DiagramView::wheelEvent(QWheelEvent *event) {
   const bool zoomDirection = event->angleDelta().y() > 0;
 

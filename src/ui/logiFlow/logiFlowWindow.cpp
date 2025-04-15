@@ -46,7 +46,7 @@ LogiFlowWindow::LogiFlowWindow() {
 					   Qt::Dense5Pattern));
 
   diagramView = new DiagramView(this);
-  diagramView->setScene(graphicsScene);
+  diagramView->setScene((DiagramScene*) graphicsScene);
 
 
   auto a = std::make_shared<Wire>(State::HIGH);
