@@ -17,10 +17,10 @@
 
 #pragma once
 
+#include <QGraphicsItem>
+#include <QPainter>
 #include <QPoint>
 #include <QRect>
-#include <QPainter>
-#include <QGraphicsItem>
 
 #include <core/component.hpp>
 #include <ui/common/diagramScene.hpp>
@@ -28,8 +28,7 @@
 class GraphicalComponent : public QGraphicsObject {
   Q_OBJECT
 protected:
-
-  QGraphicsItem*     shape; // Without ports
+  QGraphicsItem* shape;  // Without ports
 
   bool isEditable;
 
@@ -38,13 +37,9 @@ protected:
   QRectF boundingRect() const override;
   QRectF boundingRectWithoutMargins() const;
 
-  void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
-  QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
+  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
+  QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
 
 public:
-
-  GraphicalComponent(QGraphicsItem* shape,
-		     QGraphicsItem* parent = nullptr);
-
+  GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* parent = nullptr);
 };
-

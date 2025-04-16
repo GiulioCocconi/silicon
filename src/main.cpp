@@ -16,18 +16,18 @@
 */
 
 #include <QApplication>
+#include <QCommandLineParser>
+#include <QIcon>
+#include <QLabel>
 #include <QMainWindow>
 #include <QSplashScreen>
-#include <QLabel>
-#include <QIcon>
-#include <QCommandLineParser>
 
 #include <core/gates.hpp>
 #include <core/wire.hpp>
 #include <ui/logiFlow/logiFlowWindow.hpp>
 
-int siliconMain(int argc, char** argv) {
-
+int siliconMain(int argc, char** argv)
+{
   QApplication app(argc, argv);
   app.setApplicationName("SILICON");
   app.setStyle("Fusion");
@@ -48,14 +48,12 @@ int siliconMain(int argc, char** argv) {
   // Splash screen
   QSplashScreen splashScreen(QPixmap(":/splash.jpg"));
   splashScreen.show();
-  splashScreen.showMessage("Loading...",
-			   Qt::AlignBottom | Qt::AlignHCenter, Qt::white);
+  splashScreen.showMessage("Loading...", Qt::AlignBottom | Qt::AlignHCenter, Qt::white);
 
   // Force processing of events to show the splash screen immediately
   app.processEvents();
 
-
-  LogiFlowWindow lfWin {};
+  LogiFlowWindow lfWin{};
   lfWin.show();
 
   splashScreen.finish(&lfWin);
@@ -63,11 +61,11 @@ int siliconMain(int argc, char** argv) {
 }
 
 #if 0
-#include <iostream>
-#include <memory>
-#include <ui/components/graphicalGates.cpp>
+#  include <iostream>
+#  include <memory>
+#  include <ui/components/graphicalGates.cpp>
 
-#include <QGraphicsEllipseItem>
+#  include <QGraphicsEllipseItem>
 int main(int argc, char** argv) {
   auto a = std::make_shared<Wire>(State::HIGH);
   auto o = std::make_shared<Wire>();
@@ -78,8 +76,8 @@ int main(int argc, char** argv) {
 }
 
 #else
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
   return siliconMain(argc, argv);
 }
 #endif
-

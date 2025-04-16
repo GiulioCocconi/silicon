@@ -16,14 +16,13 @@
 */
 
 #pragma once
+#include <QGraphicsScene>
 #include <QPainter>
 #include <QRect>
-#include <QGraphicsScene>
 
 class DiagramScene : public QGraphicsScene {
   Q_OBJECT
 public:
-
   enum InteractionMode {
     NORMAL_MODE,
     PAN_MODE,
@@ -31,8 +30,8 @@ public:
     COMPONENT_PLACING_MODE,
     SIMULATION_MODE,
   };
-  
- explicit DiagramScene(QObject* parent = nullptr) : QGraphicsScene(parent) {}
+
+  explicit DiagramScene(QObject* parent = nullptr) : QGraphicsScene(parent) {}
 
   void setInteractionMode(InteractionMode mode);
 
@@ -40,14 +39,11 @@ public:
 
   static const int GRID_SIZE = 10;
 
-  
 signals:
   void modeChanged(InteractionMode mode);
-  
 
 private:
-  void drawBackground(QPainter *painter, const QRectF &rect) override;
+  void            drawBackground(QPainter* painter, const QRectF& rect) override;
   InteractionMode currentInteractionMode = InteractionMode::NORMAL_MODE;
-
 };
 using InteractionMode = DiagramScene::InteractionMode;

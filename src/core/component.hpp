@@ -16,9 +16,9 @@
 */
 
 #pragma once
+#include <array>
 #include <cassert>
 #include <memory>
-#include <array>
 #include <string>
 
 #include <core/wire.hpp>
@@ -31,18 +31,17 @@ protected:
   std::string name;
 
   action_ptr act;
+
 public:
   Component() {};
-  Component(std::vector<Bus> inputs, std::vector<Bus> outputs,
-	    std::string name);
+  Component(std::vector<Bus> inputs, std::vector<Bus> outputs, std::string name);
 
   void setAction(action a);
   void setInputs(std::vector<Bus> newInputs);
 
-  std::vector<Bus> getInputs()  { return inputs;  }
+  std::vector<Bus> getInputs() { return inputs; }
   std::vector<Bus> getOutputs() { return outputs; }
-  std::string      getName()    { return name;    }
-
+  std::string      getName() { return name; }
 
   virtual ~Component();
 };

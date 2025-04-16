@@ -17,7 +17,8 @@
 
 #include "wire.hpp"
 
-State operator && (const State& a, const State& b) {
+State operator&&(const State& a, const State& b)
+{
   if (a == State::ERROR || b == State::ERROR)
     return State::ERROR;
 
@@ -27,7 +28,8 @@ State operator && (const State& a, const State& b) {
   return State::LOW;
 }
 
-State operator || (const State& a, const State& b) {
+State operator||(const State& a, const State& b)
+{
   if (a == State::ERROR || b == State::ERROR)
     return State::ERROR;
 
@@ -37,7 +39,8 @@ State operator || (const State& a, const State& b) {
   return State::LOW;
 }
 
-State operator ! (const State& a) {
+State operator!(const State& a)
+{
   if (a == State::ERROR)
     return State::ERROR;
 
@@ -47,55 +50,60 @@ State operator ! (const State& a) {
   return State::LOW;
 }
 
-State operator ^ (const State& a, const State& b) {
+State operator^(const State& a, const State& b)
+{
   if (a == State::ERROR || b == State::ERROR)
     return State::ERROR;
 
-  if (a != b) return State::HIGH;
+  if (a != b)
+    return State::HIGH;
 
   return State::LOW;
 }
 
-std::string to_str(State s) {
-
+std::string to_str(State s)
+{
   switch (s) {
-  case State::HIGH:
-    return "HIGH";
-  case State::LOW:
-    return "LOW";
-  case State::ERROR:
-    return "ERROR";
+    case State::HIGH:
+      return "HIGH";
+    case State::LOW:
+      return "LOW";
+    case State::ERROR:
+      return "ERROR";
   }
   assert(false);
 }
 
-Wire::Wire() {
-  this->currentState        = State::ERROR;
-  this->updateActions       = {};
+Wire::Wire()
+{
+  this->currentState  = State::ERROR;
+  this->updateActions = {};
 }
 
-Wire::Wire(State s) {
-  this->currentState        = s;
+Wire::Wire(State s)
+{
+  this->currentState = s;
 }
 
-State Wire::getCurrentState() const {
+State Wire::getCurrentState() const
+{
   return this->currentState;
 }
 
-void Wire::forceSetCurrentState(const State newState) {
-  if (this->currentState == newState) return;
+void Wire::forceSetCurrentState(const State newState)
+{
+  if (this->currentState == newState)
+    return;
 
   this->currentState = newState;
 
   for (action_ptr a : this->updateActions)
-    if (a) (*a)();
+    if (a)
+      (*a)();
 }
 
-
-void Wire::setCurrentState(const State newState,
-			   const Component_ptr requestedBy) {
-
-
+void Wire::setCurrentState(const State newState, const Component_ptr requestedBy)
+{
   // Every wire has a mechanism to detect graphs error: the component that
   // controls the wire can be only one at a time and it's stored in the
   // authorizedComponent pointer. If another component tries to modify its
@@ -111,7 +119,8 @@ void Wire::setCurrentState(const State newState,
   this->forceSetCurrentState(s);
 }
 
-void Wire::deleteUpdateAction(const action_ptr a) {
+void Wire::deleteUpdateAction(const action_ptr a)
+{
   const auto b   = this->updateActions.begin();
   const auto e   = this->updateActions.end();
   const auto pos = std::find(b, e, a);
@@ -120,7 +129,8 @@ void Wire::deleteUpdateAction(const action_ptr a) {
     this->updateActions.erase(pos);
 }
 
-void Wire::addUpdateAction(const action_ptr a) {
+void Wire::addUpdateAction(const action_ptr a)
+{
   assert(a);
 
   this->updateActions.push_back(a);
@@ -130,36 +140,41 @@ void Wire::addUpdateAction(const action_ptr a) {
   (*a)();
 }
 
-Bus::Bus(unsigned short size) {
+Bus::Bus(unsigned short size)
+{
   this->busData = std::vector<Wire_ptr>(size);
 
   for (auto& w : this->busData)
     w = std::make_shared<Wire>(State::LOW);
 }
 
-Bus::Bus(std::vector<Wire_ptr> busData) {
+Bus::Bus(std::vector<Wire_ptr> busData)
+{
   this->busData = busData;
 
   for (Wire_ptr w : busData)
-    if (!w) w = std::make_shared<Wire>(State::LOW);
+    if (!w)
+      w = std::make_shared<Wire>(State::LOW);
 }
 
-Bus::Bus(std::initializer_list<Wire_ptr> initList) : busData(initList.size()) {
+Bus::Bus(std::initializer_list<Wire_ptr> initList) : busData(initList.size())
+{
   size_t i = 0;
   for (auto val : initList) {
     busData[i++] = val;
   }
 }
 
-
-Bus::Bus(std::initializer_list<Wire> initList) : busData(initList.size()) {
+Bus::Bus(std::initializer_list<Wire> initList) : busData(initList.size())
+{
   size_t i = 0;
   for (auto val : initList) {
     busData[i++] = std::make_shared<Wire>(val);
   }
 }
 
-int Bus::forceSetCurrentValue(const unsigned int value) {
+int Bus::forceSetCurrentValue(const unsigned int value)
+{
   for (unsigned short i = 0; i < this->size(); i++) {
     State s = (value >> i) & 1 ? State::HIGH : State::LOW;
     this->busData[i]->forceSetCurrentState(s);
@@ -169,19 +184,18 @@ int Bus::forceSetCurrentValue(const unsigned int value) {
   return (value >= (1u << this->size()));
 }
 
-int Bus::setCurrentValue(const unsigned int value,
-			 const Component_ptr requestedBy) {
-
+int Bus::setCurrentValue(const unsigned int value, const Component_ptr requestedBy)
+{
   for (unsigned short i = 0; i < this->size(); i++) {
     State s = (value >> i) & 1 ? State::HIGH : State::LOW;
     this->busData[i]->setCurrentState(s, requestedBy);
   }
   return (value >= (1u << this->size()));
-
 }
 
-int Bus::getCurrentValue() const {
-  unsigned int res  = 0;
+int Bus::getCurrentValue() const
+{
+  unsigned int res = 0;
 
   for (unsigned int i = 0; i < this->size(); i++) {
     State s = this->busData[i]->getCurrentState();

@@ -17,20 +17,20 @@
 
 #pragma once
 
-#include <vector>
 #include <string>
 #include <utility>
+#include <vector>
 
+#include <QGraphicsItem>
+#include <QPainter>
 #include <QPoint>
 #include <QRect>
-#include <QPainter>
-#include <QGraphicsItem>
 
-#include <core/wire.hpp>
 #include <core/component.hpp>
+#include <core/wire.hpp>
 
-#include <ui/common/graphicalComponent.hpp>
 #include <ui/common/diagramScene.hpp>
+#include <ui/common/graphicalComponent.hpp>
 
 struct Port {
   QPoint             position;
@@ -39,11 +39,9 @@ struct Port {
   std::string        name;
 };
 
-
 class GraphicalLogicComponent : public GraphicalComponent {
   Q_OBJECT
 protected:
-
   std::vector<Port> inputPorts;
   std::vector<Port> outputPorts;
   Component_ptr     associatedComponent;
@@ -55,14 +53,9 @@ protected:
   void setPortLine(Port& port);
 
 public:
-
-  GraphicalLogicComponent(const Component_ptr component,
-		     QGraphicsItem* shape,
-		     QGraphicsItem* parent = nullptr);
+  GraphicalLogicComponent(const Component_ptr component, QGraphicsItem* shape,
+                          QGraphicsItem* parent = nullptr);
 
   void setPorts(const std::vector<std::pair<std::string, QPoint>> busToPortInputs,
-		const std::vector<std::pair<std::string, QPoint>> busToPortOutputs);
-
-
+                const std::vector<std::pair<std::string, QPoint>> busToPortOutputs);
 };
-

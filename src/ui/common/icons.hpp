@@ -19,19 +19,17 @@
 
 #include <unordered_map>
 
-#include <QPixmap>
-#include <QPainter>
 #include <QFile>
-#include <QSize>
 #include <QIcon>
+#include <QPainter>
+#include <QPixmap>
+#include <QSize>
 #include <QSvgRenderer>
 
 #include <QDebug>
 
-
 class Icon : public QIcon {
 public:
-  
   Icon(const QString commonName, const QSize targetSize = QSize(32, 32));
 
 private:
