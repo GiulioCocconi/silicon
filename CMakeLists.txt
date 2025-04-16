@@ -43,6 +43,7 @@ set(UI_SOURCE_FILES
   ${src_dir}/ui/common/diagramScene.cpp
   ${src_dir}/ui/common/graphicalWire.cpp
   ${src_dir}/ui/common/graphicalComponent.cpp
+  ${src_dir}/ui/common/icons.cpp
   ${src_dir}/ui/logiFlow/components/graphicalLogicComponent.cpp
   ${src_dir}/ui/logiFlow/components/graphicalGates.cpp
   ${src_dir}/ui/logiFlow/logiFlowWindow.cpp)
@@ -88,6 +89,35 @@ target_link_libraries(Silicon PRIVATE Qt6::Widgets Qt6::SvgWidgets)
 qt_add_resources(Silicon "images" BASE ${resources_dir}
   FILES
   ${resources_dir}/splash.jpg)
+
+
+qt_add_resources(Silicon "icons" BASE ${resources_dir}
+  FILES
+  ${resources_dir}/icons/arrows-up-down-left-right-solid.svg
+  ${resources_dir}/icons/chart-line-solid.svg
+  ${resources_dir}/icons/check-solid.svg
+  ${resources_dir}/icons/circle-info-solid.svg
+  ${resources_dir}/icons/circle-xmark-solid.svg
+  ${resources_dir}/icons/copy-solid.svg
+  ${resources_dir}/icons/explosion-solid.svg
+  ${resources_dir}/icons/file-export-solid.svg
+  ${resources_dir}/icons/file-regular.svg
+  ${resources_dir}/icons/floppy-disk-solid.svg
+  ${resources_dir}/icons/folder-open-regular.svg
+  ${resources_dir}/icons/link-solid.svg
+  ${resources_dir}/icons/paste-solid.svg
+  ${resources_dir}/icons/play-solid.svg
+  ${resources_dir}/icons/plug-circle-xmark-solid.svg
+  ${resources_dir}/icons/plug-solid.svg
+  ${resources_dir}/icons/plus-solid.svg
+  ${resources_dir}/icons/print-solid.svg
+  ${resources_dir}/icons/rotate-left-solid.svg
+  ${resources_dir}/icons/rotate-right-solid.svg
+  ${resources_dir}/icons/rotate-solid.svg
+  ${resources_dir}/icons/scissors-solid.svg
+  ${resources_dir}/icons/trash-solid.svg
+  ${resources_dir}/icons/xmark-solid.svg
+)
 
 qt_add_resources(Silicon "ANSI_icons" BASE ${resources_dir}
   FILES

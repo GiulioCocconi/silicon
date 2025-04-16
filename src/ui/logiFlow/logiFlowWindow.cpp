@@ -78,17 +78,17 @@ LogiFlowWindow::LogiFlowWindow() {
 
 void LogiFlowWindow::createActions() {
 
-  newAct         = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew),     tr("&New"),       this);
-  openAct        = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentOpen),    tr("&Open..."),   this);
-  saveAct        = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSave),    tr("&Save"),      this);
-  exportImageAct = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::ImageLoading),    tr("&Export..."), this);
-  exitAct        = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::ApplicationExit), tr("E&xit"),      this);
-  undoAct        = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditUndo),        tr("&Undo"),      this);
-  redoAct        = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditRedo),        tr("&Redo"),      this);
-  cutAct         = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditCut),         tr("Cu&t"),       this);
-  copyAct        = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditCopy),        tr("&Copy"),      this);
-  pasteAct       = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditPaste),       tr("&Paste"),     this);
-  aboutAct       = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout),       tr("&About"),     this);
+  newAct         = new QAction(Icon("file"),   tr("&New"),       this);
+  openAct        = new QAction(Icon("open"),   tr("&Open..."),   this);
+  saveAct        = new QAction(Icon("save"),   tr("&Save"),      this);
+  exportImageAct = new QAction(Icon("export"), tr("&Export..."), this);
+  exitAct        = new QAction(Icon("xmark"),  tr("E&xit"),      this);
+  undoAct        = new QAction(Icon("undo"),   tr("&Undo"),      this);
+  redoAct        = new QAction(Icon("redo"),   tr("&Redo"),      this);
+  cutAct         = new QAction(Icon("cut"),    tr("Cu&t"),       this);
+  copyAct        = new QAction(Icon("copy"),   tr("&Copy"),      this);
+  pasteAct       = new QAction(Icon("paste"),  tr("&Paste"),     this);
+  aboutAct       = new QAction(Icon("info"),   tr("&About"),     this);
 
   newAct->setShortcuts(QKeySequence::New);
   openAct->setShortcuts(QKeySequence::Open);

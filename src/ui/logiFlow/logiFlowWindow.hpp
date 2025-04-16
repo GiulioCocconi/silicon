@@ -30,6 +30,7 @@
 #include <QGraphicsSvgItem>
 #include <QMainWindow>
 
+#include <ui/common/icons.hpp>
 #include <ui/common/diagramScene.hpp>
 #include <ui/common/diagramView.hpp>
 
