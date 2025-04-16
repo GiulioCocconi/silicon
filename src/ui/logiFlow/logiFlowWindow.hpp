@@ -62,23 +62,31 @@ private slots:
   void cut() {}
   void copy() {}
   void paste() {}
+  void del() {}              // Delete is a CPP keyword
   void about() {}
+
+  void setNormalMode();
+  void setPanMode();
+  void setWireCreationMode();
+  void setSimulationMode();
 
 private:
   void createActions();
   void createMenus();
+  void createToolBar();
 
   QToolBar* toolBar;
 
   QDockWidget* componentsDock;
   QDockWidget* propertyDock;
 
-  QGraphicsScene* graphicsScene;
+  DiagramScene*   diagramScene;
   DiagramView*    diagramView;
 
   QMenu* fileMenu;
   QMenu* editMenu;
   QMenu* helpMenu;
+  
   QAction* newAct;
   QAction* openAct;
   QAction* saveAct;
@@ -89,6 +97,13 @@ private:
   QAction* cutAct;
   QAction* copyAct;
   QAction* pasteAct;
+  QAction* deleteAct;
   QAction* aboutAct;
+
+  QAction* setNormalModeAct;
+  QAction* setPanModeAct;
+  QAction* setWireCreationModeAct;
+  QAction* setSimulationModeAct;
+
   QLabel* infoLabel;
 };

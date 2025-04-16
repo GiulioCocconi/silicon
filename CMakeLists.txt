@@ -93,6 +93,7 @@ qt_add_resources(Silicon "images" BASE ${resources_dir}
 
 qt_add_resources(Silicon "icons" BASE ${resources_dir}
   FILES
+  ${resources_dir}/icons/arrow-pointer-solid.svg
   ${resources_dir}/icons/arrows-up-down-left-right-solid.svg
   ${resources_dir}/icons/chart-line-solid.svg
   ${resources_dir}/icons/check-solid.svg

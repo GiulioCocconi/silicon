@@ -26,10 +26,10 @@ public:
 
   enum InteractionMode {
     NORMAL_MODE,
-    SIMULATION_MODE,
+    PAN_MODE,
     WIRE_CREATION_MODE,
-    COMPONENT_PLACE_MODE,
-    PAN_MODE
+    COMPONENT_PLACING_MODE,
+    SIMULATION_MODE,
   };
   
  explicit DiagramScene(QObject* parent = nullptr) : QGraphicsScene(parent) {}

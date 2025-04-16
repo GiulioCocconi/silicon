@@ -16,6 +16,7 @@
 */
 
 #include "logiFlowWindow.hpp"
+#include "ui/common/diagramScene.hpp"
 
 LogiFlowWindow::LogiFlowWindow() {
 
@@ -41,12 +42,9 @@ LogiFlowWindow::LogiFlowWindow() {
   splitDockWidget(componentsDock, propertyDock, Qt::Vertical);
 
 
-  graphicsScene = new DiagramScene(this);
-  graphicsScene->setBackgroundBrush(QBrush(QColor(255, 238, 140),
-					   Qt::Dense5Pattern));
-
+  diagramScene = new DiagramScene(this);
   diagramView = new DiagramView(this);
-  diagramView->setScene((DiagramScene*) graphicsScene);
+  diagramView->setScene(diagramScene);
 
 
   auto a = std::make_shared<Wire>(State::HIGH);
@@ -58,17 +56,15 @@ LogiFlowWindow::LogiFlowWindow() {
 
   graphicalXor->setPos(0, 50);
 
-  graphicsScene->addItem(graphicalXor);
-  graphicsScene->addItem(graphicalNot);
+  diagramScene->addItem(graphicalXor);
+  diagramScene->addItem(graphicalNot);
 
   layout->addWidget(diagramView);
 
-  toolBar = new QToolBar(this);
-  addToolBar(toolBar);
-
   createActions();
   createMenus();
-
+  createToolBar();
+  
   statusBar()->showMessage(tr("Ready"));
 
   setWindowTitle(tr("Silicon LogiFlow"));
@@ -88,8 +84,15 @@ void LogiFlowWindow::createActions() {
   cutAct         = new QAction(Icon("cut"),    tr("Cu&t"),       this);
   copyAct        = new QAction(Icon("copy"),   tr("&Copy"),      this);
   pasteAct       = new QAction(Icon("paste"),  tr("&Paste"),     this);
+  deleteAct      = new QAction(Icon("delete"), tr("&Delete"),    this);
   aboutAct       = new QAction(Icon("info"),   tr("&About"),     this);
 
+  
+ setNormalModeAct       = new QAction(Icon("mouse-pointer"), "", this);
+ setPanModeAct          = new QAction(Icon("pan"),           "", this);
+ setWireCreationModeAct = new QAction(Icon("link"),          "", this);
+ setSimulationModeAct   = new QAction(Icon("play"),          "", this);
+  
   newAct->setShortcuts(QKeySequence::New);
   openAct->setShortcuts(QKeySequence::Open);
   saveAct->setShortcuts(QKeySequence::Save);
@@ -99,8 +102,8 @@ void LogiFlowWindow::createActions() {
   redoAct->setShortcuts(QKeySequence::Redo);
   cutAct->setShortcuts(QKeySequence::Cut);
   copyAct->setShortcuts(QKeySequence::Copy);
+  deleteAct->setShortcuts(QKeySequence::Delete);
   pasteAct->setShortcuts(QKeySequence::Paste);
-
 
   newAct->setStatusTip(tr("Create a new file"));
   openAct->setStatusTip(tr("Open an existing logiFlow file"));
@@ -111,7 +114,8 @@ void LogiFlowWindow::createActions() {
   redoAct->setStatusTip(tr("Redo the last operation"));
   cutAct->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
   pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
-  aboutAct->setStatusTip(tr("Show the application's About box"));
+  deleteAct->setStatusTip(tr("Delete selected components"));
+  aboutAct->setStatusTip(tr("Show the application's about box"));
 
   connect(newAct,         &QAction::triggered, this, &LogiFlowWindow::newFile);
   connect(openAct,        &QAction::triggered, this, &LogiFlowWindow::open);
@@ -123,7 +127,14 @@ void LogiFlowWindow::createActions() {
   connect(cutAct,         &QAction::triggered, this, &LogiFlowWindow::cut);
   connect(copyAct,        &QAction::triggered, this, &LogiFlowWindow::copy);
   connect(pasteAct,       &QAction::triggered, this, &LogiFlowWindow::paste);
+  connect(deleteAct,      &QAction::triggered, this, &LogiFlowWindow::del);
   connect(aboutAct,       &QAction::triggered, this, &LogiFlowWindow::about);
+
+  connect(setNormalModeAct, &QAction::triggered, this, &LogiFlowWindow::setNormalMode);
+  connect(setPanModeAct, &QAction::triggered, this, &LogiFlowWindow::setPanMode);
+  connect(setWireCreationModeAct, &QAction::triggered, this, &LogiFlowWindow::setWireCreationMode);
+  connect(setSimulationModeAct, &QAction::triggered, this, &LogiFlowWindow::setSimulationMode);
+  
 
 }
 
@@ -151,6 +162,27 @@ void LogiFlowWindow::createMenus() {
 
 }
 
+
+void LogiFlowWindow::createToolBar() {
+  toolBar = new QToolBar(this);
+  toolBar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
+  toolBar->setFloatable(false);
+
+  toolBar->addAction(newAct);
+  toolBar->addAction(openAct);
+  toolBar->addAction(saveAct);
+  
+  toolBar->addSeparator();
+
+  toolBar->addAction(setNormalModeAct);
+  toolBar->addAction(setPanModeAct);
+  toolBar->addAction(setWireCreationModeAct);
+  toolBar->addAction(setSimulationModeAct);
+  
+  addToolBar(toolBar);
+}
+
+
 #ifndef QT_NO_CONTEXTMENU
 void LogiFlowWindow::contextMenuEvent(QContextMenuEvent *event)
 {
@@ -158,6 +190,26 @@ void LogiFlowWindow::contextMenuEvent(QContextMenuEvent *event)
   menu.addAction(cutAct);
   menu.addAction(copyAct);
   menu.addAction(pasteAct);
+  menu.addAction(deleteAct);
   menu.exec(event->globalPos());
 }
 #endif // QT_NO_CONTEXTMENU
+
+
+/* ACTIONS IMPLEMENTATION */
+
+void LogiFlowWindow::setNormalMode() {
+  diagramScene->setInteractionMode(InteractionMode::NORMAL_MODE);
+}
+
+void LogiFlowWindow::setPanMode() {
+  diagramScene->setInteractionMode(InteractionMode::PAN_MODE);
+}
+
+void LogiFlowWindow::setWireCreationMode() {
+  diagramScene->setInteractionMode(InteractionMode::WIRE_CREATION_MODE);
+}
+
+void LogiFlowWindow::setSimulationMode() {
+  diagramScene->setInteractionMode(InteractionMode::SIMULATION_MODE);
+}
