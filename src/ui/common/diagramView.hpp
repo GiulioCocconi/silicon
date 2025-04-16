@@ -18,7 +18,7 @@ protected:
   void wheelEvent(QWheelEvent* event) override;
 
 public slots:
-  void modeChanged(InteractionMode mode) { qDebug() << "Mode changed!!!"; };
+  void modeChanged(InteractionMode mode);
 
 private:
   static const int MIN_ZOOM_LEVEL = 60;
