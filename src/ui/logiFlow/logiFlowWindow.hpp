@@ -17,26 +17,27 @@
 
 #pragma once
 
-#include <QColor>
-#include <QLabel>
 #include <QBrush>
+#include <QColor>
+#include <QDockWidget>
+#include <QGraphicsScene>
+#include <QGraphicsSvgItem>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
 #include <QStatusBar>
 #include <QToolBar>
-#include <QHBoxLayout>
-#include <QDockWidget>
-#include <QGraphicsScene>
-#include <QGraphicsSvgItem>
-#include <QMainWindow>
 
 #include <ui/common/diagramScene.hpp>
 #include <ui/common/diagramView.hpp>
+#include <ui/common/icons.hpp>
 
 #include <ui/logiFlow/components/graphicalGates.hpp>
 
 #ifndef QT_NO_CONTEXTMENU
-    #include <QContextMenuEvent>
+#  include <QContextMenuEvent>
 #endif
 
 class LogiFlowWindow : public QMainWindow {
@@ -46,10 +47,9 @@ public:
   LogiFlowWindow();
 
 protected:
-
 #ifndef QT_NO_CONTEXTMENU
-  void contextMenuEvent(QContextMenuEvent *event) override;
-#endif // QT_NO_CONTEXTMENU
+  void contextMenuEvent(QContextMenuEvent* event) override;
+#endif  // QT_NO_CONTEXTMENU
 
 private slots:
   void newFile() {}
@@ -61,23 +61,33 @@ private slots:
   void cut() {}
   void copy() {}
   void paste() {}
+  void del() {}  // Delete is a CPP keyword
   void about() {}
+
+  void setNormalMode();
+  void setPanMode();
+  void setWireCreationMode();
+  void setSimulationMode();
+
+  void addComponent();
 
 private:
   void createActions();
   void createMenus();
+  void createToolBar();
 
   QToolBar* toolBar;
 
   QDockWidget* componentsDock;
   QDockWidget* propertyDock;
 
-  QGraphicsScene* graphicsScene;
-  DiagramView*    diagramView;
+  DiagramScene* diagramScene;
+  DiagramView*  diagramView;
 
   QMenu* fileMenu;
   QMenu* editMenu;
   QMenu* helpMenu;
+
   QAction* newAct;
   QAction* openAct;
   QAction* saveAct;
@@ -88,6 +98,15 @@ private:
   QAction* cutAct;
   QAction* copyAct;
   QAction* pasteAct;
+  QAction* deleteAct;
   QAction* aboutAct;
+
+  QAction* setNormalModeAct;
+  QAction* setPanModeAct;
+  QAction* setWireCreationModeAct;
+  QAction* setSimulationModeAct;
+
+  QAction* addComponentAct;
+
   QLabel* infoLabel;
 };

@@ -17,7 +17,6 @@
 
 #pragma once
 
-
 #include <QGraphicsSvgItem>
 
 #include <core/gates.hpp>
@@ -26,68 +25,58 @@
 class GraphicalGate : public GraphicalLogicComponent {
   Q_OBJECT
 protected:
-  GraphicalGate(const std::weak_ptr<Gate> gate,
-		QGraphicsItem*            shape,
-		QGraphicsItem*            parent = nullptr);
+  GraphicalGate(const std::weak_ptr<Gate> gate, QGraphicsItem* shape,
+                QGraphicsItem* parent = nullptr);
 };
 
 class GraphicalAnd : public GraphicalGate {
   Q_OBJECT
 public:
-  GraphicalAnd(const std::weak_ptr<AndGate> gate,
-	       QGraphicsItem* parent = nullptr)
-    : GraphicalGate(gate,
-		  new QGraphicsSvgItem(":/gates/AND_ANSI.svg"),
-		  parent) { }
-
+  GraphicalAnd(const std::weak_ptr<AndGate> gate, QGraphicsItem* parent = nullptr)
+    : GraphicalGate(gate, new QGraphicsSvgItem(":/gates/AND_ANSI.svg"), parent)
+  {
+  }
 };
 
 class GraphicalOr : public GraphicalGate {
   Q_OBJECT
 public:
-  GraphicalOr(const std::weak_ptr<OrGate> gate,
-	       QGraphicsItem* parent = nullptr)
-    : GraphicalGate(gate,
-		    new QGraphicsSvgItem(":/gates/OR_ANSI.svg"),
-		    parent) { }
+  GraphicalOr(const std::weak_ptr<OrGate> gate, QGraphicsItem* parent = nullptr)
+    : GraphicalGate(gate, new QGraphicsSvgItem(":/gates/OR_ANSI.svg"), parent)
+  {
+  }
 };
-
 
 class GraphicalNot : public GraphicalLogicComponent {
   Q_OBJECT
 public:
-  GraphicalNot(const std::weak_ptr<NotGate> gate,
-	       QGraphicsItem* parent = nullptr);
+  GraphicalNot(const std::weak_ptr<NotGate> gate, QGraphicsItem* parent = nullptr);
 };
 
 class GraphicalNand : public GraphicalGate {
   Q_OBJECT
 public:
-  GraphicalNand(const std::weak_ptr<NandGate> gate,
-	       QGraphicsItem* parent = nullptr)
-    : GraphicalGate(gate,
-		    new QGraphicsSvgItem(":/gates/NAND_ANSI.svg"),
-		    parent) {}
+  GraphicalNand(const std::weak_ptr<NandGate> gate, QGraphicsItem* parent = nullptr)
+    : GraphicalGate(gate, new QGraphicsSvgItem(":/gates/NAND_ANSI.svg"), parent)
+  {
+  }
 };
-
 
 class GraphicalNor : public GraphicalGate {
   Q_OBJECT
 public:
-  GraphicalNor(const std::weak_ptr<NorGate> gate,
-	       QGraphicsItem* parent = nullptr)
-    : GraphicalGate(gate,
-		    new QGraphicsSvgItem(":/gates/NOR_ANSI.svg"),
-		    parent) {}
+  GraphicalNor(const std::weak_ptr<NorGate> gate, QGraphicsItem* parent = nullptr)
+    : GraphicalGate(gate, new QGraphicsSvgItem(":/gates/NOR_ANSI.svg"), parent)
+  {
+  }
 };
 
 class GraphicalXor : public GraphicalGate {
   Q_OBJECT
 public:
-  GraphicalXor(const std::weak_ptr<XorGate> gate,
-	       QGraphicsItem* parent = nullptr)
+  GraphicalXor(const std::weak_ptr<XorGate> gate, QGraphicsItem* parent = nullptr)
 
-    : GraphicalGate(gate,
-		    new QGraphicsSvgItem(":/gates/XOR_ANSI.svg"),
-		    parent) {}
+    : GraphicalGate(gate, new QGraphicsSvgItem(":/gates/XOR_ANSI.svg"), parent)
+  {
+  }
 };

@@ -17,27 +17,25 @@
 
 #include "graphicalLogicComponent.hpp"
 
-
 GraphicalLogicComponent::GraphicalLogicComponent(const Component_ptr component,
-				       QGraphicsItem* shape,
-				       QGraphicsItem* parent)
+                                                 QGraphicsItem* shape, QGraphicsItem* parent)
   : GraphicalComponent(shape, parent)
 {
   this->associatedComponent = component;
 }
 
-void GraphicalLogicComponent::setPorts(const std::vector<std::pair<std::string, QPoint>> busToPortInputs,
-				  const std::vector<std::pair<std::string, QPoint>> busToPortOutputs)
+void GraphicalLogicComponent::setPorts(
+    const std::vector<std::pair<std::string, QPoint>> busToPortInputs,
+    const std::vector<std::pair<std::string, QPoint>> busToPortOutputs)
 {
-
   std::vector<Bus> componentInputs  = associatedComponent.lock()->getInputs();
   std::vector<Bus> componentOutputs = associatedComponent.lock()->getOutputs();
 
-  assert(componentInputs.size()  == busToPortInputs.size());
+  assert(componentInputs.size() == busToPortInputs.size());
   assert(componentOutputs.size() == busToPortOutputs.size());
 
   for (int i = 0; i < busToPortInputs.size(); i++) {
-    Port p {};
+    Port p{};
     p.name          = busToPortInputs[i].first;
     p.position      = busToPortInputs[i].second;
     p.associatedBus = componentInputs[i];
@@ -46,7 +44,7 @@ void GraphicalLogicComponent::setPorts(const std::vector<std::pair<std::string, 
   }
 
   for (int i = 0; i < busToPortOutputs.size(); i++) {
-    Port p {};
+    Port p{};
     p.name          = busToPortOutputs[i].first;
     p.position      = busToPortOutputs[i].second;
     p.associatedBus = componentOutputs[i];
@@ -55,8 +53,8 @@ void GraphicalLogicComponent::setPorts(const std::vector<std::pair<std::string, 
   }
 }
 
-void GraphicalLogicComponent::setPortLine(Port& port) {
-
+void GraphicalLogicComponent::setPortLine(Port& port)
+{
   const auto width  = shape->boundingRect().width();
   const auto height = shape->boundingRect().height();
 
@@ -80,8 +78,6 @@ void GraphicalLogicComponent::setPortLine(Port& port) {
   else
     assert(false);
 
-
-  port.line = new QGraphicsLineItem(QLineF(port.position, projectionOnShape),
-				    this);
+  port.line = new QGraphicsLineItem(QLineF(port.position, projectionOnShape), this);
   port.line->setPen(QPen(QBrush(Qt::black), 3));
 }

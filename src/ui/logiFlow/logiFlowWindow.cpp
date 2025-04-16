@@ -16,9 +16,10 @@
 */
 
 #include "logiFlowWindow.hpp"
+#include "ui/common/diagramScene.hpp"
 
-LogiFlowWindow::LogiFlowWindow() {
-
+LogiFlowWindow::LogiFlowWindow()
+{
   auto centralWidget = new QWidget;
   setCentralWidget(centralWidget);
 
@@ -40,34 +41,27 @@ LogiFlowWindow::LogiFlowWindow() {
 
   splitDockWidget(componentsDock, propertyDock, Qt::Vertical);
 
+  diagramScene = new DiagramScene(this);
+  diagramView  = new DiagramView(this);
+  diagramView->setScene(diagramScene);
 
-  graphicsScene = new DiagramScene(this);
-  graphicsScene->setBackgroundBrush(QBrush(QColor(255, 238, 140),
-					   Qt::Dense5Pattern));
-
-  diagramView = new DiagramView(this);
-  diagramView->setScene(graphicsScene);
-
-
-  auto a = std::make_shared<Wire>(State::HIGH);
-  auto o = std::make_shared<Wire>();
-  auto xg = std::make_shared<XorGate>(std::array<Wire_ptr, 2>{a, a}, o);
-  auto ng = std::make_shared<NotGate>(a, o);
+  auto a            = std::make_shared<Wire>(State::HIGH);
+  auto o            = std::make_shared<Wire>();
+  auto xg           = std::make_shared<XorGate>(std::array<Wire_ptr, 2>{a, a}, o);
+  auto ng           = std::make_shared<NotGate>(a, o);
   auto graphicalXor = new GraphicalXor(xg);
   auto graphicalNot = new GraphicalNot(ng);
 
   graphicalXor->setPos(0, 50);
 
-  graphicsScene->addItem(graphicalXor);
-  graphicsScene->addItem(graphicalNot);
+  diagramScene->addItem(graphicalXor);
+  diagramScene->addItem(graphicalNot);
 
   layout->addWidget(diagramView);
 
-  toolBar = new QToolBar(this);
-  addToolBar(toolBar);
-
   createActions();
   createMenus();
+  createToolBar();
 
   statusBar()->showMessage(tr("Ready"));
 
@@ -75,20 +69,27 @@ LogiFlowWindow::LogiFlowWindow() {
   setMinimumSize(160, 160);
 }
 
+void LogiFlowWindow::createActions()
+{
+  newAct         = new QAction(Icon("file"), tr("&New"), this);
+  openAct        = new QAction(Icon("open"), tr("&Open..."), this);
+  saveAct        = new QAction(Icon("save"), tr("&Save"), this);
+  exportImageAct = new QAction(Icon("export"), tr("&Export..."), this);
+  exitAct        = new QAction(Icon("xmark"), tr("E&xit"), this);
+  undoAct        = new QAction(Icon("undo"), tr("&Undo"), this);
+  redoAct        = new QAction(Icon("redo"), tr("&Redo"), this);
+  cutAct         = new QAction(Icon("cut"), tr("Cu&t"), this);
+  copyAct        = new QAction(Icon("copy"), tr("&Copy"), this);
+  pasteAct       = new QAction(Icon("paste"), tr("&Paste"), this);
+  deleteAct      = new QAction(Icon("delete"), tr("&Delete"), this);
+  aboutAct       = new QAction(Icon("info"), tr("&About"), this);
 
-void LogiFlowWindow::createActions() {
+  setNormalModeAct       = new QAction(Icon("mouse-pointer"), "", this);
+  setPanModeAct          = new QAction(Icon("pan"), "", this);
+  setWireCreationModeAct = new QAction(Icon("link"), "", this);
+  setSimulationModeAct   = new QAction(Icon("play"), "", this);
 
-  newAct         = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentNew),     tr("&New"),       this);
-  openAct        = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentOpen),    tr("&Open..."),   this);
-  saveAct        = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::DocumentSave),    tr("&Save"),      this);
-  exportImageAct = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::ImageLoading),    tr("&Export..."), this);
-  exitAct        = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::ApplicationExit), tr("E&xit"),      this);
-  undoAct        = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditUndo),        tr("&Undo"),      this);
-  redoAct        = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditRedo),        tr("&Redo"),      this);
-  cutAct         = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditCut),         tr("Cu&t"),       this);
-  copyAct        = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditCopy),        tr("&Copy"),      this);
-  pasteAct       = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::EditPaste),       tr("&Paste"),     this);
-  aboutAct       = new QAction(QIcon::fromTheme(QIcon::ThemeIcon::HelpAbout),       tr("&About"),     this);
+  addComponentAct = new QAction(Icon("plus"), "", this);
 
   newAct->setShortcuts(QKeySequence::New);
   openAct->setShortcuts(QKeySequence::Open);
@@ -99,8 +100,10 @@ void LogiFlowWindow::createActions() {
   redoAct->setShortcuts(QKeySequence::Redo);
   cutAct->setShortcuts(QKeySequence::Cut);
   copyAct->setShortcuts(QKeySequence::Copy);
+  deleteAct->setShortcuts(QKeySequence::Delete);
   pasteAct->setShortcuts(QKeySequence::Paste);
 
+  addComponentAct->setShortcuts({Qt::AltModifier | Qt::Key_A});
 
   newAct->setStatusTip(tr("Create a new file"));
   openAct->setStatusTip(tr("Open an existing logiFlow file"));
@@ -111,24 +114,32 @@ void LogiFlowWindow::createActions() {
   redoAct->setStatusTip(tr("Redo the last operation"));
   cutAct->setStatusTip(tr("Cut the current selection's contents to the clipboard"));
   pasteAct->setStatusTip(tr("Paste the clipboard's contents into the current selection"));
-  aboutAct->setStatusTip(tr("Show the application's About box"));
+  deleteAct->setStatusTip(tr("Delete selected components"));
+  aboutAct->setStatusTip(tr("Show the application's about box"));
 
-  connect(newAct,         &QAction::triggered, this, &LogiFlowWindow::newFile);
-  connect(openAct,        &QAction::triggered, this, &LogiFlowWindow::open);
-  connect(saveAct,        &QAction::triggered, this, &LogiFlowWindow::save);
+  connect(newAct, &QAction::triggered, this, &LogiFlowWindow::newFile);
+  connect(openAct, &QAction::triggered, this, &LogiFlowWindow::open);
+  connect(saveAct, &QAction::triggered, this, &LogiFlowWindow::save);
   connect(exportImageAct, &QAction::triggered, this, &LogiFlowWindow::exportImage);
-  connect(exitAct,        &QAction::triggered, this, &QWidget::close);
-  connect(undoAct,        &QAction::triggered, this, &LogiFlowWindow::undo);
-  connect(redoAct,        &QAction::triggered, this, &LogiFlowWindow::redo);
-  connect(cutAct,         &QAction::triggered, this, &LogiFlowWindow::cut);
-  connect(copyAct,        &QAction::triggered, this, &LogiFlowWindow::copy);
-  connect(pasteAct,       &QAction::triggered, this, &LogiFlowWindow::paste);
-  connect(aboutAct,       &QAction::triggered, this, &LogiFlowWindow::about);
+  connect(exitAct, &QAction::triggered, this, &QWidget::close);
+  connect(undoAct, &QAction::triggered, this, &LogiFlowWindow::undo);
+  connect(redoAct, &QAction::triggered, this, &LogiFlowWindow::redo);
+  connect(cutAct, &QAction::triggered, this, &LogiFlowWindow::cut);
+  connect(copyAct, &QAction::triggered, this, &LogiFlowWindow::copy);
+  connect(pasteAct, &QAction::triggered, this, &LogiFlowWindow::paste);
+  connect(deleteAct, &QAction::triggered, this, &LogiFlowWindow::del);
+  connect(aboutAct, &QAction::triggered, this, &LogiFlowWindow::about);
 
+  connect(setNormalModeAct, &QAction::triggered, this, &LogiFlowWindow::setNormalMode);
+  connect(setPanModeAct, &QAction::triggered, this, &LogiFlowWindow::setPanMode);
+  connect(setWireCreationModeAct, &QAction::triggered, this, &LogiFlowWindow::setWireCreationMode);
+  connect(setSimulationModeAct, &QAction::triggered, this, &LogiFlowWindow::setSimulationMode);
+
+  connect(addComponentAct, &QAction::triggered, this, &LogiFlowWindow::addComponent);
 }
 
-void LogiFlowWindow::createMenus() {
-
+void LogiFlowWindow::createMenus()
+{
   fileMenu = menuBar()->addMenu(tr("&File"));
   fileMenu->addAction(newAct);
   fileMenu->addAction(openAct);
@@ -148,16 +159,82 @@ void LogiFlowWindow::createMenus() {
 
   helpMenu = menuBar()->addMenu(tr("&Help"));
   helpMenu->addAction(aboutAct);
+}
 
+void LogiFlowWindow::createToolBar()
+{
+  toolBar = new QToolBar(this);
+  toolBar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
+  toolBar->setFloatable(false);
+
+  toolBar->addAction(newAct);
+  toolBar->addAction(openAct);
+  toolBar->addAction(saveAct);
+
+  toolBar->addSeparator();
+
+  toolBar->addAction(setNormalModeAct);
+  toolBar->addAction(setPanModeAct);
+  toolBar->addAction(setWireCreationModeAct);
+  toolBar->addAction(setSimulationModeAct);
+
+  toolBar->addSeparator();
+  toolBar->addAction(addComponentAct);
+
+  addToolBar(toolBar);
 }
 
 #ifndef QT_NO_CONTEXTMENU
-void LogiFlowWindow::contextMenuEvent(QContextMenuEvent *event)
+void LogiFlowWindow::contextMenuEvent(QContextMenuEvent* event)
 {
   QMenu menu(this);
   menu.addAction(cutAct);
   menu.addAction(copyAct);
   menu.addAction(pasteAct);
+  menu.addAction(deleteAct);
   menu.exec(event->globalPos());
 }
-#endif // QT_NO_CONTEXTMENU
+#endif  // QT_NO_CONTEXTMENU
+
+/* ACTIONS IMPLEMENTATION */
+
+void LogiFlowWindow::setNormalMode()
+{
+  diagramScene->setInteractionMode(InteractionMode::NORMAL_MODE);
+}
+
+void LogiFlowWindow::setPanMode()
+{
+  diagramScene->setInteractionMode(InteractionMode::PAN_MODE);
+}
+
+void LogiFlowWindow::setWireCreationMode()
+{
+  diagramScene->setInteractionMode(InteractionMode::WIRE_CREATION_MODE);
+}
+
+void LogiFlowWindow::setSimulationMode()
+{
+  diagramScene->setInteractionMode(InteractionMode::SIMULATION_MODE);
+}
+
+void LogiFlowWindow::addComponent()
+{
+  const QPoint globalPos          = QCursor::pos();
+
+  // Get cursor pos within view
+  const QPoint viewPos            = diagramView->mapFromGlobal(globalPos);
+
+  // Get the position of the center of the view
+  const QPoint centerViewPos      = diagramView->viewport()->rect().center();
+  
+  const bool   isCursorInsideView = diagramView->viewport()->rect().contains(viewPos);
+
+  // The position at which the dialog should be displayed
+  const QPoint dialogPos = isCursorInsideView ? globalPos : diagramView->mapToGlobal(centerViewPos);
+
+  qDebug() << "Adding component @ " << dialogPos;
+
+  // FIXME: If the cursor is not inside the view then the scene should be put in component placing
+  // mode and the component should be placed manually.
+}
