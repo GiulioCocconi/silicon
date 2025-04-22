@@ -57,12 +57,10 @@ OrGate::OrGate(std::vector<Wire_ptr> inputs, Wire_ptr output) : Gate(inputs, out
 
 NotGate::NotGate(Wire_ptr input, Wire_ptr output) : Gate({input}, output, "Not")
 {
-  const auto a = std::make_shared<action>([this]() {
+  this->setAction([this]() {
     State s = !this->inputs[0][0]->getCurrentState();
     this->outputs[0][0]->setCurrentState(s, weak_from_this());
   });
-
-  this->inputs[0][0]->addUpdateAction(a);
 }
 
 NandGate::NandGate(std::vector<Wire_ptr> inputs, Wire_ptr output)

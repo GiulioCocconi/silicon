@@ -19,14 +19,6 @@
 
 Component::Component(std::vector<Bus> inputs, std::vector<Bus> outputs, std::string name)
 {
-  for (auto inputBus : inputs)
-    for (auto w : inputBus)
-      assert(w);
-
-  for (auto outputBus : outputs)
-    for (auto w : outputBus)
-      assert(w);
-
   this->inputs  = inputs;
   this->outputs = outputs;
   this->name    = name;
@@ -45,7 +37,8 @@ void Component::setInputs(std::vector<Bus> newInputs)
   if (this->act)
     for (auto bus : this->inputs)
       for (auto w : bus)
-        w->deleteUpdateAction(this->act);
+        if (w)
+          w->deleteUpdateAction(this->act);
 
   // Then we set the new inputs and add the update action to them:
   this->inputs = newInputs;
@@ -53,7 +46,8 @@ void Component::setInputs(std::vector<Bus> newInputs)
   if (this->act)
     for (auto bus : this->inputs)
       for (auto w : bus)
-        w->addUpdateAction(this->act);
+        if (w)
+          w->addUpdateAction(this->act);
 }
 
 void Component::setAction(action a)
@@ -61,10 +55,11 @@ void Component::setAction(action a)
   this->act = std::make_shared<action>(a);
   assert(this->act);
 
-  // The action is to be set for all the inputs of the component:
+  // The action is to be set for all the inputs of the component connected to wires:
   for (auto bus : this->inputs)
     for (auto w : bus)
-      w->addUpdateAction(this->act);
+      if (w)
+        w->addUpdateAction(this->act);
 }
 
 Component::~Component()
@@ -72,5 +67,6 @@ Component::~Component()
   // Remove the associated update action from all the inputs:
   for (auto bus : this->inputs)
     for (auto w : bus)
-      w->deleteUpdateAction(this->act);
+      if (w)
+	w->deleteUpdateAction(this->act);
 }

@@ -50,8 +50,8 @@ LogiFlowWindow::LogiFlowWindow()
 
   auto a            = std::make_shared<Wire>(State::HIGH);
   auto o            = std::make_shared<Wire>();
-  auto xg           = std::make_shared<XorGate>(std::array<Wire_ptr, 2>{a, a}, o);
-  auto ng           = std::make_shared<NotGate>(a, o);
+  auto xg           = std::make_shared<XorGate>(std::array<Wire_ptr, 2>{nullptr, nullptr}, nullptr);
+  auto ng           = std::make_shared<NotGate>(nullptr, nullptr);
   auto graphicalXor = new GraphicalXor(xg);
   auto graphicalNot = new GraphicalNot(ng);
 
