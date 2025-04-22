@@ -48,8 +48,6 @@ protected:
 
   bool isEditable;
 
-  bool isColliding;
-
   void setPortLine(Port& port);
 
 public:
