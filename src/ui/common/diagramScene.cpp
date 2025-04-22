@@ -27,11 +27,14 @@ QPointF DiagramScene::snapToGrid(QPointF point)
 
 void DiagramScene::drawBackground(QPainter* painter, const QRectF& rect)
 {
+  // Draw the grid to help with components alignment
+
   QPen pen;
   painter->setPen(pen);
 
-  qreal            left = int(rect.left()) - (int(rect.left()) % DiagramScene::GRID_SIZE);
-  qreal            top  = int(rect.top()) - (int(rect.top()) % DiagramScene::GRID_SIZE);
+  qreal left = int(rect.left()) - (int(rect.left()) % DiagramScene::GRID_SIZE);
+  qreal top  = int(rect.top()) - (int(rect.top()) % DiagramScene::GRID_SIZE);
+
   QVector<QPointF> points;
   for (qreal x = left; x < rect.right(); x += DiagramScene::GRID_SIZE) {
     for (qreal y = top; y < rect.bottom(); y += DiagramScene::GRID_SIZE) {
