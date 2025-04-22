@@ -21,8 +21,8 @@
 #include <ranges>
 #include <vector>
 
-#include <QGraphicsScene>
 #include <QGraphicsItem>
+#include <QGraphicsScene>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPoint>

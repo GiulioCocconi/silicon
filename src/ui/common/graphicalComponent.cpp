@@ -16,7 +16,6 @@
 */
 
 #include "graphicalComponent.hpp"
-#include "ui/common/diagramScene.hpp"
 
 GraphicalComponent::GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* parent)
   : QGraphicsObject(parent)
@@ -66,6 +65,8 @@ void GraphicalComponent::paint(QPainter* painter, const QStyleOptionGraphicsItem
 
 QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVariant& value)
 {
+  // TODO: Implement with QGraphicsItem::ItemRotationChange for rotations
+
   if (change == ItemPositionChange && scene()) {
     // 'value' is the new proposed position, snapped to the grid.
     auto proposedPos = DiagramScene::snapToGrid(value.toPointF());
@@ -78,7 +79,6 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
     auto newRect = this->boundingRect().translated(proposedPos);
 
     // Get a list of items that would collide with this item at the new position.
-    // Use the bounding rect for collision check.
     auto collidingItems = scene()->items(newRect, Qt::IntersectsItemShape);
 
     for (QGraphicsItem* collidingItem : collidingItems) {
@@ -86,9 +86,9 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
       if (collidingItem == this || childItems().contains(collidingItem))
         continue;
 
-      // TODO: Handle wires
       this->collidingStatus = COLLIDING_WITH_COMPONENT;
-      this->update();
+      prepareGeometryChange();
+      // this->update();
       return pos();  // Return current position, rejecting the change
     }
 
