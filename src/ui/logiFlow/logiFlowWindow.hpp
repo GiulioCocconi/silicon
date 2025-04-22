@@ -17,6 +17,7 @@
 
 #pragma once
 
+#include "ui/common/graphicalComponent.hpp"
 #include <QBrush>
 #include <QColor>
 #include <QDockWidget>
@@ -75,6 +76,8 @@ private slots:
   void updateStatus();
 
 private:
+  void addComponent(GraphicalComponent* component, QPointF pos = QPointF(0, 0));
+
   void createActions();
   void createMenus();
   void createToolBar();

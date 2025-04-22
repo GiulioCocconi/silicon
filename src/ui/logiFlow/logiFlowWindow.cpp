@@ -17,6 +17,7 @@
 
 #include "logiFlowWindow.hpp"
 #include "ui/common/diagramScene.hpp"
+#include "ui/common/graphicalComponent.hpp"
 
 LogiFlowWindow::LogiFlowWindow()
 {
@@ -56,10 +57,8 @@ LogiFlowWindow::LogiFlowWindow()
   auto graphicalXor = new GraphicalXor(xg);
   auto graphicalNot = new GraphicalNot(ng);
 
-  graphicalXor->setPos(0, 50);
-
-  diagramScene->addItem(graphicalXor);
-  diagramScene->addItem(graphicalNot);
+  addComponent(graphicalNot);
+  addComponent(graphicalXor, QPointF(0,50));
 
   layout->addWidget(diagramView);
 
@@ -142,7 +141,6 @@ void LogiFlowWindow::createActions()
   connect(setSimulationModeAct, &QAction::triggered, this,
           &LogiFlowWindow::setSimulationMode);
 
-  connect(addComponentAct, &QAction::triggered, this, &LogiFlowWindow::addComponent);
 }
 
 void LogiFlowWindow::createMenus()
@@ -248,6 +246,17 @@ void LogiFlowWindow::addComponent()
 
   // TODO: When the component is selected in the dialog we should go in component placing
   // mode and repeat placing of the same component
+}
+
+void LogiFlowWindow::addComponent(GraphicalComponent* component, QPointF pos) {
+  component->setPos(pos);
+
+  connect(diagramScene, &DiagramScene::modeChanged, component,
+          &GraphicalComponent::modeChanged);
+
+  component->modeChanged(diagramScene->getInteractionMode());
+
+  diagramScene->addItem(component);
 }
 
 void LogiFlowWindow::updateStatus()
