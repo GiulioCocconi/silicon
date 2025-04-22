@@ -18,6 +18,7 @@
 #pragma once
 
 #include <QGraphicsItem>
+#include <QKeyEvent>
 #include <QPainter>
 #include <QPoint>
 #include <QRect>
@@ -39,6 +40,9 @@ protected:
 
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
   QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
+
+public slots:
+  void modeChanged(InteractionMode mode);
 
 public:
   GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* parent = nullptr);

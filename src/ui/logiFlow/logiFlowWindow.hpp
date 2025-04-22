@@ -32,6 +32,7 @@
 
 #include <ui/common/diagramScene.hpp>
 #include <ui/common/diagramView.hpp>
+#include <ui/common/graphicalWire.hpp>
 #include <ui/common/icons.hpp>
 
 #include <ui/logiFlow/components/graphicalGates.hpp>
@@ -70,6 +71,8 @@ private slots:
   void setSimulationMode();
 
   void addComponent();
+
+  void updateStatus();
 
 private:
   void createActions();

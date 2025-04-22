@@ -45,6 +45,10 @@ LogiFlowWindow::LogiFlowWindow()
   diagramView  = new DiagramView(this);
   diagramView->setScene(diagramScene);
 
+  connect(diagramScene, &DiagramScene::modeChanged, this, &LogiFlowWindow::updateStatus);
+  
+  updateStatus();
+
   auto a            = std::make_shared<Wire>(State::HIGH);
   auto o            = std::make_shared<Wire>();
   auto xg           = std::make_shared<XorGate>(std::array<Wire_ptr, 2>{a, a}, o);
@@ -62,8 +66,6 @@ LogiFlowWindow::LogiFlowWindow()
   createActions();
   createMenus();
   createToolBar();
-
-  statusBar()->showMessage(tr("Ready"));
 
   setWindowTitle(tr("Silicon LogiFlow"));
   setMinimumSize(160, 160);
@@ -102,8 +104,13 @@ void LogiFlowWindow::createActions()
   copyAct->setShortcuts(QKeySequence::Copy);
   deleteAct->setShortcuts(QKeySequence::Delete);
   pasteAct->setShortcuts(QKeySequence::Paste);
+  
 
-  addComponentAct->setShortcuts({Qt::AltModifier | Qt::Key_A});
+  setWireCreationModeAct->setShortcut(Qt::AltModifier | Qt::Key_W);
+  setSimulationModeAct->setShortcut(Qt::AltModifier | Qt::ControlModifier | Qt::Key_S);
+  
+  addComponentAct->setShortcut(Qt::AltModifier | Qt::Key_A);
+  
 
   newAct->setStatusTip(tr("Create a new file"));
   openAct->setStatusTip(tr("Open an existing logiFlow file"));
@@ -243,4 +250,31 @@ void LogiFlowWindow::addComponent()
 
   // TODO: When the component is selected in the dialog we should go in component placing
   // mode and repeat placing of the same component
+}
+
+void LogiFlowWindow::updateStatus()
+{
+  QString modeMsg = "Interaction Mode: ";
+
+  switch (diagramScene->getInteractionMode()) {
+    case DiagramScene::NORMAL_MODE:
+      modeMsg += "NORMAL";
+      break;
+    case DiagramScene::COMPONENT_PLACING_MODE:
+      modeMsg += "COMPONENT PLACING";
+      break;
+    case DiagramScene::WIRE_CREATION_MODE:
+      modeMsg += "WIRE CREATION";
+      break;
+    case DiagramScene::PAN_MODE:
+      modeMsg += "PAN";
+      break;
+    case DiagramScene::SIMULATION_MODE:
+      modeMsg += "SIMULATION";
+      break;
+    default:
+      assert(false);
+  }
+
+  statusBar()->showMessage(modeMsg);
 }

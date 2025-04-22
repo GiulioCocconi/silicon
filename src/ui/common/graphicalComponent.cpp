@@ -22,10 +22,7 @@ GraphicalComponent::GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* pare
 {
   this->isEditable = true;
 
-  this->isColliding = false;
-
-  setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable |
-           QGraphicsItem::ItemIsFocusable | QGraphicsItem::ItemSendsGeometryChanges);
+  setFlag(QGraphicsItem::ItemSendsGeometryChanges);
 
   setAcceptHoverEvents(true);
   setAcceptedMouseButtons(Qt::AllButtons);
@@ -102,4 +99,25 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
 
   // For all other changes call the base class implementation
   return QGraphicsItem::itemChange(change, value);
+}
+
+void GraphicalComponent::modeChanged(InteractionMode mode)
+{
+  switch (mode) {
+    case DiagramScene::NORMAL_MODE:
+      setFlag(QGraphicsItem::ItemIsMovable);
+      setFlag(QGraphicsItem::ItemIsFocusable);
+      setFlag(QGraphicsItem::ItemIsSelectable);
+      break;
+    case DiagramScene::WIRE_CREATION_MODE:
+    case DiagramScene::COMPONENT_PLACING_MODE:
+    case DiagramScene::SIMULATION_MODE:
+    case DiagramScene::PAN_MODE:
+      setFlag(QGraphicsItem::ItemIsSelectable, false);
+      setFlag(QGraphicsItem::ItemIsMovable, false);
+      setFlag(QGraphicsItem::ItemIsFocusable, false);
+      break;
+    default:
+      assert(false);
+  }
 }
