@@ -16,8 +16,6 @@
 */
 
 #include "logiFlowWindow.hpp"
-#include "ui/common/diagramScene.hpp"
-#include "ui/common/graphicalComponent.hpp"
 
 LogiFlowWindow::LogiFlowWindow()
 {
@@ -58,7 +56,7 @@ LogiFlowWindow::LogiFlowWindow()
   auto graphicalNot = new GraphicalNot(ng);
 
   addComponent(graphicalNot);
-  addComponent(graphicalXor, QPointF(0,50));
+  addComponent(graphicalXor, QPointF(0, 50));
 
   layout->addWidget(diagramView);
 
@@ -140,7 +138,6 @@ void LogiFlowWindow::createActions()
           &LogiFlowWindow::setWireCreationMode);
   connect(setSimulationModeAct, &QAction::triggered, this,
           &LogiFlowWindow::setSimulationMode);
-
 }
 
 void LogiFlowWindow::createMenus()
@@ -248,7 +245,8 @@ void LogiFlowWindow::addComponent()
   // mode and repeat placing of the same component
 }
 
-void LogiFlowWindow::addComponent(GraphicalComponent* component, QPointF pos) {
+void LogiFlowWindow::addComponent(GraphicalComponent* component, QPointF pos)
+{
   component->setPos(pos);
 
   connect(diagramScene, &DiagramScene::modeChanged, component,

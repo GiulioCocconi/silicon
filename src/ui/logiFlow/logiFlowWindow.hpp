@@ -17,7 +17,6 @@
 
 #pragma once
 
-#include "ui/common/graphicalComponent.hpp"
 #include <QBrush>
 #include <QColor>
 #include <QDockWidget>
@@ -33,6 +32,7 @@
 
 #include <ui/common/diagramScene.hpp>
 #include <ui/common/diagramView.hpp>
+#include <ui/common/graphicalComponent.hpp>
 #include <ui/common/graphicalWire.hpp>
 #include <ui/common/icons.hpp>
 
