@@ -48,6 +48,8 @@ void GraphicalWireSegment::setShowPoints(std::vector<QPointF> points)
 {
   assert(points.size() <= 2);
 
+  // TODO: Check for collision with items but not with ports!
+
   this->showPoints = points;
 
   updatePath();
@@ -55,16 +57,43 @@ void GraphicalWireSegment::setShowPoints(std::vector<QPointF> points)
 
 void GraphicalWireSegment::addPoints()
 {
-  for (auto pt : this->showPoints)
-    this->points.push_back(pt);
+  if (points.empty()) {
+    points = std::move(showPoints);
 
-  updatePath();
+    this->showPoints = {};
+
+    updatePath();
+    return;
+  }
+
+  // Check for self intersecting
+  QPainterPathStroker stroker;
+
+  auto showStroke = stroker.createStroke(showPath);
+
+  auto intersection = shape().intersected(showStroke);
+
+  // Exclude the last point of path
+  QPainterPath exclusionZone;
+  exclusionZone.addEllipse(lastPoint(), 1, 1);
+
+  intersection = intersection.subtracted(exclusionZone);
+
+  if (intersection.isEmpty()) {
+    for (auto pt : this->showPoints)
+      this->points.push_back(pt);
+    this->showPoints = {};
+    updatePath();
+  } else {
+    qDebug() << "Self intersecting";
+  }
 }
 
 void GraphicalWireSegment::updatePath()
 {
   prepareGeometryChange();
   path.clear();
+  showPath.clear();
 
   // Set initial position
   path.moveTo(this->points[0]);
@@ -74,11 +103,13 @@ void GraphicalWireSegment::updatePath()
     path.lineTo(this->points[i]);
 
   // Draw showpoints
-  for (int i = 0; i < this->showPoints.size(); i++)
-    path.lineTo(this->showPoints[i]);
+  if (!this->showPoints.empty()) {
+    showPath.moveTo(this->lastPoint());
 
-  // Repaint
-  // update();
+    for (int i = 0; i < this->showPoints.size(); i++) {
+      showPath.lineTo(this->showPoints[i]);
+    }
+  }
 }
 
 void GraphicalWireSegment::paint(QPainter*                       painter,
@@ -86,13 +117,18 @@ void GraphicalWireSegment::paint(QPainter*                       painter,
 {
   painter->setPen(QPen(Qt::blue, 3));
   painter->drawPath(path);
+
+  painter->setPen(QPen(Qt::red, 3));
+  painter->drawPath(showPath);
 }
 
 // FIXME: The path shape behaves like the path is closed even if it's not.
 
 QRectF GraphicalWireSegment::boundingRect() const
 {
-  return this->path.boundingRect().adjusted(-5, -5, 5, 5);
+  return (this->path.boundingRect())
+      .united(this->showPath.boundingRect())
+      .adjusted(-5, -5, 5, 5);
 }
 
 QPainterPath GraphicalWireSegment::shape() const

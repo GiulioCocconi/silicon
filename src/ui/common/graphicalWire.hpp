@@ -21,6 +21,7 @@
 #include <ranges>
 #include <vector>
 
+#include <QGraphicsScene>
 #include <QGraphicsItem>
 #include <QPainter>
 #include <QPainterPath>
@@ -63,6 +64,7 @@ public:
 
 private:
   QPainterPath path;
+  QPainterPath showPath;
 
   std::vector<QPointF> points;
   std::vector<QPointF> showPoints;
