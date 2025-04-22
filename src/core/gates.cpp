@@ -28,7 +28,8 @@ Gate::Gate(std::vector<Wire_ptr> inputs, Wire_ptr output, std::string name)
   this->outputs = {{output}};
 }
 
-AndGate::AndGate(std::vector<Wire_ptr> inputs, Wire_ptr output) : Gate(inputs, output, "And")
+AndGate::AndGate(std::vector<Wire_ptr> inputs, Wire_ptr output)
+  : Gate(inputs, output, "And")
 {
   assert(inputs.size() >= 2);
   this->setAction([this]() {
@@ -64,7 +65,8 @@ NotGate::NotGate(Wire_ptr input, Wire_ptr output) : Gate({input}, output, "Not")
   this->inputs[0][0]->addUpdateAction(a);
 }
 
-NandGate::NandGate(std::vector<Wire_ptr> inputs, Wire_ptr output) : Gate(inputs, output, "Nand")
+NandGate::NandGate(std::vector<Wire_ptr> inputs, Wire_ptr output)
+  : Gate(inputs, output, "Nand")
 {
   assert(inputs.size() >= 2);
   this->setAction([this]() {
@@ -77,7 +79,8 @@ NandGate::NandGate(std::vector<Wire_ptr> inputs, Wire_ptr output) : Gate(inputs,
   });
 }
 
-NorGate::NorGate(std::vector<Wire_ptr> inputs, Wire_ptr output) : Gate(inputs, output, "Nor")
+NorGate::NorGate(std::vector<Wire_ptr> inputs, Wire_ptr output)
+  : Gate(inputs, output, "Nor")
 {
   assert(inputs.size() >= 2);
   this->setAction([this]() {
@@ -95,7 +98,8 @@ XorGate::XorGate(std::array<Wire_ptr, 2> inputs, Wire_ptr output)
 {
   assert(inputs.size() >= 2);
   this->setAction([this]() {
-    State s = (this->inputs[0][0]->getCurrentState() ^ this->inputs[1][0]->getCurrentState());
+    State s =
+        (this->inputs[0][0]->getCurrentState() ^ this->inputs[1][0]->getCurrentState());
     this->outputs[0][0]->setCurrentState(s, weak_from_this());
   });
 }

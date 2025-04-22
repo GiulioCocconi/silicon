@@ -16,9 +16,19 @@
 */
 
 #pragma once
+
+#include <ranges>
+
+#include <QCursor>
 #include <QGraphicsScene>
+#include <QGraphicsSceneMouseEvent>
+#include <QKeyEvent>
 #include <QPainter>
 #include <QRect>
+
+#include <ui/common/graphicalWire.hpp>
+
+class GraphicalComponent;
 
 class DiagramScene : public QGraphicsScene {
   Q_OBJECT
@@ -31,7 +41,13 @@ public:
     SIMULATION_MODE,
   };
 
-  explicit DiagramScene(QObject* parent = nullptr) : QGraphicsScene(parent) {}
+  explicit DiagramScene(QObject* parent = nullptr);
+
+  void            setInteractionMode(InteractionMode mode);
+  InteractionMode getInteractionMode() { return currentInteractionMode; }
+
+  void clearWireShadow();
+  void clearComponentShadow();
 
   void setInteractionMode(InteractionMode mode);
 
@@ -43,7 +59,17 @@ signals:
   void modeChanged(InteractionMode mode);
 
 private:
-  void            drawBackground(QPainter* painter, const QRectF& rect) override;
+  void drawBackground(QPainter* painter, const QRectF& rect) override;
+
+  void setInteractionMode(InteractionMode mode, bool force);
+
+  void mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent) override;
+  void mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent) override;
+  void keyPressEvent(QKeyEvent* event) override;
+
   InteractionMode currentInteractionMode = InteractionMode::NORMAL_MODE;
+
+  GraphicalComponent*   componentToBeDrawn   = nullptr;
+  GraphicalWireSegment* wireSegmentToBeDrawn = nullptr;
 };
 using InteractionMode = DiagramScene::InteractionMode;

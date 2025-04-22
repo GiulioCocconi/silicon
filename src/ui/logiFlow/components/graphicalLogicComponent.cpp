@@ -18,7 +18,8 @@
 #include "graphicalLogicComponent.hpp"
 
 GraphicalLogicComponent::GraphicalLogicComponent(const Component_ptr component,
-                                                 QGraphicsItem* shape, QGraphicsItem* parent)
+                                                 QGraphicsItem*      shape,
+                                                 QGraphicsItem*      parent)
   : GraphicalComponent(shape, parent)
 {
   this->associatedComponent = component;

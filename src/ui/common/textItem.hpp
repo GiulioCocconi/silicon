@@ -29,12 +29,16 @@ class TextItem : public QGraphicsItem {
 public:
   TextItem(const std::string text, QGraphicsItem* parent = nullptr);
 
-  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
+  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+             QWidget* widget) override;
 
   QRectF boundingRect() const override { return this->rect; }
 
   void setText(const std::string text);
-  void setCenterPos(const QPointF pos) { this->setPos(pos - this->center().boundingRect()); }
+  void setCenterPos(const QPointF pos)
+  {
+    this->setPos(pos - this->center().boundingRect());
+  }
 
 private:
   QRectF  rect;

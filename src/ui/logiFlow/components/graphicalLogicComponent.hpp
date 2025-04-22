@@ -48,8 +48,6 @@ protected:
 
   bool isEditable;
 
-  bool isColliding;
-
   void setPortLine(Port& port);
 
 public:
@@ -58,4 +56,9 @@ public:
 
   void setPorts(const std::vector<std::pair<std::string, QPoint>> busToPortInputs,
                 const std::vector<std::pair<std::string, QPoint>> busToPortOutputs);
+
+  std::vector<Port> getInputPorts() const;
+  std::vector<Port> getOutputPorts() const;
+
+  Component_ptr getComponent() { return associatedComponent; }
 };

@@ -32,6 +32,8 @@
 
 #include <ui/common/diagramScene.hpp>
 #include <ui/common/diagramView.hpp>
+#include <ui/common/graphicalComponent.hpp>
+#include <ui/common/graphicalWire.hpp>
 #include <ui/common/icons.hpp>
 
 #include <ui/logiFlow/components/graphicalGates.hpp>
@@ -71,7 +73,11 @@ private slots:
 
   void addComponent();
 
+  void updateStatus();
+
 private:
+  void addComponent(GraphicalComponent* component, QPointF pos = QPointF(0, 0));
+
   void createActions();
   void createMenus();
   void createToolBar();

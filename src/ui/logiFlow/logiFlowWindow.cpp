@@ -45,6 +45,10 @@ LogiFlowWindow::LogiFlowWindow()
   diagramView  = new DiagramView(this);
   diagramView->setScene(diagramScene);
 
+  connect(diagramScene, &DiagramScene::modeChanged, this, &LogiFlowWindow::updateStatus);
+
+  updateStatus();
+
   auto a            = std::make_shared<Wire>(State::HIGH);
   auto o            = std::make_shared<Wire>();
   auto xg           = std::make_shared<XorGate>(std::array<Wire_ptr, 2>{a, a}, o);
@@ -52,18 +56,14 @@ LogiFlowWindow::LogiFlowWindow()
   auto graphicalXor = new GraphicalXor(xg);
   auto graphicalNot = new GraphicalNot(ng);
 
-  graphicalXor->setPos(0, 50);
-
-  diagramScene->addItem(graphicalXor);
-  diagramScene->addItem(graphicalNot);
+  addComponent(graphicalNot);
+  addComponent(graphicalXor, QPointF(0, 50));
 
   layout->addWidget(diagramView);
 
   createActions();
   createMenus();
   createToolBar();
-
-  statusBar()->showMessage(tr("Ready"));
 
   setWindowTitle(tr("Silicon LogiFlow"));
   setMinimumSize(160, 160);
@@ -103,7 +103,10 @@ void LogiFlowWindow::createActions()
   deleteAct->setShortcuts(QKeySequence::Delete);
   pasteAct->setShortcuts(QKeySequence::Paste);
 
-  addComponentAct->setShortcuts({Qt::AltModifier | Qt::Key_A});
+  setWireCreationModeAct->setShortcut(Qt::AltModifier | Qt::Key_W);
+  setSimulationModeAct->setShortcut(Qt::AltModifier | Qt::ControlModifier | Qt::Key_S);
+
+  addComponentAct->setShortcut(Qt::AltModifier | Qt::Key_A);
 
   newAct->setStatusTip(tr("Create a new file"));
   openAct->setStatusTip(tr("Open an existing logiFlow file"));
@@ -132,10 +135,10 @@ void LogiFlowWindow::createActions()
 
   connect(setNormalModeAct, &QAction::triggered, this, &LogiFlowWindow::setNormalMode);
   connect(setPanModeAct, &QAction::triggered, this, &LogiFlowWindow::setPanMode);
-  connect(setWireCreationModeAct, &QAction::triggered, this, &LogiFlowWindow::setWireCreationMode);
-  connect(setSimulationModeAct, &QAction::triggered, this, &LogiFlowWindow::setSimulationMode);
-
-  connect(addComponentAct, &QAction::triggered, this, &LogiFlowWindow::addComponent);
+  connect(setWireCreationModeAct, &QAction::triggered, this,
+          &LogiFlowWindow::setWireCreationMode);
+  connect(setSimulationModeAct, &QAction::triggered, this,
+          &LogiFlowWindow::setSimulationMode);
 }
 
 void LogiFlowWindow::createMenus()
@@ -220,21 +223,64 @@ void LogiFlowWindow::setSimulationMode()
 
 void LogiFlowWindow::addComponent()
 {
-  const QPoint globalPos          = QCursor::pos();
+  const QPoint globalPos = QCursor::pos();
 
   // Get cursor pos within view
-  const QPoint viewPos            = diagramView->mapFromGlobal(globalPos);
+  const QPoint viewPos = diagramView->mapFromGlobal(globalPos);
 
   // Get the position of the center of the view
-  const QPoint centerViewPos      = diagramView->viewport()->rect().center();
-  
-  const bool   isCursorInsideView = diagramView->viewport()->rect().contains(viewPos);
+  const QPoint centerViewPos = diagramView->viewport()->rect().center();
+
+  const bool isCursorInsideView = diagramView->viewport()->rect().contains(viewPos);
 
   // The position at which the dialog should be displayed
-  const QPoint dialogPos = isCursorInsideView ? globalPos : diagramView->mapToGlobal(centerViewPos);
+  const QPoint dialogPos =
+      isCursorInsideView ? globalPos : diagramView->mapToGlobal(centerViewPos);
 
   qDebug() << "Adding component @ " << dialogPos;
 
-  // FIXME: If the cursor is not inside the view then the scene should be put in component placing
-  // mode and the component should be placed manually.
+  // FIXME: If the cursor is not inside the view then the scene should be put in component
+  // placing mode and the component should be placed manually.
+
+  // TODO: When the component is selected in the dialog we should go in component placing
+  // mode and repeat placing of the same component
+}
+
+void LogiFlowWindow::addComponent(GraphicalComponent* component, QPointF pos)
+{
+  component->setPos(pos);
+
+  connect(diagramScene, &DiagramScene::modeChanged, component,
+          &GraphicalComponent::modeChanged);
+
+  component->modeChanged(diagramScene->getInteractionMode());
+
+  diagramScene->addItem(component);
+}
+
+void LogiFlowWindow::updateStatus()
+{
+  QString modeMsg = "Interaction Mode: ";
+
+  switch (diagramScene->getInteractionMode()) {
+    case DiagramScene::NORMAL_MODE:
+      modeMsg += "NORMAL";
+      break;
+    case DiagramScene::COMPONENT_PLACING_MODE:
+      modeMsg += "COMPONENT PLACING";
+      break;
+    case DiagramScene::WIRE_CREATION_MODE:
+      modeMsg += "WIRE CREATION";
+      break;
+    case DiagramScene::PAN_MODE:
+      modeMsg += "PAN";
+      break;
+    case DiagramScene::SIMULATION_MODE:
+      modeMsg += "SIMULATION";
+      break;
+    default:
+      assert(false);
+  }
+
+  statusBar()->showMessage(modeMsg);
 }

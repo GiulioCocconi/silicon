@@ -20,12 +20,9 @@
 GraphicalComponent::GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* parent)
   : QGraphicsObject(parent)
 {
-  this->isEditable = true;
+  this->collidingStatus = CollidingStatus::NOT_COLLIDING;
 
-  this->isColliding = false;
-
-  setFlags(QGraphicsItem::ItemIsMovable | QGraphicsItem::ItemIsSelectable |
-           QGraphicsItem::ItemIsFocusable | QGraphicsItem::ItemSendsGeometryChanges);
+  setFlag(QGraphicsItem::ItemSendsGeometryChanges);
 
   setAcceptHoverEvents(true);
   setAcceptedMouseButtons(Qt::AllButtons);
@@ -37,8 +34,6 @@ GraphicalComponent::GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* pare
 
 QRectF GraphicalComponent::boundingRect() const
 {
-  assert(shape);
-
   const qreal margin = isSelected() ? 0 : 4;  // Pen width is 3
   auto        rect   = boundingRectWithoutMargins();
   rect.adjust(-margin, -margin, margin, margin);
@@ -60,8 +55,8 @@ void GraphicalComponent::paint(QPainter* painter, const QStyleOptionGraphicsItem
                                QWidget* widget)
 {
   if (isSelected()) {
-    auto color = isColliding ? Qt::red : Qt::black;
-    auto style = isColliding ? Qt::SolidLine : Qt::DotLine;
+    auto color = isColliding() ? Qt::red : Qt::black;
+    auto style = isColliding() ? Qt::SolidLine : Qt::DotLine;
 
     painter->setPen(QPen(color, 3, style));
     painter->drawRect(this->boundingRectWithoutMargins());
@@ -70,29 +65,30 @@ void GraphicalComponent::paint(QPainter* painter, const QStyleOptionGraphicsItem
 
 QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVariant& value)
 {
+  // TODO: Implement with QGraphicsItem::ItemRotationChange for rotations
+
   if (change == ItemPositionChange && scene()) {
     // 'value' is the new proposed position, snapped to the grid.
     auto proposedPos = DiagramScene::snapToGrid(value.toPointF());
 
     // Collision detection:
-    this->isColliding = false;
+    this->collidingStatus = NOT_COLLIDING;
 
     // Calculate the bounding rectangle at the *new* position in scene coordinates.
     // Use the item's bounding rectangle, offset by the proposed new position.
     auto newRect = this->boundingRect().translated(proposedPos);
 
     // Get a list of items that would collide with this item at the new position.
-    // Use the bounding rect for collision check.
-    auto collidingItems = scene()->items(newRect, Qt::IntersectsItemBoundingRect);
-    // TODO: Use Qt::IntersectsItemShape for more precise collision based on shape().
+    auto collidingItems = scene()->items(newRect, Qt::IntersectsItemShape);
 
     for (QGraphicsItem* collidingItem : collidingItems) {
       // Skip collision with self or children
       if (collidingItem == this || childItems().contains(collidingItem))
         continue;
 
-      this->isColliding = true;
-      this->update();
+      this->collidingStatus = COLLIDING_WITH_COMPONENT;
+      prepareGeometryChange();
+      // this->update();
       return pos();  // Return current position, rejecting the change
     }
 
@@ -102,4 +98,25 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
 
   // For all other changes call the base class implementation
   return QGraphicsItem::itemChange(change, value);
+}
+
+void GraphicalComponent::modeChanged(InteractionMode mode)
+{
+  switch (mode) {
+    case DiagramScene::NORMAL_MODE:
+      setFlag(QGraphicsItem::ItemIsMovable);
+      setFlag(QGraphicsItem::ItemIsFocusable);
+      setFlag(QGraphicsItem::ItemIsSelectable);
+      break;
+    case DiagramScene::WIRE_CREATION_MODE:
+    case DiagramScene::COMPONENT_PLACING_MODE:
+    case DiagramScene::SIMULATION_MODE:
+    case DiagramScene::PAN_MODE:
+      setFlag(QGraphicsItem::ItemIsSelectable, false);
+      setFlag(QGraphicsItem::ItemIsMovable, false);
+      setFlag(QGraphicsItem::ItemIsFocusable, false);
+      break;
+    default:
+      assert(false);
+  }
 }

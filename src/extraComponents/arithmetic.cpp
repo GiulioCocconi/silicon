@@ -28,16 +28,19 @@ HalfAdder::HalfAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr sum, Wire_ptr cout
   */
 
   this->setAction([this]() {
-    State cout = (this->inputs[0][0]->getCurrentState() && this->inputs[1][0]->getCurrentState());
+    State cout =
+        (this->inputs[0][0]->getCurrentState() && this->inputs[1][0]->getCurrentState());
 
-    State sum = (this->inputs[0][0]->getCurrentState() ^ this->inputs[1][0]->getCurrentState());
+    State sum =
+        (this->inputs[0][0]->getCurrentState() ^ this->inputs[1][0]->getCurrentState());
 
     this->outputs[0][0]->setCurrentState(sum, weak_from_this());
     this->outputs[1][0]->setCurrentState(cout, weak_from_this());
   });
 }
 
-FullAdder::FullAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr cin, Wire_ptr sum, Wire_ptr cout)
+FullAdder::FullAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr cin, Wire_ptr sum,
+                     Wire_ptr cout)
   : Component({{inputs[0]}, {inputs[1]}, {cin}}, {{sum}, {cout}}, "FullAdder")
 {
   /* PIN MAP:
@@ -52,15 +55,16 @@ FullAdder::FullAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr cin, Wire_ptr sum,
     auto partialCarry1 = std::make_shared<Wire>();
     auto partialCarry2 = std::make_shared<Wire>();
 
-    auto h1 =
-        std::make_shared<HalfAdder>(std::array<Wire_ptr, 2>{this->inputs[0][0], this->inputs[1][0]},
-                                    partialSum1, partialCarry1);
+    auto h1 = std::make_shared<HalfAdder>(
+        std::array<Wire_ptr, 2>{this->inputs[0][0], this->inputs[1][0]}, partialSum1,
+        partialCarry1);
 
-    auto h2 = std::make_shared<HalfAdder>(std::array<Wire_ptr, 2>{partialSum1, this->inputs[2][0]},
-                                          this->outputs[0][0], partialCarry2);
+    auto h2 = std::make_shared<HalfAdder>(
+        std::array<Wire_ptr, 2>{partialSum1, this->inputs[2][0]}, this->outputs[0][0],
+        partialCarry2);
 
-    auto og = std::make_shared<OrGate>(std::vector<Wire_ptr>{partialCarry1, partialCarry2},
-                                       this->outputs[1][0]);
+    auto og = std::make_shared<OrGate>(
+        std::vector<Wire_ptr>{partialCarry1, partialCarry2}, this->outputs[1][0]);
   });
 }
 
