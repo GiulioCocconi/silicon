@@ -16,11 +16,12 @@
 */
 
 #include "graphicalComponent.hpp"
+#include "ui/common/diagramScene.hpp"
 
 GraphicalComponent::GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* parent)
   : QGraphicsObject(parent)
 {
-  this->isEditable = true;
+  this->collidingStatus = CollidingStatus::NOT_COLLIDING;
 
   setFlag(QGraphicsItem::ItemSendsGeometryChanges);
 
@@ -34,8 +35,6 @@ GraphicalComponent::GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* pare
 
 QRectF GraphicalComponent::boundingRect() const
 {
-  assert(shape);
-
   const qreal margin = isSelected() ? 0 : 4;  // Pen width is 3
   auto        rect   = boundingRectWithoutMargins();
   rect.adjust(-margin, -margin, margin, margin);
@@ -57,8 +56,8 @@ void GraphicalComponent::paint(QPainter* painter, const QStyleOptionGraphicsItem
                                QWidget* widget)
 {
   if (isSelected()) {
-    auto color = isColliding ? Qt::red : Qt::black;
-    auto style = isColliding ? Qt::SolidLine : Qt::DotLine;
+    auto color = isColliding() ? Qt::red : Qt::black;
+    auto style = isColliding() ? Qt::SolidLine : Qt::DotLine;
 
     painter->setPen(QPen(color, 3, style));
     painter->drawRect(this->boundingRectWithoutMargins());
@@ -72,7 +71,7 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
     auto proposedPos = DiagramScene::snapToGrid(value.toPointF());
 
     // Collision detection:
-    this->isColliding = false;
+    this->collidingStatus = NOT_COLLIDING;
 
     // Calculate the bounding rectangle at the *new* position in scene coordinates.
     // Use the item's bounding rectangle, offset by the proposed new position.
@@ -80,15 +79,15 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
 
     // Get a list of items that would collide with this item at the new position.
     // Use the bounding rect for collision check.
-    auto collidingItems = scene()->items(newRect, Qt::IntersectsItemBoundingRect);
-    // TODO: Use Qt::IntersectsItemShape for more precise collision based on shape().
+    auto collidingItems = scene()->items(newRect, Qt::IntersectsItemShape);
 
     for (QGraphicsItem* collidingItem : collidingItems) {
       // Skip collision with self or children
       if (collidingItem == this || childItems().contains(collidingItem))
         continue;
 
-      this->isColliding = true;
+      // TODO: Handle wires
+      this->collidingStatus = COLLIDING_WITH_COMPONENT;
       this->update();
       return pos();  // Return current position, rejecting the change
     }

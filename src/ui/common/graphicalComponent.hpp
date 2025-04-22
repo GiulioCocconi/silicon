@@ -26,24 +26,33 @@
 #include <core/component.hpp>
 #include <ui/common/diagramScene.hpp>
 
+enum CollidingStatus {
+  NOT_COLLIDING,
+  COLLIDING_WITH_COMPONENT,
+  COLLIDING_WITH_PORT,
+  COLLIDING_WITH_WIRE
+};
+
 class GraphicalComponent : public QGraphicsObject {
   Q_OBJECT
 protected:
-  QGraphicsItem* shape;  // Without ports
-
-  bool isEditable;
-
-  bool isColliding;
+  QGraphicsItem* shape;
 
   QRectF boundingRect() const override;
   QRectF boundingRectWithoutMargins() const;
 
-  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
+  void     paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+                 QWidget* widget) override;
   QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
+
+  CollidingStatus collidingStatus = CollidingStatus::NOT_COLLIDING;
 
 public slots:
   void modeChanged(InteractionMode mode);
 
 public:
   GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* parent = nullptr);
+
+  bool isColliding() { return collidingStatus != NOT_COLLIDING; }
+  
 };
