@@ -49,7 +49,6 @@ void DiagramScene::drawBackground(QPainter* painter, const QRectF& rect)
   painter->drawPoints(points.data(), points.size());
 }
 
-
 void DiagramScene::setInteractionMode(InteractionMode mode)
 {
   setInteractionMode(mode, false);
@@ -132,10 +131,10 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
         wireSegmentToBeDrawn     = new GraphicalWireSegment(firstPoint);
         addItem(wireSegmentToBeDrawn);
       } else {
-	// FIXME: When a wire intersects *another* wire it should create a junction.
-	//        When a wiresegment has two endpoints it should be associated to a wire.
+        // FIXME: When a wire intersects *another* wire it should create a junction.
+        //        When a wiresegment has two endpoints it should be associated to a wire.
 
-	// Self-intersecting wire handling
+        // Self-intersecting wire handling
         auto invalidPoints = wireSegmentToBeDrawn->getShowPoints() |
                              std::ranges::views::filter([this](QPointF a) {
                                return wireSegmentToBeDrawn->isPointOnPath(a) &&

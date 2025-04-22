@@ -54,5 +54,4 @@ public:
   GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* parent = nullptr);
 
   bool isColliding() { return collidingStatus != NOT_COLLIDING; }
-  
 };

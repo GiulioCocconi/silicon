@@ -46,7 +46,7 @@ LogiFlowWindow::LogiFlowWindow()
   diagramView->setScene(diagramScene);
 
   connect(diagramScene, &DiagramScene::modeChanged, this, &LogiFlowWindow::updateStatus);
-  
+
   updateStatus();
 
   auto a            = std::make_shared<Wire>(State::HIGH);
@@ -104,13 +104,11 @@ void LogiFlowWindow::createActions()
   copyAct->setShortcuts(QKeySequence::Copy);
   deleteAct->setShortcuts(QKeySequence::Delete);
   pasteAct->setShortcuts(QKeySequence::Paste);
-  
 
   setWireCreationModeAct->setShortcut(Qt::AltModifier | Qt::Key_W);
   setSimulationModeAct->setShortcut(Qt::AltModifier | Qt::ControlModifier | Qt::Key_S);
-  
+
   addComponentAct->setShortcut(Qt::AltModifier | Qt::Key_A);
-  
 
   newAct->setStatusTip(tr("Create a new file"));
   openAct->setStatusTip(tr("Open an existing logiFlow file"));

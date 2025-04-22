@@ -20,10 +20,9 @@
 GraphicalWireJunction::GraphicalWireJunction(QPoint point, QGraphicsItem* parent)
   : QGraphicsItem(parent)
 {
-
   setFlag(QGraphicsItem::ItemIsSelectable, true);
   setAcceptedMouseButtons(Qt::AllButtons);
-  
+
   this->point = point;
 }
 
@@ -41,7 +40,6 @@ void GraphicalWireJunction::paint(QPainter*                       painter,
 GraphicalWireSegment::GraphicalWireSegment(QPointF firstPoint, QGraphicsItem* parent)
   : QGraphicsItem(parent)
 {
-
   points.push_back(firstPoint);
   updatePath();
 }
@@ -49,7 +47,6 @@ GraphicalWireSegment::GraphicalWireSegment(QPointF firstPoint, QGraphicsItem* pa
 void GraphicalWireSegment::setShowPoints(std::vector<QPointF> points)
 {
   assert(points.size() <= 2);
-
 
   this->showPoints = points;
 

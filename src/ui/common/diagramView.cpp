@@ -71,11 +71,11 @@ int DiagramView::getZoomLevel()
 void DiagramView::modeChanged(InteractionMode mode)
 {
   // TODO: Set items flags using this->items()
-  
+
   setCursor(Qt::ArrowCursor);
   setDragMode(QGraphicsView::NoDrag);
 
- switch (mode) {
+  switch (mode) {
     case InteractionMode::NORMAL_MODE:
       setDragMode(QGraphicsView::RubberBandDrag);
       break;
