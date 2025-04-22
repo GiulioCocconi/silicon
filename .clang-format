@@ -62,7 +62,7 @@ BreakInheritanceList: BeforeColon
 BreakStringLiterals: true
 
 # Column limit and line settings
-ColumnLimit: 100
+ColumnLimit: 90
 KeepEmptyLinesAtTheStartOfBlocks: false
 MaxEmptyLinesToKeep: 1
 
