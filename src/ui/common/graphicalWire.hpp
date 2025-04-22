@@ -49,7 +49,7 @@ public:
   GraphicalWireSegment(QPointF firstPoint, QGraphicsItem* parent = nullptr);
   void         paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
                      QWidget* widget) override;
-  QPainterPath shape() const override { return this->path; }
+  QPainterPath shape() const override;
 
   bool isCompleted() { return false; };
   bool isPointOnPath(const QPointF point);

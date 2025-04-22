@@ -95,6 +95,12 @@ QRectF GraphicalWireSegment::boundingRect() const
   return this->path.boundingRect().adjusted(-5, -5, 5, 5);
 }
 
+QPainterPath GraphicalWireSegment::shape() const
+{
+  QPainterPathStroker stroker;
+  return stroker.createStroke(this->path);
+}
+
 bool GraphicalWireSegment::isPointOnPath(const QPointF point)
 {
   // Assertions needed to make it work:
