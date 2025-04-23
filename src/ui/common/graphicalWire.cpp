@@ -37,11 +37,53 @@ void GraphicalWireJunction::paint(QPainter*                       painter,
   painter->drawEllipse(boundingRect());
 }
 
+
+GraphicalWire::GraphicalWire(std::vector<GraphicalWireSegment*> segments,
+                             QGraphicsItem*                     parent)
+  : QGraphicsItem(parent)
+{
+  for (auto seg : segments)
+    addSegment(seg);
+}
+
+void GraphicalWire::addSegment(GraphicalWireSegment* segment)
+{
+  segments.push_back(segment);
+
+  sort(segments.begin(), segments.end());
+  segments.erase(unique(segments.begin(), segments.end()), segments.end());
+}
+
+void GraphicalWire::removeSegment(GraphicalWireSegment* segment) {
+
+  const auto b   = segments.begin();
+  const auto e   = segments.end();
+  const auto pos = std::find(b, e, segment);
+
+  if (pos != e)
+    segments.erase(pos);
+}
+
+
+QRectF GraphicalWire::boundingRect() const {
+  QRectF rect {};
+
+  for (QGraphicsItem* child : childItems())
+    rect = rect.united(child->boundingRect());
+
+  return rect;
+}
+
 GraphicalWireSegment::GraphicalWireSegment(QPointF firstPoint, QGraphicsItem* parent)
   : QGraphicsItem(parent)
 {
   points.push_back(firstPoint);
   updatePath();
+}
+
+void GraphicalWireSegment::setGraphicalWire(GraphicalWire* graphicalWire) {
+  setParentItem(graphicalWire);
+  this->graphicalWire = graphicalWire;
 }
 
 void GraphicalWireSegment::setShowPoints(std::vector<QPointF> points)
@@ -173,4 +215,9 @@ bool GraphicalWireSegment::isPointOnPath(const QPointF point)
   }
 
   return false;
+}
+
+GraphicalWireSegment::~GraphicalWireSegment()
+{
+  graphicalWire->removeSegment(this);
 }

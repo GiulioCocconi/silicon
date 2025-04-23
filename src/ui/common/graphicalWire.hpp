@@ -62,6 +62,11 @@ public:
 
   QPointF lastPoint() { return points[points.size() - 1]; }
 
+  GraphicalWire* getGraphicalWire() { return graphicalWire; }
+  void setGraphicalWire(GraphicalWire* graphicalWire);
+
+  ~GraphicalWireSegment();
+
 private:
   QPainterPath path;
   QPainterPath showPath;
@@ -77,13 +82,25 @@ private:
 
 class GraphicalWire : public QGraphicsItem {
 public:
-  GraphicalWire(QGraphicsItem* parent = nullptr);
-  GraphicalWire(std::vector<GraphicalWireSegment> segments,
+  GraphicalWire(QGraphicsItem* parent = nullptr) : QGraphicsItem(parent) {};
+  GraphicalWire(std::vector<GraphicalWireSegment*> segments,
                 QGraphicsItem*                    parent = nullptr);
 
-  void setBus(Bus bus);
-  Bus  getBus();
+
+  void addSegment(GraphicalWireSegment* segment);
+  void removeSegment(GraphicalWireSegment* segment);
+
+  void setBus(Bus bus) { this->bus = bus; }
+  Bus  getBus() { return bus; }
+
+  void         paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+                     QWidget* widget) override {};
+
 
 private:
   Bus bus;
+  std::vector<GraphicalWireSegment*> segments;
+
+
+  QRectF boundingRect() const override;
 };
