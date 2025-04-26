@@ -29,17 +29,20 @@ void GraphicalLogicComponent::setPorts(
     const std::vector<std::pair<std::string, QPoint>> busToPortInputs,
     const std::vector<std::pair<std::string, QPoint>> busToPortOutputs)
 {
-  std::vector<Bus> componentInputs  = associatedComponent.lock()->getInputs();
-  std::vector<Bus> componentOutputs = associatedComponent.lock()->getOutputs();
 
-  assert(componentInputs.size() == busToPortInputs.size());
-  assert(componentOutputs.size() == busToPortOutputs.size());
+  if (associatedComponent) {
+    std::vector<Bus> componentInputs  = associatedComponent->getInputs();
+    std::vector<Bus> componentOutputs = associatedComponent->getOutputs();
+
+    assert(componentInputs.size() == busToPortInputs.size());
+    assert(componentOutputs.size() == busToPortOutputs.size());
+  }
 
   for (int i = 0; i < busToPortInputs.size(); i++) {
     Port p{};
     p.name          = busToPortInputs[i].first;
     p.position      = busToPortInputs[i].second;
-    p.associatedBus = componentInputs[i];
+    // p.associatedBus = componentInputs[i];
     this->inputPorts.push_back(p);
     this->setPortLine(p);
   }
@@ -48,7 +51,7 @@ void GraphicalLogicComponent::setPorts(
     Port p{};
     p.name          = busToPortOutputs[i].first;
     p.position      = busToPortOutputs[i].second;
-    p.associatedBus = componentOutputs[i];
+    // p.associatedBus = componentOutputs[i];
     this->outputPorts.push_back(p);
     this->setPortLine(p);
   }
@@ -56,8 +59,8 @@ void GraphicalLogicComponent::setPorts(
 
 void GraphicalLogicComponent::setPortLine(Port& port)
 {
-  const auto width  = shape->boundingRect().width();
-  const auto height = shape->boundingRect().height();
+  const auto width  = getShape()->boundingRect().width();
+  const auto height = getShape()->boundingRect().height();
 
   auto projectionOnShape = QPoint();
 

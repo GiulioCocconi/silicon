@@ -102,7 +102,7 @@ void Wire::forceSetCurrentState(const State newState)
       (*a)();
 }
 
-void Wire::setCurrentState(const State newState, const Component_ptr requestedBy)
+void Wire::setCurrentState(const State newState, const Component_weakPtr requestedBy)
 {
   // Every wire has a mechanism to detect graphs error: the component that
   // controls the wire can be only one at a time and it's stored in the
@@ -113,6 +113,10 @@ void Wire::setCurrentState(const State newState, const Component_ptr requestedBy
     this->authorizedComponent = requestedBy;
 
   bool changeIsAuthorized = this->authorizedComponent.lock() == requestedBy.lock();
+
+
+  if (!changeIsAuthorized)
+    std::cout << "Change not authorized";
 
   State s = changeIsAuthorized ? newState : State::ERROR;
 
@@ -152,7 +156,7 @@ Bus::Bus(std::vector<Wire_ptr> busData)
 {
   this->busData = busData;
 
-  for (Wire_ptr w : busData)
+  for (Wire_ptr& w : busData)
     if (!w)
       w = std::make_shared<Wire>(State::LOW);
 }
@@ -184,7 +188,7 @@ int Bus::forceSetCurrentValue(const unsigned int value)
   return (value >= (1u << this->size()));
 }
 
-int Bus::setCurrentValue(const unsigned int value, const Component_ptr requestedBy)
+int Bus::setCurrentValue(const unsigned int value, const Component_weakPtr requestedBy)
 {
   for (unsigned short i = 0; i < this->size(); i++) {
     State s = (value >> i) & 1 ? State::HIGH : State::LOW;
