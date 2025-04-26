@@ -73,6 +73,9 @@ if(CMAKE_EXPORT_COMPILE_COMMANDS)
     ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
 endif()
 
+add_compile_options(-Wall -Wextra -Wno-unused-parameter -fsanitize=address)
+add_link_options(-fsanitize=address -static-libasan)
+
 find_package(Qt6 REQUIRED COMPONENTS Widgets SvgWidgets)
 qt_standard_project_setup()
 
@@ -130,8 +133,6 @@ qt_add_resources(Silicon "ANSI_icons" BASE ${resources_dir}
   ${resources_dir}/gates/XOR_ANSI.svg
 )
 
-add_compile_options(-Wall -Wextra -fsanitize=address)
-add_link_options(-fsanitize=address -static-libasan)
 
 
 if(SILICON_BUILD_TESTS)
