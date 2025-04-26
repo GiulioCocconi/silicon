@@ -38,6 +38,7 @@ public:
 
   void setAction(action a);
   void setInputs(std::vector<Bus> newInputs);
+  void setOutputs(std::vector<Bus> newOutputs);
 
   std::vector<Bus> getInputs() { return inputs; }
   std::vector<Bus> getOutputs() { return outputs; }

@@ -24,6 +24,7 @@ Component::Component(std::vector<Bus> inputs, std::vector<Bus> outputs, std::str
   this->name    = name;
 }
 
+
 void Component::setInputs(std::vector<Bus> newInputs)
 {
   // If I change the inputs after the component creation I need to remove the
@@ -49,6 +50,19 @@ void Component::setInputs(std::vector<Bus> newInputs)
         if (w)
           w->addUpdateAction(this->act);
 }
+
+
+void Component::setOutputs(std::vector<Bus> newOutputs)
+{
+  // If the former outputs are the same as the new outputs then do nothing:
+  if (this->outputs == newOutputs)
+    return;
+
+  // We set the new outputs
+  this->outputs = newOutputs;
+
+}
+
 
 void Component::setAction(action a)
 {
