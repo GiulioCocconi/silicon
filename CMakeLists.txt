@@ -45,6 +45,7 @@ set(UI_SOURCE_FILES
   ${src_dir}/ui/common/graphicalComponent.cpp
   ${src_dir}/ui/common/icons.cpp
   ${src_dir}/ui/logiFlow/components/graphicalLogicComponent.cpp
+  ${src_dir}/ui/logiFlow/components/graphicalIO.cpp
   ${src_dir}/ui/logiFlow/components/graphicalGates.cpp
   ${src_dir}/ui/logiFlow/logiFlowWindow.cpp)
 
@@ -93,7 +94,6 @@ qt_add_resources(Silicon "images" BASE ${resources_dir}
   FILES
   ${resources_dir}/splash.jpg)
 
-
 qt_add_resources(Silicon "icons" BASE ${resources_dir}
   FILES
   ${resources_dir}/icons/arrow-pointer-solid.svg
@@ -133,6 +133,11 @@ qt_add_resources(Silicon "ANSI_icons" BASE ${resources_dir}
   ${resources_dir}/gates/XOR_ANSI.svg
 )
 
+qt_add_resources(Silicon "other_components" BASE ${resources_dir}
+  FILES
+  ${resources_dir}/other_components/input_off.svg
+  ${resources_dir}/other_components/input_on.svg
+)
 
 
 if(SILICON_BUILD_TESTS)
@@ -154,6 +159,3 @@ if(SILICON_BUILD_TESTS)
   add_subdirectory("${CMAKE_SOURCE_DIR}/tests")
   enable_testing()
 endif()
-
-
-
