@@ -74,6 +74,16 @@ QRectF GraphicalWire::boundingRect() const {
   return rect;
 }
 
+bool GraphicalWire::isPointOnPath(QPointF point) {
+
+  for (auto segment : segments)
+    if (segment->isPointOnPath(point))
+      return true;
+
+  return false;
+
+}
+
 GraphicalWireSegment::GraphicalWireSegment(QPointF firstPoint, QGraphicsItem* parent)
   : QGraphicsItem(parent)
 {

@@ -27,6 +27,8 @@
 #include <QPainterPath>
 #include <QPoint>
 
+#include <ui/common/enums.hpp>
+
 #include <core/wire.hpp>
 
 class GraphicalWire;
@@ -34,8 +36,13 @@ class GraphicalWire;
 class GraphicalWireJunction : public QGraphicsItem {
 public:
   GraphicalWireJunction(QPoint point, QGraphicsItem* parent);
+
+  int type() const override { return SiliconTypes::WIRE_JUNCTION; }
+
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;
+
+
 
 private:
   QRectF boundingRect() const override;
@@ -48,6 +55,9 @@ private:
 class GraphicalWireSegment : public QGraphicsItem {
 public:
   GraphicalWireSegment(QPointF firstPoint, QGraphicsItem* parent = nullptr);
+  int type() const override { return SiliconTypes::WIRE_SEGMENT; }
+
+
   void         paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
                      QWidget* widget) override;
   QPainterPath shape() const override;
@@ -61,6 +71,7 @@ public:
   std::vector<QPointF> getShowPoints() { return showPoints; }
 
   QPointF lastPoint() { return points[points.size() - 1]; }
+  QPointF lastShowPoint() { return points[showPoints.size() - 1]; }
 
   GraphicalWire* getGraphicalWire() { return graphicalWire; }
   void setGraphicalWire(GraphicalWire* graphicalWire);
@@ -86,6 +97,7 @@ public:
   GraphicalWire(std::vector<GraphicalWireSegment*> segments,
                 QGraphicsItem*                    parent = nullptr);
 
+  int type() const override { return SiliconTypes::WIRE; }
 
   void addSegment(GraphicalWireSegment* segment);
   void removeSegment(GraphicalWireSegment* segment);
@@ -96,6 +108,8 @@ public:
   void         paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
                      QWidget* widget) override {};
 
+
+  bool isPointOnPath(QPointF point);
 
 private:
   Bus bus;
