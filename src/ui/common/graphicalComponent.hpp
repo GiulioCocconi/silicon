@@ -36,7 +36,8 @@ enum CollidingStatus {
 class GraphicalComponent : public QGraphicsObject {
   Q_OBJECT
 protected:
-  QGraphicsItem* shape;
+  void           setShape(QGraphicsItem* shape);
+  QGraphicsItem* getShape() { return shape; }
 
   QRectF boundingRect() const override;
   QRectF boundingRectWithoutMargins() const;
@@ -54,4 +55,7 @@ public:
   GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* parent = nullptr);
 
   bool isColliding() { return collidingStatus != NOT_COLLIDING; }
+
+private:
+  QGraphicsItem* shape = nullptr;
 };

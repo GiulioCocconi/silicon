@@ -37,6 +37,7 @@
 #include <ui/common/icons.hpp>
 
 #include <ui/logiFlow/components/graphicalGates.hpp>
+#include <ui/logiFlow/components/graphicalIO.hpp>
 
 #ifndef QT_NO_CONTEXTMENU
 #  include <QContextMenuEvent>

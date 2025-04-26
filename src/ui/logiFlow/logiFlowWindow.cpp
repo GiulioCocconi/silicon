@@ -48,15 +48,15 @@ LogiFlowWindow::LogiFlowWindow()
 
   updateStatus();
 
-  auto a            = std::make_shared<Wire>(State::HIGH);
-  auto o            = std::make_shared<Wire>();
-  auto xg           = std::make_shared<XorGate>(std::array<Wire_ptr, 2>{nullptr, nullptr}, nullptr);
-  auto ng           = std::make_shared<NotGate>(nullptr, nullptr);
-  auto graphicalXor = new GraphicalXor(xg);
-  auto graphicalNot = new GraphicalNot(ng);
+  auto xg = std::make_shared<XorGate>(std::array<Wire_ptr, 2>{nullptr, nullptr}, nullptr);
+  auto ng = std::make_shared<NotGate>(nullptr, nullptr);
+  auto graphicalXor   = new GraphicalXor(xg);
+  auto graphicalNot   = new GraphicalNot(ng);
+  auto graphicalInput = new GraphicalInputSingle();
 
   addComponent(graphicalNot);
   addComponent(graphicalXor, QPointF(0, 50));
+  addComponent(graphicalInput, QPointF(-50, 0));
 
   layout->addWidget(diagramView);
 

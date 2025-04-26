@@ -26,6 +26,7 @@
 #include <QPainter>
 #include <QRect>
 
+#include <ui/common/enums.hpp>
 #include <ui/common/graphicalWire.hpp>
 
 class GraphicalComponent;

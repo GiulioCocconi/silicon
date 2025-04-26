@@ -16,6 +16,8 @@
 */
 
 #include "diagramScene.hpp"
+#include "ui/common/enums.hpp"
+#include "ui/logiFlow/components/graphicalIO.hpp"
 
 DiagramScene::DiagramScene(QObject* parent) : QGraphicsScene(parent)
 {
@@ -60,7 +62,6 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
     return;
 
 
-  
   // If the new mode is not wire creation we are not creating any wire anymore.
   if (mode != WIRE_CREATION_MODE) {
     // Check if the wireSegment is "orphan"
@@ -81,6 +82,12 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
   // Let's do the same thing for component placing mode
   if (mode != COMPONENT_PLACING_MODE) {
     clearComponentShadow();
+  }
+
+  if (mode != SIMULATION_MODE) {
+    // TODO: RESTORE INPUTS AND OUTPUTS TO NEUTRAL SKIN
+  } else {
+    // TODO: Set inputs to false and calculate outputs
   }
 
   this->currentInteractionMode = mode;
@@ -129,6 +136,8 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
 
 void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
 {
+  const QPointF cursorPos = mouseEvent->scenePos();
+
   switch (currentInteractionMode) {
     case NORMAL_MODE:
       break;
@@ -140,7 +149,6 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
     case WIRE_CREATION_MODE: {
       if (!wireSegmentToBeDrawn) {
         // Let's start drawing the wire!
-        const QPointF cursorPos  = mouseEvent->scenePos();
         const QPointF firstPoint = DiagramScene::snapToGrid(cursorPos);
         wireSegmentToBeDrawn     = new GraphicalWireSegment(firstPoint);
         addItem(wireSegmentToBeDrawn);
@@ -152,8 +160,18 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
       }
       break;
     }
-    case SIMULATION_MODE:
+    case SIMULATION_MODE: {
+      auto itemsAtPos = items(cursorPos);
+
+      for (auto item : itemsAtPos) {
+        qDebug() << item->type();
+        if (item && item->type() == SiliconTypes::SINGLE_INPUT) {
+          GraphicalInputSingle* input = qgraphicsitem_cast<GraphicalInputSingle*>(item);
+          input->toggle();
+        }
+      }
       break;
+    }
     default:
       assert(false);
   }

@@ -27,7 +27,17 @@ GraphicalComponent::GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* pare
   setAcceptHoverEvents(true);
   setAcceptedMouseButtons(Qt::AllButtons);
 
+  setShape(shape);
+}
+
+void GraphicalComponent::setShape(QGraphicsItem* shape) {
   assert(shape);
+
+  if (this->shape) {
+    prepareGeometryChange();
+    delete this->shape;
+  }
+
   this->shape = shape;
   this->shape->setParentItem(this);
 }
