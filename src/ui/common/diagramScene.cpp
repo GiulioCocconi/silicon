@@ -40,8 +40,8 @@ void DiagramScene::drawBackground(QPainter* painter, const QRectF& rect)
   QPen pen;
   painter->setPen(pen);
 
-  qreal left = int(rect.left()) - (int(rect.left()) % DiagramScene::GRID_SIZE);
-  qreal top  = int(rect.top()) - (int(rect.top()) % DiagramScene::GRID_SIZE);
+  const qreal left = int(rect.left()) - (int(rect.left()) % DiagramScene::GRID_SIZE);
+  const qreal top  = int(rect.top()) - (int(rect.top()) % DiagramScene::GRID_SIZE);
 
   QVector<QPointF> points;
   for (qreal x = left; x < rect.right(); x += DiagramScene::GRID_SIZE) {
@@ -126,7 +126,7 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
 
       std::vector<QPointF> pointsToBeAdded = {intermediatePos, cursorPos};
 
-      // Remove duplicates (if cursorpos is reachable moving only in one direction)
+      // Remove duplicates (if cursorPos is reachable moving only in one direction)
       pointsToBeAdded.erase(unique(pointsToBeAdded.begin(), pointsToBeAdded.end()),
                             pointsToBeAdded.end());
 
@@ -158,23 +158,13 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
         const QPointF firstPoint = DiagramScene::snapToGrid(cursorPos);
         wireSegmentToBeDrawn     = new GraphicalWireSegment(firstPoint);
         addItem(wireSegmentToBeDrawn);
+        manageJunctionCreation(cursorPos);
       } else {
-        // FIXME: When a wire intersects *another* wire it should create a junction.
-        //        When a wireSegment has two endpoints it should be associated to a wire.
-
-        auto itemsAtPoint = items(cursorPos);
-
-        for (auto item : itemsAtPoint) {
-          if (item->type() == WIRE) {
-            auto wire = qgraphicsitem_cast<GraphicalWire*>(item);
-
-            if (wire->segmentAtPoint(cursorPos)) {
-              wire->addSegment(wireSegmentToBeDrawn);
-            }
-          }
-        }
-
         wireSegmentToBeDrawn->addPoints();
+
+        if (manageJunctionCreation(cursorPos)) {
+          setInteractionMode(NORMAL_MODE);
+        }
       }
       break;
     }
@@ -182,7 +172,6 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
       auto itemsAtPos = items(cursorPos);
 
       for (auto item : itemsAtPos) {
-        qDebug() << item->type();
         if (item && item->type() == SiliconTypes::SINGLE_INPUT) {
           auto* input = qgraphicsitem_cast<GraphicalInputSingle*>(item);
           input->toggle();
@@ -203,7 +192,8 @@ void DiagramScene::keyPressEvent(QKeyEvent* event)
       setInteractionMode(NORMAL_MODE);
       break;
     }
-    default: break;
+    default:
+      break;
   }
   QGraphicsScene::keyPressEvent(event);
 }
@@ -223,6 +213,22 @@ void DiagramScene::clearComponentShadow()
     return;
 
   componentToBeDrawn = nullptr;
+}
+
+[[maybe_unused]] bool DiagramScene::manageJunctionCreation(const QPointF cursorPos) const
+{
+  // Using Qt::IntersectsItemBoundingRect cause we don't care about the shape of the wire
+  for (const auto item : items(cursorPos, Qt::IntersectsItemBoundingRect)) {
+    if (item->type() == WIRE) {
+      const auto wire = qgraphicsitem_cast<GraphicalWire*>(item);
+      qDebug() << "YAY";
+      if (wire->segmentAtPoint(cursorPos)) {
+        wire->addSegment(wireSegmentToBeDrawn);
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 DiagramScene::~DiagramScene()

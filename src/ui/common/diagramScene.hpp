@@ -49,6 +49,7 @@ public:
 
   void clearWireShadow();
   void clearComponentShadow();
+  bool manageJunctionCreation(QPointF cursorPos) const;
 
   static QPointF snapToGrid(QPointF point);
 
