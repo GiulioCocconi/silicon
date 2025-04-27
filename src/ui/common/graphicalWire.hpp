@@ -48,7 +48,7 @@ public:
 
   void addPoints();
 
-  void                 setShowPoints(std::vector<QPointF> showPoints);
+  void                 setShowPoints(const std::vector<QPointF>& showPoints);
   std::vector<QPointF> getShowPoints() { return showPoints; }
 
   QPointF lastPoint() const { return points[points.size() - 1]; }
@@ -78,13 +78,13 @@ private:
 class GraphicalWire : public QGraphicsItem {
 public:
   GraphicalWire(QGraphicsItem* parent = nullptr) : QGraphicsItem(parent) {};
-  GraphicalWire(std::vector<GraphicalWireSegment*> segments,
+  GraphicalWire(const std::vector<GraphicalWireSegment*>& segments,
                 QGraphicsItem*                     parent = nullptr);
 
   int type() const override { return SiliconTypes::WIRE; }
 
   void addSegment(GraphicalWireSegment* segment);
-  void removeSegment(GraphicalWireSegment* segment);
+  void removeSegment(const GraphicalWireSegment* segment);
 
   void setBus(Bus bus) { this->bus = bus; }
   Bus  getBus() { return bus; }
@@ -93,13 +93,14 @@ public:
              QWidget* widget) override;
 
   GraphicalWireSegment* segmentAtPoint(QPointF point);
+  std::vector<QPointF>  getJunctions();
+  std::vector<QPointF>  getVertices();
 
-  // TODO: Implement
-  bool collidesWith(GraphicalWire* graphicalWire) { assert(false); }
+  QPainterPath shape() const override;
 
 private:
   Bus                                bus;
   std::vector<GraphicalWireSegment*> segments;
 
-  QRectF boundingRect() const override;
+  QRectF       boundingRect() const override;
 };
