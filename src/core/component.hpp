@@ -33,7 +33,7 @@ protected:
   action_ptr act;
 
 public:
-  Component() {};
+  Component() = default;
   Component(std::vector<Bus> inputs, std::vector<Bus> outputs, std::string name);
 
   void setAction(action a);

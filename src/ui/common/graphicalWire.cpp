@@ -36,11 +36,9 @@ void GraphicalWire::addSegment(GraphicalWireSegment* segment)
 
 void GraphicalWire::removeSegment(GraphicalWireSegment* segment)
 {
-  if (!segment)
-    return;
-
   const auto b   = segments.begin();
   const auto e   = segments.end();
+  
   const auto pos = std::find(b, e, segment);
 
   if (pos != e) {
