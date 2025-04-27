@@ -17,6 +17,7 @@
 
 #include "diagramScene.hpp"
 #include "ui/common/enums.hpp"
+#include "ui/common/graphicalWire.hpp"
 #include "ui/logiFlow/components/graphicalIO.hpp"
 
 DiagramScene::DiagramScene(QObject* parent) : QGraphicsScene(parent)
@@ -160,6 +161,20 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
       } else {
         // FIXME: When a wire intersects *another* wire it should create a junction.
         //        When a wiresegment has two endpoints it should be associated to a wire.
+
+        auto itemsAtPoint = items(cursorPos);
+
+	for (auto item : itemsAtPoint) {
+	  if (item->type() == SiliconTypes::WIRE) {
+	    auto wire = qgraphicsitem_cast<GraphicalWire*>(item);
+
+            auto collidingWireSegment = wire->segmentAtPoint(cursorPos);
+
+            if (collidingWireSegment) {
+              wire->addSegment(wireSegmentToBeDrawn);
+            }
+          }
+        }
 
         wireSegmentToBeDrawn->addPoints();
       }

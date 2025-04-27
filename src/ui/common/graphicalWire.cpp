@@ -17,7 +17,6 @@
 
 #include "graphicalWire.hpp"
 
-
 GraphicalWire::GraphicalWire(std::vector<GraphicalWireSegment*> segments,
                              QGraphicsItem*                     parent)
   : QGraphicsItem(parent)
@@ -35,7 +34,10 @@ void GraphicalWire::addSegment(GraphicalWireSegment* segment)
   segments.erase(unique(segments.begin(), segments.end()), segments.end());
 }
 
-void GraphicalWire::removeSegment(GraphicalWireSegment* segment) {
+void GraphicalWire::removeSegment(GraphicalWireSegment* segment)
+{
+  if (!segment)
+    return;
 
   const auto b   = segments.begin();
   const auto e   = segments.end();
@@ -47,9 +49,9 @@ void GraphicalWire::removeSegment(GraphicalWireSegment* segment) {
   }
 }
 
-
-QRectF GraphicalWire::boundingRect() const {
-  QRectF rect {};
+QRectF GraphicalWire::boundingRect() const
+{
+  QRectF rect{};
 
   for (QGraphicsItem* child : childItems())
     rect = rect.united(child->boundingRect());
@@ -58,13 +60,15 @@ QRectF GraphicalWire::boundingRect() const {
 }
 
 void GraphicalWire::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
-			  QWidget* widget)
+                          QWidget* widget)
 {
   // Draw junctions
 
+  painter->setPen(QPen(Qt::blue, 3));
+  painter->setBrush(Qt::blue);
+
   const auto b = this->segments.begin();
   const auto e = this->segments.end();
-
 
   // Unordered pairs of segments
   for (auto first = b; first != e; ++first) {
@@ -77,7 +81,7 @@ void GraphicalWire::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
       const bool lastPointIntersects  = (*first)->isPointOnPath(lastPoint);
 
       if (firstPointIntersects || lastPointIntersects) {
-	painter->drawEllipse(firstPointIntersects ? firstPoint : lastPoint, 5, 5);
+        painter->drawEllipse(firstPointIntersects ? firstPoint : lastPoint, 5, 5);
       }
     }
   }
@@ -85,12 +89,13 @@ void GraphicalWire::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
 
 GraphicalWireSegment* GraphicalWire::segmentAtPoint(QPointF point)
 {
-  qDebug() << point;
-  for (auto segment : segments)
-    if (segment->isPointOnPath(point)) {
+  for (auto segment : segments) {
+    QPointF segmentPoint = segment->mapFromScene(point);
+    if (segment->isPointOnPath(segmentPoint)) {
       qDebug() << segment;
       return segment;
     }
+  }
 
   return nullptr;
 }
@@ -204,35 +209,34 @@ QPainterPath GraphicalWireSegment::shape() const
 
 bool GraphicalWireSegment::isPointOnPath(const QPointF point)
 {
-  // Assertions needed to make it work:
-  // 1) Manhattan-style routing system
-  // 2) Points aligned to int-sized grid
+  // Add a small tolerance for point detection
+  const double tolerance = 5.0;  // Adjust based on your needs
 
   if (points.size() == 0)
     return false;
 
   if (points.size() == 1)
-    return (point.x() == points[0].x() && point.y() == points[0].y());
+    return QLineF(point, points[0]).length() <= tolerance;
 
   const auto slide_view = points | std::views::slide(2);
 
   // For each sub-segment
   for (const auto el : slide_view) {
-    const bool horizontalSegment = (el[0].y() == el[1].y());
-    if (horizontalSegment && el[0].y() == point.y()) {
+    const bool horizontalSegment = (qAbs(el[0].y() - el[1].y()) <= tolerance);
+    if (horizontalSegment && qAbs(el[0].y() - point.y()) <= tolerance) {
       const auto minX = std::min(el[0].x(), el[1].x());
       const auto maxX = std::max(el[0].x(), el[1].x());
 
-      if (point.x() >= minX && point.x() <= maxX)
+      if (point.x() >= minX - tolerance && point.x() <= maxX + tolerance)
         return true;
     }
 
-    const bool verticalSegment = (el[0].x() == el[1].x());
-    if (verticalSegment && el[0].x() == point.x()) {
+    const bool verticalSegment = (qAbs(el[0].x() - el[1].x()) <= tolerance);
+    if (verticalSegment && qAbs(el[0].x() - point.x()) <= tolerance) {
       const auto minY = std::min(el[0].y(), el[1].y());
       const auto maxY = std::max(el[0].y(), el[1].y());
 
-      if (point.y() >= minY && point.y() <= maxY)
+      if (point.y() >= minY - tolerance && point.y() <= maxY + tolerance)
         return true;
     }
   }
