@@ -17,26 +17,6 @@
 
 #include "graphicalWire.hpp"
 
-GraphicalWireJunction::GraphicalWireJunction(QPoint point, QGraphicsItem* parent)
-  : QGraphicsItem(parent)
-{
-  setFlag(QGraphicsItem::ItemIsSelectable, true);
-  setAcceptedMouseButtons(Qt::AllButtons);
-
-  this->point = point;
-}
-
-QRectF GraphicalWireJunction::boundingRect() const
-{
-  return QRectF(-RADIUS, -RADIUS, RADIUS * 2, RADIUS * 2);
-}
-
-void GraphicalWireJunction::paint(QPainter*                       painter,
-                                  const QStyleOptionGraphicsItem* option, QWidget* widget)
-{
-  painter->drawEllipse(boundingRect());
-}
-
 
 GraphicalWire::GraphicalWire(std::vector<GraphicalWireSegment*> segments,
                              QGraphicsItem*                     parent)
@@ -48,6 +28,7 @@ GraphicalWire::GraphicalWire(std::vector<GraphicalWireSegment*> segments,
 
 void GraphicalWire::addSegment(GraphicalWireSegment* segment)
 {
+  prepareGeometryChange();
   segments.push_back(segment);
 
   sort(segments.begin(), segments.end());
@@ -60,8 +41,10 @@ void GraphicalWire::removeSegment(GraphicalWireSegment* segment) {
   const auto e   = segments.end();
   const auto pos = std::find(b, e, segment);
 
-  if (pos != e)
+  if (pos != e) {
+    prepareGeometryChange();
     segments.erase(pos);
+  }
 }
 
 
@@ -74,14 +57,42 @@ QRectF GraphicalWire::boundingRect() const {
   return rect;
 }
 
-bool GraphicalWire::isPointOnPath(QPointF point) {
+void GraphicalWire::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+			  QWidget* widget)
+{
+  // Draw junctions
 
+  const auto b = this->segments.begin();
+  const auto e = this->segments.end();
+
+
+  // Unordered pairs of segments
+  for (auto first = b; first != e; ++first) {
+    for (auto second = first + 1; second != e; ++second) {
+      qDebug() << *first << "\n" << *second;
+      const QPointF firstPoint = (*second)->firstPoint();
+      const QPointF lastPoint  = (*second)->lastPoint();
+
+      const bool firstPointIntersects = (*first)->isPointOnPath(firstPoint);
+      const bool lastPointIntersects  = (*first)->isPointOnPath(lastPoint);
+
+      if (firstPointIntersects || lastPointIntersects) {
+	painter->drawEllipse(firstPointIntersects ? firstPoint : lastPoint, 5, 5);
+      }
+    }
+  }
+}
+
+GraphicalWireSegment* GraphicalWire::segmentAtPoint(QPointF point)
+{
+  qDebug() << point;
   for (auto segment : segments)
-    if (segment->isPointOnPath(point))
-      return true;
+    if (segment->isPointOnPath(point)) {
+      qDebug() << segment;
+      return segment;
+    }
 
-  return false;
-
+  return nullptr;
 }
 
 GraphicalWireSegment::GraphicalWireSegment(QPointF firstPoint, QGraphicsItem* parent)
@@ -91,8 +102,10 @@ GraphicalWireSegment::GraphicalWireSegment(QPointF firstPoint, QGraphicsItem* pa
   updatePath();
 }
 
-void GraphicalWireSegment::setGraphicalWire(GraphicalWire* graphicalWire) {
+void GraphicalWireSegment::setGraphicalWire(GraphicalWire* graphicalWire)
+{
   setParentItem(graphicalWire);
+  graphicalWire->addSegment(this);
   this->graphicalWire = graphicalWire;
 }
 
@@ -229,5 +242,6 @@ bool GraphicalWireSegment::isPointOnPath(const QPointF point)
 
 GraphicalWireSegment::~GraphicalWireSegment()
 {
-  graphicalWire->removeSegment(this);
+  if (graphicalWire)
+    graphicalWire->removeSegment(this);
 }

@@ -33,33 +33,14 @@
 
 class GraphicalWire;
 
-class GraphicalWireJunction : public QGraphicsItem {
-public:
-  GraphicalWireJunction(QPoint point, QGraphicsItem* parent);
-
-  int type() const override { return SiliconTypes::WIRE_JUNCTION; }
-
-  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
-             QWidget* widget) override;
-
-
-
-private:
-  QRectF boundingRect() const override;
-
-  static const int RADIUS = 5;
-
-  QPoint point;
-};
-
 class GraphicalWireSegment : public QGraphicsItem {
 public:
   GraphicalWireSegment(QPointF firstPoint, QGraphicsItem* parent = nullptr);
   int type() const override { return SiliconTypes::WIRE_SEGMENT; }
 
-
   void         paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
                      QWidget* widget) override;
+
   QPainterPath shape() const override;
 
   bool isCompleted() { return false; };
@@ -70,11 +51,15 @@ public:
   void                 setShowPoints(std::vector<QPointF> showPoints);
   std::vector<QPointF> getShowPoints() { return showPoints; }
 
-  QPointF lastPoint() { return points[points.size() - 1]; }
-  QPointF lastShowPoint() { return points[showPoints.size() - 1]; }
+  QPointF lastPoint() const { return points[points.size() - 1]; }
+  QPointF firstPoint() const { return points[0]; }
+  QPointF lastShowPoint() const { return points[showPoints.size() - 1]; }
+
+  bool empty() const { return points.size() == 1; }
+
 
   GraphicalWire* getGraphicalWire() { return graphicalWire; }
-  void setGraphicalWire(GraphicalWire* graphicalWire);
+  void           setGraphicalWire(GraphicalWire* graphicalWire);
 
   ~GraphicalWireSegment();
 
@@ -95,7 +80,7 @@ class GraphicalWire : public QGraphicsItem {
 public:
   GraphicalWire(QGraphicsItem* parent = nullptr) : QGraphicsItem(parent) {};
   GraphicalWire(std::vector<GraphicalWireSegment*> segments,
-                QGraphicsItem*                    parent = nullptr);
+                QGraphicsItem*                     parent = nullptr);
 
   int type() const override { return SiliconTypes::WIRE; }
 
@@ -105,16 +90,17 @@ public:
   void setBus(Bus bus) { this->bus = bus; }
   Bus  getBus() { return bus; }
 
-  void         paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
-                     QWidget* widget) override {};
+  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+             QWidget* widget) override;
 
+  GraphicalWireSegment* segmentAtPoint(QPointF point);
 
-  bool isPointOnPath(QPointF point);
+  // TODO: Implement
+  bool collidesWith(GraphicalWire* graphicalWire) { assert(false); }
 
 private:
-  Bus bus;
+  Bus                                bus;
   std::vector<GraphicalWireSegment*> segments;
-
 
   QRectF boundingRect() const override;
 };
