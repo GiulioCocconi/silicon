@@ -61,21 +61,26 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
   if (getInteractionMode() == mode && !force)
     return;
 
-
   // If the new mode is not wire creation we are not creating any wire anymore.
-  if (mode != WIRE_CREATION_MODE) {
-    // Check if the wireSegment is "orphan"
-    if (wireSegmentToBeDrawn && (!wireSegmentToBeDrawn->getGraphicalWire())) {
+  if (wireSegmentToBeDrawn && mode != WIRE_CREATION_MODE) {
+    // Remove the wireSegment if it's invisible
+    if (wireSegmentToBeDrawn->empty()) {
+      removeItem(wireSegmentToBeDrawn);
+      delete wireSegmentToBeDrawn;
+      wireSegmentToBeDrawn = nullptr;
+
+    } else if (!wireSegmentToBeDrawn->getGraphicalWire()) {
+      // Create wire for orphan segments :(
+      qDebug() << "Creating wire";
 
       // Create the bus
-      Bus b = Bus(1);
+      Bus            b = Bus(1);
       GraphicalWire* w = new GraphicalWire();
       w->setBus(b);
 
       wireSegmentToBeDrawn->setGraphicalWire(w);
       addItem(w);
     }
-
     clearWireShadow();
   }
 
