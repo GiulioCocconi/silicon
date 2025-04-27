@@ -38,7 +38,12 @@ void GraphicalWire::removeSegment(GraphicalWireSegment* segment)
 {
   const auto b   = segments.begin();
   const auto e   = segments.end();
-  
+
+
+  // If pointers are not valid then we can safely return. The segment won't be there anyway
+  if (!b.base() || !e.base())
+    return;
+
   const auto pos = std::find(b, e, segment);
 
   if (pos != e) {
