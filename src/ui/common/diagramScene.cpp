@@ -239,6 +239,4 @@ DiagramScene::~DiagramScene()
     delete componentToBeDrawn;
     componentToBeDrawn = nullptr;
   }
-
-  setInteractionMode(NORMAL_MODE);
 }
