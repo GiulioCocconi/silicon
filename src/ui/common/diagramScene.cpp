@@ -160,17 +160,15 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
         addItem(wireSegmentToBeDrawn);
       } else {
         // FIXME: When a wire intersects *another* wire it should create a junction.
-        //        When a wiresegment has two endpoints it should be associated to a wire.
+        //        When a wireSegment has two endpoints it should be associated to a wire.
 
         auto itemsAtPoint = items(cursorPos);
 
         for (auto item : itemsAtPoint) {
-          if (item->type() == SiliconTypes::WIRE) {
+          if (item->type() == WIRE) {
             auto wire = qgraphicsitem_cast<GraphicalWire*>(item);
 
-            auto collidingWireSegment = wire->segmentAtPoint(cursorPos);
-
-            if (collidingWireSegment) {
+            if (wire->segmentAtPoint(cursorPos)) {
               wire->addSegment(wireSegmentToBeDrawn);
             }
           }
@@ -186,7 +184,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
       for (auto item : itemsAtPos) {
         qDebug() << item->type();
         if (item && item->type() == SiliconTypes::SINGLE_INPUT) {
-          GraphicalInputSingle* input = qgraphicsitem_cast<GraphicalInputSingle*>(item);
+          auto* input = qgraphicsitem_cast<GraphicalInputSingle*>(item);
           input->toggle();
         }
       }
@@ -203,8 +201,11 @@ void DiagramScene::keyPressEvent(QKeyEvent* event)
   switch (event->key()) {
     case Qt::Key_Escape: {
       setInteractionMode(NORMAL_MODE);
+      break;
     }
+    default: break;
   }
+  QGraphicsScene::keyPressEvent(event);
 }
 
 void DiagramScene::clearWireShadow()
@@ -225,7 +226,7 @@ void DiagramScene::clearComponentShadow()
 }
 
 DiagramScene::~DiagramScene()
-{
+{<
   // Clean up any remaining wire segment being drawn
   if (wireSegmentToBeDrawn) {
     removeItem(wireSegmentToBeDrawn);
