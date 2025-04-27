@@ -107,8 +107,16 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
     return proposedPos;
   }
 
+
+  updateInputs();
+
   // For all other changes call the base class implementation
   return QGraphicsItem::itemChange(change, value);
+}
+
+void GraphicalComponent::updateInputs() const
+{
+  //TODO: IMPLEMENT
 }
 
 void GraphicalComponent::modeChanged(InteractionMode mode)
