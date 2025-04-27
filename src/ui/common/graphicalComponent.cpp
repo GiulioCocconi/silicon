@@ -30,7 +30,8 @@ GraphicalComponent::GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* pare
   setShape(shape);
 }
 
-void GraphicalComponent::setShape(QGraphicsItem* shape) {
+void GraphicalComponent::setShape(QGraphicsItem* shape)
+{
   assert(shape);
 
   if (this->shape) {

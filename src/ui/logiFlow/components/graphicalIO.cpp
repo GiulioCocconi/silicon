@@ -21,10 +21,9 @@
 
 GraphicalInputSingle::GraphicalInputSingle(std::string name, QGraphicsItem* parent)
   : GraphicalLogicComponent(std::make_shared<DummyInputComponent>(Bus(1), name),
-			    new QGraphicsSvgItem(":/other_components/input_off.svg"),
-			    parent)
+                            new QGraphicsSvgItem(":/other_components/input_off.svg"),
+                            parent)
 {
-
   isEditable = false;
 
   setPorts({}, {std::pair<std::string, QPoint>{"o", QPoint(20, 60)}});
@@ -45,11 +44,10 @@ void GraphicalInputSingle::setState(State state, bool force)
   setShape(new QGraphicsSvgItem(shapePath));
 
   this->getComponent()->getOutputs()[0].setCurrentValue(state == HIGH,
-							getComponent()->weak_from_this());
+                                                        getComponent()->weak_from_this());
 
   // Make sure we actually changed the state
   assert(state == getState());
-
 }
 
 State GraphicalInputSingle::getState()

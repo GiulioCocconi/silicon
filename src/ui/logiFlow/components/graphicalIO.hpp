@@ -18,11 +18,11 @@
 #pragma once
 
 #include <QGraphicsItem>
-#include <QPainter>
 #include <QGraphicsSvgItem>
+#include <QPainter>
 
-#include <core/wire.hpp>
 #include <core/component.hpp>
+#include <core/wire.hpp>
 
 #include <ui/common/enums.hpp>
 #include <ui/common/graphicalComponent.hpp>
@@ -31,8 +31,7 @@
 class GraphicalInputSingle : public GraphicalLogicComponent {
   Q_OBJECT
 public:
-  GraphicalInputSingle(std::string name = "in",
-		       QGraphicsItem* parent = nullptr);
+  GraphicalInputSingle(std::string name = "in", QGraphicsItem* parent = nullptr);
   int type() const override { return SiliconTypes::SINGLE_INPUT; }
 
   State getState();
@@ -46,7 +45,6 @@ private:
 
   static inline QString ON_SHAPE_PATH  = ":/other_components/input_on.svg";
   static inline QString OFF_SHAPE_PATH = ":/other_components/input_off.svg";
-
 };
 
 class DummyInputComponent : public Component {

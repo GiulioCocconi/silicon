@@ -164,9 +164,9 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
 
         auto itemsAtPoint = items(cursorPos);
 
-	for (auto item : itemsAtPoint) {
-	  if (item->type() == SiliconTypes::WIRE) {
-	    auto wire = qgraphicsitem_cast<GraphicalWire*>(item);
+        for (auto item : itemsAtPoint) {
+          if (item->type() == SiliconTypes::WIRE) {
+            auto wire = qgraphicsitem_cast<GraphicalWire*>(item);
 
             auto collidingWireSegment = wire->segmentAtPoint(cursorPos);
 

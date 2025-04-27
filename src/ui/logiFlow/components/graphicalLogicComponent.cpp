@@ -29,7 +29,6 @@ void GraphicalLogicComponent::setPorts(
     const std::vector<std::pair<std::string, QPoint>> busToPortInputs,
     const std::vector<std::pair<std::string, QPoint>> busToPortOutputs)
 {
-
   if (associatedComponent) {
     std::vector<Bus> componentInputs  = associatedComponent->getInputs();
     std::vector<Bus> componentOutputs = associatedComponent->getOutputs();
@@ -40,8 +39,8 @@ void GraphicalLogicComponent::setPorts(
 
   for (int i = 0; i < busToPortInputs.size(); i++) {
     Port p{};
-    p.name          = busToPortInputs[i].first;
-    p.position      = busToPortInputs[i].second;
+    p.name     = busToPortInputs[i].first;
+    p.position = busToPortInputs[i].second;
     // p.associatedBus = componentInputs[i];
     this->inputPorts.push_back(p);
     this->setPortLine(p);
@@ -49,8 +48,8 @@ void GraphicalLogicComponent::setPorts(
 
   for (int i = 0; i < busToPortOutputs.size(); i++) {
     Port p{};
-    p.name          = busToPortOutputs[i].first;
-    p.position      = busToPortOutputs[i].second;
+    p.name     = busToPortOutputs[i].first;
+    p.position = busToPortOutputs[i].second;
     // p.associatedBus = componentOutputs[i];
     this->outputPorts.push_back(p);
     this->setPortLine(p);

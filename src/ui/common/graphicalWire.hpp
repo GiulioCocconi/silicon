@@ -38,8 +38,8 @@ public:
   GraphicalWireSegment(QPointF firstPoint, QGraphicsItem* parent = nullptr);
   int type() const override { return SiliconTypes::WIRE_SEGMENT; }
 
-  void         paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
-                     QWidget* widget) override;
+  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+             QWidget* widget) override;
 
   QPainterPath shape() const override;
 
@@ -56,7 +56,6 @@ public:
   QPointF lastShowPoint() const { return points[showPoints.size() - 1]; }
 
   bool empty() const { return points.size() == 1; }
-
 
   GraphicalWire* getGraphicalWire() { return graphicalWire; }
   void           setGraphicalWire(GraphicalWire* graphicalWire);

@@ -114,7 +114,6 @@ void Wire::setCurrentState(const State newState, const Component_weakPtr request
 
   bool changeIsAuthorized = this->authorizedComponent.lock() == requestedBy.lock();
 
-
   if (!changeIsAuthorized)
     std::cout << "Change not authorized";
 
