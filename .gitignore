@@ -5,6 +5,11 @@ bin/
 vgcore.*
 Testing/
 .cache/
-.idea/
+
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
 
 compile_commands.json
