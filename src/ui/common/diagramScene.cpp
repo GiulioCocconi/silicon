@@ -226,7 +226,7 @@ void DiagramScene::clearComponentShadow()
 }
 
 DiagramScene::~DiagramScene()
-{<
+{
   // Clean up any remaining wire segment being drawn
   if (wireSegmentToBeDrawn) {
     removeItem(wireSegmentToBeDrawn);

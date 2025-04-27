@@ -5,4 +5,6 @@ bin/
 vgcore.*
 Testing/
 .cache/
+.idea/
+
 compile_commands.json
