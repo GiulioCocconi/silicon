@@ -223,3 +223,22 @@ void DiagramScene::clearComponentShadow()
 
   componentToBeDrawn = nullptr;
 }
+
+DiagramScene::~DiagramScene()
+{
+  // Clean up any remaining wire segment being drawn
+  if (wireSegmentToBeDrawn) {
+    removeItem(wireSegmentToBeDrawn);
+    delete wireSegmentToBeDrawn;
+    wireSegmentToBeDrawn = nullptr;
+  }
+
+  // Clean up any component being drawn
+  if (componentToBeDrawn) {
+    removeItem(componentToBeDrawn);
+    delete componentToBeDrawn;
+    componentToBeDrawn = nullptr;
+  }
+
+  setInteractionMode(NORMAL_MODE);
+}

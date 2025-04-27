@@ -54,6 +54,8 @@ public:
 
   static const int GRID_SIZE = 10;
 
+  ~DiagramScene();
+
 signals:
   void modeChanged(InteractionMode mode);
 
@@ -71,4 +73,5 @@ private:
   GraphicalComponent*   componentToBeDrawn   = nullptr;
   GraphicalWireSegment* wireSegmentToBeDrawn = nullptr;
 };
+
 using InteractionMode = DiagramScene::InteractionMode;
