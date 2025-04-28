@@ -11,5 +11,6 @@ Testing/
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
+.idea/QtSettings.xml
 
 compile_commands.json
