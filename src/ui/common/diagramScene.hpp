@@ -45,7 +45,7 @@ public:
   explicit DiagramScene(QObject* parent = nullptr);
 
   void            setInteractionMode(InteractionMode mode);
-  InteractionMode getInteractionMode() { return currentInteractionMode; }
+  InteractionMode getInteractionMode() const { return currentInteractionMode; }
 
   void clearWireShadow();
   void clearComponentShadow();
@@ -53,7 +53,7 @@ public:
 
   static QPointF snapToGrid(QPointF point);
 
-  static const int GRID_SIZE = 10;
+  static constexpr int GRID_SIZE = 10;
 
   ~DiagramScene();
 
@@ -71,6 +71,7 @@ private:
 
   InteractionMode currentInteractionMode = InteractionMode::NORMAL_MODE;
 
+  // Wire and component shadows to be used in `WIRE_CREATION_MODE` and `COMPONENT_PLACING_MODE`
   GraphicalComponent*   componentToBeDrawn   = nullptr;
   GraphicalWireSegment* wireSegmentToBeDrawn = nullptr;
 };
