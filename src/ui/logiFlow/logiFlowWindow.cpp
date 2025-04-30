@@ -19,10 +19,10 @@
 
 LogiFlowWindow::LogiFlowWindow()
 {
-  auto centralWidget = new QWidget;
+  const auto centralWidget = new QWidget();
   setCentralWidget(centralWidget);
 
-  auto layout = new QHBoxLayout;
+  const auto layout = new QHBoxLayout();
   layout->setContentsMargins(5, 5, 5, 5);
   centralWidget->setLayout(layout);
 
@@ -48,10 +48,8 @@ LogiFlowWindow::LogiFlowWindow()
 
   updateStatus();
 
-  auto xg = std::make_shared<XorGate>(std::array<Wire_ptr, 2>{nullptr, nullptr}, nullptr);
-  auto ng = std::make_shared<NotGate>(nullptr, nullptr);
-  auto graphicalXor   = new GraphicalXor(xg);
-  auto graphicalNot   = new GraphicalNot(ng);
+  auto graphicalXor   = new GraphicalXor();
+  auto graphicalNot   = new GraphicalNot();
   auto graphicalInput = new GraphicalInputSingle();
 
   addComponent(graphicalNot);

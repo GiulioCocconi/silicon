@@ -32,8 +32,10 @@ protected:
 class GraphicalAnd : public GraphicalGate {
   Q_OBJECT
 public:
-  GraphicalAnd(const std::shared_ptr<AndGate> gate, QGraphicsItem* parent = nullptr)
-    : GraphicalGate(gate, new QGraphicsSvgItem(":/gates/AND_ANSI.svg"), parent)
+  GraphicalAnd(QGraphicsItem* parent = nullptr)
+    : GraphicalGate(
+          std::make_shared<AndGate>(std::vector<Wire_ptr>{nullptr, nullptr}, nullptr),
+          new QGraphicsSvgItem(":/gates/AND_ANSI.svg"), parent)
   {
   }
 };
@@ -41,8 +43,10 @@ public:
 class GraphicalOr : public GraphicalGate {
   Q_OBJECT
 public:
-  GraphicalOr(const std::shared_ptr<OrGate> gate, QGraphicsItem* parent = nullptr)
-    : GraphicalGate(gate, new QGraphicsSvgItem(":/gates/OR_ANSI.svg"), parent)
+  GraphicalOr(QGraphicsItem* parent = nullptr)
+    : GraphicalGate(
+          std::make_shared<OrGate>(std::vector<Wire_ptr>{nullptr, nullptr}, nullptr),
+          new QGraphicsSvgItem(":/gates/OR_ANSI.svg"), parent)
   {
   }
 };
@@ -50,14 +54,16 @@ public:
 class GraphicalNot : public GraphicalLogicComponent {
   Q_OBJECT
 public:
-  GraphicalNot(const std::shared_ptr<NotGate> gate, QGraphicsItem* parent = nullptr);
+  GraphicalNot(QGraphicsItem* parent = nullptr);
 };
 
 class GraphicalNand : public GraphicalGate {
   Q_OBJECT
 public:
-  GraphicalNand(const std::shared_ptr<NandGate> gate, QGraphicsItem* parent = nullptr)
-    : GraphicalGate(gate, new QGraphicsSvgItem(":/gates/NAND_ANSI.svg"), parent)
+  GraphicalNand(QGraphicsItem* parent = nullptr)
+    : GraphicalGate(
+          std::make_shared<NandGate>(std::vector<Wire_ptr>{nullptr, nullptr}, nullptr),
+          new QGraphicsSvgItem(":/gates/NAND_ANSI.svg"), parent)
   {
   }
 };
@@ -65,8 +71,10 @@ public:
 class GraphicalNor : public GraphicalGate {
   Q_OBJECT
 public:
-  GraphicalNor(const std::shared_ptr<NorGate> gate, QGraphicsItem* parent = nullptr)
-    : GraphicalGate(gate, new QGraphicsSvgItem(":/gates/NOR_ANSI.svg"), parent)
+  GraphicalNor(QGraphicsItem* parent = nullptr)
+    : GraphicalGate(
+          std::make_shared<NorGate>(std::vector<Wire_ptr>{nullptr, nullptr}, nullptr),
+          new QGraphicsSvgItem(":/gates/NOR_ANSI.svg"), parent)
   {
   }
 };
@@ -74,9 +82,11 @@ public:
 class GraphicalXor : public GraphicalGate {
   Q_OBJECT
 public:
-  GraphicalXor(const std::shared_ptr<XorGate> gate, QGraphicsItem* parent = nullptr)
+  GraphicalXor(QGraphicsItem* parent = nullptr)
 
-    : GraphicalGate(gate, new QGraphicsSvgItem(":/gates/XOR_ANSI.svg"), parent)
+    : GraphicalGate(
+          std::make_shared<NorGate>(std::vector<Wire_ptr>{nullptr, nullptr}, nullptr),
+          new QGraphicsSvgItem(":/gates/XOR_ANSI.svg"), parent)
   {
   }
 };
