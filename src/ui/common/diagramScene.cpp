@@ -1,19 +1,20 @@
 /*
-  Copyright (C) 2025 Giulio Cocconi
+ Copyright (c) 2025. Giulio Cocconi
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
 
 #include "diagramScene.hpp"
 #include "ui/common/enums.hpp"
@@ -25,12 +26,12 @@ DiagramScene::DiagramScene(QObject* parent) : QGraphicsScene(parent)
   setInteractionMode(NORMAL_MODE, true);
 }
 
-QPointF DiagramScene::snapToGrid(QPointF point)
+QPointF DiagramScene::snapToGrid(const QPointF point)
 {
   auto x = round(point.x() / DiagramScene::GRID_SIZE) * DiagramScene::GRID_SIZE;
   auto y = round(point.y() / DiagramScene::GRID_SIZE) * DiagramScene::GRID_SIZE;
 
-  return QPointF(x, y);
+  return {x, y};
 }
 
 void DiagramScene::drawBackground(QPainter* painter, const QRectF& rect)
@@ -62,21 +63,19 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
   if (getInteractionMode() == mode && !force)
     return;
 
-  // If the new mode is not wire creation we are not creating any wire anymore.
   if (wireSegmentToBeDrawn && mode != WIRE_CREATION_MODE) {
     // Remove the wireSegment if it's invisible
     if (wireSegmentToBeDrawn->empty()) {
       removeItem(wireSegmentToBeDrawn);
       delete wireSegmentToBeDrawn;
       wireSegmentToBeDrawn = nullptr;
-
     } else if (!wireSegmentToBeDrawn->getGraphicalWire()) {
       // Create wire for orphan segments :(
       qDebug() << "Creating wire";
 
       // Create the bus
-      Bus            b = Bus(1);
-      GraphicalWire* w = new GraphicalWire();
+      const auto b = Bus(1);
+      auto*      w = new GraphicalWire();
       w->setBus(b);
 
       wireSegmentToBeDrawn->setGraphicalWire(w);
@@ -85,7 +84,6 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
     clearWireShadow();
   }
 
-  // Let's do the same thing for component placing mode
   if (mode != COMPONENT_PLACING_MODE) {
     clearComponentShadow();
   }
@@ -102,14 +100,13 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
 
 void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
 {
+  const QPointF cursorPos = DiagramScene::snapToGrid(mouseEvent->scenePos());
+
   // TODO: Print preview of component and wire while placing
   switch (currentInteractionMode) {
-    case NORMAL_MODE:
-      break;
-    case PAN_MODE:
-      break;
-    case COMPONENT_PLACING_MODE:
-      break;
+    case NORMAL_MODE: break;
+    case PAN_MODE: break;
+    case COMPONENT_PLACING_MODE: break;
     case WIRE_CREATION_MODE: {
       // Let's wait the user to start drawing the wire
       if (!wireSegmentToBeDrawn)
@@ -117,7 +114,6 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
 
       /* Calculate path to the cursor */
 
-      const QPointF cursorPos       = DiagramScene::snapToGrid(mouseEvent->scenePos());
       const QPointF lp              = wireSegmentToBeDrawn->lastPoint();
       const QPointF displacement    = cursorPos - lp;
       const QPointF intermediatePos = (displacement.x() >= displacement.y())
@@ -127,15 +123,13 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
       std::vector<QPointF> pointsToBeAdded = {intermediatePos, cursorPos};
 
       // Remove duplicates (if cursorPos is reachable moving only in one direction)
-      pointsToBeAdded.erase(unique(pointsToBeAdded.begin(), pointsToBeAdded.end()),
+      pointsToBeAdded.erase(std::ranges::unique(pointsToBeAdded).begin(),
                             pointsToBeAdded.end());
 
       wireSegmentToBeDrawn->setShowPoints(pointsToBeAdded);
     }
-    case SIMULATION_MODE:
-      break;
-    default:
-      assert(false);
+    case SIMULATION_MODE: break;
+    default: assert(false);
   }
   QGraphicsScene::mouseMoveEvent(mouseEvent);
 }
@@ -145,14 +139,13 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
   const QPointF cursorPos = mouseEvent->scenePos();
 
   switch (currentInteractionMode) {
-    case NORMAL_MODE:
-      break;
+    case NORMAL_MODE: break;
     case COMPONENT_PLACING_MODE:
       // TODO: Print preview of component while placing
       break;
-    case PAN_MODE:
-      break;
+    case PAN_MODE: break;
     case WIRE_CREATION_MODE: {
+      // TODO: Check for collision
       if (!wireSegmentToBeDrawn) {
         // Let's start drawing the wire!
         const QPointF firstPoint = DiagramScene::snapToGrid(cursorPos);
@@ -162,9 +155,15 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
       } else {
         wireSegmentToBeDrawn->addPoints();
 
+        // If the point to be created is a junction then we have finished drawing
+        // the segment
+
         if (manageJunctionCreation(cursorPos)) {
           setInteractionMode(NORMAL_MODE);
+          return;
         }
+
+        // TODO: check for ports
       }
       break;
     }
@@ -179,8 +178,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
       }
       break;
     }
-    default:
-      assert(false);
+    default: assert(false);
   }
   QGraphicsScene::mousePressEvent(mouseEvent);
 }
@@ -192,8 +190,7 @@ void DiagramScene::keyPressEvent(QKeyEvent* event)
       setInteractionMode(NORMAL_MODE);
       break;
     }
-    default:
-      break;
+    default: break;
   }
   QGraphicsScene::keyPressEvent(event);
 }
