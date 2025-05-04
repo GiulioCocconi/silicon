@@ -55,7 +55,7 @@ BraceWrapping:
   SplitEmptyFunction: true
   SplitEmptyRecord: true
   SplitEmptyNamespace: true
-BreakBeforeBinaryOperators: None
+BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeColon
 BreakInheritanceList: BeforeColon
@@ -68,8 +68,8 @@ MaxEmptyLinesToKeep: 1
 
 # Function settings
 AllowAllParametersOfDeclarationOnNextLine: true
-AllowShortBlocksOnASingleLine: false
-AllowShortCaseLabelsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Always
+AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: Inline
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
@@ -85,10 +85,6 @@ IncludeBlocks: Preserve
 
 # Pointer alignment
 PointerAlignment: Left
-
-# Comments
-ReflowComments: true
-CommentPragmas: '^ IWYU pragma:'
 
 # Empty line settings
 EmptyLineBeforeAccessModifier: LogicalBlock
