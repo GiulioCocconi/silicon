@@ -12,5 +12,6 @@ Testing/
 .idea/**/dictionaries
 .idea/**/shelf
 .idea/QtSettings.xml
+.idea/editor.xml
 
 compile_commands.json
