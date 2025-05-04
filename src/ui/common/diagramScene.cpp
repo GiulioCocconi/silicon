@@ -91,6 +91,7 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
   if (mode != SIMULATION_MODE) {
     // TODO: RESTORE INPUTS AND OUTPUTS TO NEUTRAL SKIN
   } else {
+    calculateWiresForComponents();
     // TODO: Set inputs to false and calculate outputs
   }
 
@@ -212,13 +213,61 @@ void DiagramScene::clearComponentShadow()
   componentToBeDrawn = nullptr;
 }
 
-[[maybe_unused]] bool DiagramScene::manageJunctionCreation(const QPointF cursorPos) const
+void DiagramScene::calculateWiresForComponents() const
+{
+  auto logicComponents = items() | std::views::filter([](auto item) {
+                           return item->type() >= SiliconTypes::AND_GATE;
+                         })
+                         | std::views::transform([](auto item) {
+                             return qgraphicsitem_cast<GraphicalLogicComponent*>(item);
+                           })
+                         | std::ranges::to<std::vector>();
+
+  for (const GraphicalLogicComponent* component : logicComponents) {
+    assert(component);
+
+    // Clear all wires (TODO: Make more efficient)
+    component->getComponent()->clearWires();
+
+    // Check for wire collision
+    auto collidingWires =
+        collidingItems(component)
+        | std::views::filter([](auto el) { return el->type() == SiliconTypes::WIRE; })
+        | std::views::transform(
+            [](auto el) { return qgraphicsitem_cast<GraphicalWire*>(el); })
+        | std::ranges::to<std::vector>();
+
+    // Find the GraphicalWires colliding with port
+    // TODO: CHANGE LOGIC: A COMPONENT SHOULD BE CONNECTED EVERY TIME THAT ITS PORTS
+    // COLLIDE WITH THE WIRE
+    for (const GraphicalWire* wire : collidingWires) {
+      const auto vertices = wire->getVertices();
+
+      for (const auto [index, p] : std::views::enumerate(component->getInputPorts())) {
+        const auto portPositionInScene = component->mapToScene(p->getPosition());
+        const auto findResult          = std::ranges::find(vertices, portPositionInScene);
+        if (findResult != vertices.end()) {
+          component->getComponent()->setInput(index, wire->getBus());
+        }
+      }
+
+      for (const auto [index, p] : std::views::enumerate(component->getOutputPorts())) {
+        const auto portPositionInScene = component->mapToScene(p->getPosition());
+        const auto findResult          = std::ranges::find(vertices, portPositionInScene);
+        if (findResult != vertices.end()) {
+          component->getComponent()->setOutput(index, wire->getBus());
+        }
+      }
+    }
+  }
+}
+
+bool DiagramScene::manageJunctionCreation(const QPointF cursorPos) const
 {
   // Using Qt::IntersectsItemBoundingRect cause we don't care about the shape of the wire
   for (const auto item : items(cursorPos, Qt::IntersectsItemBoundingRect)) {
     if (item->type() == WIRE) {
       const auto wire = qgraphicsitem_cast<GraphicalWire*>(item);
-      qDebug() << "YAY";
       if (wire->segmentAtPoint(cursorPos)) {
         wire->addSegment(wireSegmentToBeDrawn);
         return true;

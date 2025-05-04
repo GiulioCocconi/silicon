@@ -66,6 +66,8 @@ signals:
 private:
   void drawBackground(QPainter* painter, const QRectF& rect) override;
 
+  void calculateWiresForComponents() const;
+
   void setInteractionMode(InteractionMode mode, bool force);
 
   void mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent) override;
