@@ -16,10 +16,13 @@
 */
 
 #pragma once
+
 #include <array>
 #include <cassert>
 #include <memory>
+#include <ranges>
 #include <string>
+#include <utility>
 
 #include <core/wire.hpp>
 
@@ -36,13 +39,19 @@ public:
   Component() = default;
   Component(std::vector<Bus> inputs, std::vector<Bus> outputs, std::string name);
 
-  void setAction(action a);
-  void setInputs(std::vector<Bus> newInputs);
-  void setOutputs(std::vector<Bus> newOutputs);
+  void setAction(const action& a);
 
-  std::vector<Bus> getInputs() { return inputs; }
-  std::vector<Bus> getOutputs() { return outputs; }
-  std::string      getName() { return name; }
+  void setInput(const unsigned int index, const Bus& bus);
+  void setInputs(const std::vector<Bus>& newInputs);
+
+  void setOutput(const unsigned int index, const Bus& bus);
+  void setOutputs(const std::vector<Bus>& newOutputs);
+
+  void clearWires();
+
+  std::vector<Bus> getInputs() const { return inputs; }
+  std::vector<Bus> getOutputs() const { return outputs; }
+  std::string      getName() const { return name; }
 
   virtual ~Component();
 };

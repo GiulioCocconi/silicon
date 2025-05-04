@@ -1,19 +1,20 @@
 /*
-  Copyright (C) 2025 Giulio Cocconi
+ Copyright (c) 2025. Giulio Cocconi
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
 
 #pragma once
 
@@ -33,21 +34,52 @@ enum CollidingStatus {
   COLLIDING_WITH_WIRE
 };
 
+class Port : public QGraphicsItem {
+private:
+  unsigned int       index;
+  QPoint             position;
+  QGraphicsLineItem* line;
+  std::string        name;
+
+public:
+  Port(unsigned int index, QPoint position, std::string name,
+       QGraphicsItem* parent = nullptr);
+
+  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+             QWidget* widget) override {};
+
+  QRectF boundingRect() const override { return this->line->boundingRect(); };
+
+  unsigned int getIndex() const { return this->index; }
+  QPoint       getPosition() const { return this->position; }
+  std::string  getName() const { return this->name; }
+
+  void setLine(QGraphicsLineItem* line);
+
+  QRectF collisionRect();
+};
+
 class GraphicalComponent : public QGraphicsObject {
   Q_OBJECT
 protected:
-  void           setShape(QGraphicsItem* shape);
-  QGraphicsItem* getShape() { return shape; }
+  void           setItemShape(QGraphicsItem* shape);
+  QGraphicsItem* getItemShape() const { return itemShape; }
 
   QRectF boundingRect() const override;
   QRectF boundingRectWithoutMargins() const;
 
-  void     paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
-                 QWidget* widget) override;
+  void   paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+               QWidget* widget) override;
+  QRectF collisionRect();
+
   QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
-  void     updateInputs() const;
 
   CollidingStatus collidingStatus = CollidingStatus::NOT_COLLIDING;
+
+  std::vector<Port*> inputPorts;
+  std::vector<Port*> outputPorts;
+
+  void setPortLine(Port* port);
 
 public slots:
   void modeChanged(InteractionMode mode);
@@ -57,6 +89,13 @@ public:
 
   bool isColliding() { return collidingStatus != NOT_COLLIDING; }
 
+  virtual void
+  setPorts(const std::vector<std::pair<std::string, QPoint>>& busToPortInputs,
+           const std::vector<std::pair<std::string, QPoint>>& busToPortOutputs);
+
+  [[nodiscard]] std::vector<Port*> getInputPorts() const { return inputPorts; };
+  [[nodiscard]] std::vector<Port*> getOutputPorts() const { return outputPorts; };
+
 private:
-  QGraphicsItem* shape = nullptr;
+  QGraphicsItem* itemShape = nullptr;
 };
