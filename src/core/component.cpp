@@ -19,58 +19,97 @@
 
 Component::Component(std::vector<Bus> inputs, std::vector<Bus> outputs, std::string name)
 {
-  for (auto inputBus : inputs)
-    for (auto w : inputBus)
-      assert(w);
-
-  for (auto outputBus : outputs)
-    for (auto w : outputBus)
-      assert(w);
-
-  this->inputs  = inputs;
-  this->outputs = outputs;
-  this->name    = name;
+  this->inputs  = std::move(inputs);
+  this->outputs = std::move(outputs);
+  this->name    = std::move(name);
 }
 
-void Component::setInputs(std::vector<Bus> newInputs)
+void Component::setInput(const unsigned int index, const Bus& bus)
 {
-  // If I change the inputs after the component creation I need to remove the
-  // update action from the former inputs.
+  // If the action is already defined then we should remove it from the inputs:
+  if (this->act)
+    for (const auto& w : this->inputs[index])
+      if (w)
+        w->deleteUpdateAction(this->act);
 
+  // Then we set the new inputs and add the update action to them:
+  this->inputs[index] = bus;
+
+  if (this->act)
+    for (const auto& w : this->inputs[index])
+      if (w)
+        w->addUpdateAction(this->act);
+}
+
+void Component::setInputs(const std::vector<Bus>& newInputs)
+{
   // If the former inputs are the same as the new inputs then do nothing:
   if (this->inputs == newInputs)
     return;
 
-  // If the action is already defined then we should remove it from the inputs:
-  if (this->act)
-    for (auto bus : this->inputs)
-      for (auto w : bus)
-        w->deleteUpdateAction(this->act);
-
-  // Then we set the new inputs and add the update action to them:
-  this->inputs = newInputs;
-
-  if (this->act)
-    for (auto bus : this->inputs)
-      for (auto w : bus)
-        w->addUpdateAction(this->act);
+  for (const auto& [index, bus] : std::views::enumerate(newInputs)) {
+    setInput(index, bus);
+  }
 }
 
-void Component::setAction(action a)
+void Component::setOutput(const unsigned int index, const Bus& bus)
+{
+  this->outputs[index] = bus;
+}
+
+void Component::setOutputs(const std::vector<Bus>& newOutputs)
+{
+  // If the former outputs are the same as the new outputs then do nothing:
+  if (this->outputs == newOutputs)
+    return;
+
+  // We set the new outputs
+  this->outputs = newOutputs;
+}
+void Component::clearWires()
+{
+  for (const auto [index, bus] : std::views::enumerate(this->outputs)) {
+    const auto            busSize = bus.size();
+    std::vector<Wire_ptr> wires(busSize);
+
+    for (unsigned int i = 0; i < busSize; i++)
+      wires.push_back(nullptr);
+
+    const auto newBus = Bus(wires);
+
+    setOutput(index, newBus);
+  }
+
+  for (const auto [index, bus] : std::views::enumerate(this->inputs)) {
+    const auto            busSize = bus.size();
+    std::vector<Wire_ptr> wires(busSize);
+
+    for (unsigned int i = 0; i < busSize; i++)
+      wires.push_back(nullptr);
+
+    const auto newBus = Bus(wires);
+
+    setInput(index, newBus);
+  }
+}
+
+void Component::setAction(const action& a)
 {
   this->act = std::make_shared<action>(a);
   assert(this->act);
 
-  // The action is to be set for all the inputs of the component:
+  // The action is to be set for all the inputs of the component connected to wires:
   for (auto bus : this->inputs)
-    for (auto w : bus)
-      w->addUpdateAction(this->act);
+    for (const auto& w : bus)
+      if (w)
+        w->addUpdateAction(this->act);
 }
 
 Component::~Component()
 {
   // Remove the associated update action from all the inputs:
   for (auto bus : this->inputs)
-    for (auto w : bus)
-      w->deleteUpdateAction(this->act);
+    for (const auto& w : bus)
+      if (w)
+        w->deleteUpdateAction(this->act);
 }

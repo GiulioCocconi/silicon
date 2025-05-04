@@ -19,6 +19,7 @@
 
 #include <string>
 
+#include <QApplication>
 #include <QFontMetrics>
 #include <QGraphicsItem>
 #include <QPainter>
@@ -35,12 +36,9 @@ public:
   QRectF boundingRect() const override { return this->rect; }
 
   void setText(const std::string text);
-  void setCenterPos(const QPointF pos)
-  {
-    this->setPos(pos - this->center().boundingRect());
-  }
+  void setCenterPos(const QPointF pos) { this->setPos(pos - this->rect.center()); }
 
 private:
   QRectF  rect;
   QString text;
-}
+};

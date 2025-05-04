@@ -1,29 +1,30 @@
 /*
-  Copyright (C) 2025 Giulio Cocconi
+ Copyright (c) 2025. Giulio Cocconi
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
 
 #include "logiFlowWindow.hpp"
 #include "ui/common/diagramScene.hpp"
 
 LogiFlowWindow::LogiFlowWindow()
 {
-  auto centralWidget = new QWidget;
+  const auto centralWidget = new QWidget();
   setCentralWidget(centralWidget);
 
-  auto layout = new QHBoxLayout;
+  const auto layout = new QHBoxLayout();
   layout->setContentsMargins(5, 5, 5, 5);
   centralWidget->setLayout(layout);
 
@@ -49,15 +50,15 @@ LogiFlowWindow::LogiFlowWindow()
 
   updateStatus();
 
-  auto a            = std::make_shared<Wire>(State::HIGH);
-  auto o            = std::make_shared<Wire>();
-  auto xg           = std::make_shared<XorGate>(std::array<Wire_ptr, 2>{a, a}, o);
-  auto ng           = std::make_shared<NotGate>(a, o);
-  auto graphicalXor = new GraphicalXor(xg);
-  auto graphicalNot = new GraphicalNot(ng);
+  auto graphicalXor    = new GraphicalXor();
+  auto graphicalNot    = new GraphicalNot();
+  auto graphicalInput  = new GraphicalInputSingle();
+  auto graphicalOutput = new GraphicalOutputSingle();
 
   addComponent(graphicalNot);
   addComponent(graphicalXor, QPointF(0, 50));
+  addComponent(graphicalInput, QPointF(-50, 0));
+  addComponent(graphicalOutput, QPointF(-100, 0));
 
   layout->addWidget(diagramView);
 
@@ -240,10 +241,10 @@ void LogiFlowWindow::addComponent()
   qDebug() << "Adding component @ " << dialogPos;
 
   // FIXME: If the cursor is not inside the view then the scene should be put in component
-  // placing mode and the component should be placed manually.
+  //        placing mode and the component should be placed manually.
 
   // TODO: When the component is selected in the dialog we should go in component placing
-  // mode and repeat placing of the same component
+  //       mode and repeat placing of the same component
 }
 
 void LogiFlowWindow::addComponent(GraphicalComponent* component, QPointF pos)
@@ -263,23 +264,12 @@ void LogiFlowWindow::updateStatus()
   QString modeMsg = "Interaction Mode: ";
 
   switch (diagramScene->getInteractionMode()) {
-    case DiagramScene::NORMAL_MODE:
-      modeMsg += "NORMAL";
-      break;
-    case DiagramScene::COMPONENT_PLACING_MODE:
-      modeMsg += "COMPONENT PLACING";
-      break;
-    case DiagramScene::WIRE_CREATION_MODE:
-      modeMsg += "WIRE CREATION";
-      break;
-    case DiagramScene::PAN_MODE:
-      modeMsg += "PAN";
-      break;
-    case DiagramScene::SIMULATION_MODE:
-      modeMsg += "SIMULATION";
-      break;
-    default:
-      assert(false);
+    case DiagramScene::NORMAL_MODE: modeMsg += "NORMAL"; break;
+    case DiagramScene::COMPONENT_PLACING_MODE: modeMsg += "COMPONENT PLACING"; break;
+    case DiagramScene::WIRE_CREATION_MODE: modeMsg += "WIRE CREATION"; break;
+    case DiagramScene::PAN_MODE: modeMsg += "PAN"; break;
+    case DiagramScene::SIMULATION_MODE: modeMsg += "SIMULATION"; break;
+    default: assert(false);
   }
 
   statusBar()->showMessage(modeMsg);

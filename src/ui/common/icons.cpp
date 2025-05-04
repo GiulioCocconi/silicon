@@ -17,7 +17,7 @@
 
 #include "icons.hpp"
 
-Icon::Icon(const QString commonName, const QSize targetSize) : QIcon()
+Icon::Icon(const QString commonName, const QSize targetSize)
 {
   QSvgRenderer renderer{};
 

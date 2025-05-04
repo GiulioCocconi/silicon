@@ -17,24 +17,149 @@
 
 #include "graphicalWire.hpp"
 
-GraphicalWireJunction::GraphicalWireJunction(QPoint point, QGraphicsItem* parent)
+GraphicalWire::GraphicalWire(const std::vector<GraphicalWireSegment*>& segments,
+                             QGraphicsItem*                            parent)
   : QGraphicsItem(parent)
 {
-  setFlag(QGraphicsItem::ItemIsSelectable, true);
-  setAcceptedMouseButtons(Qt::AllButtons);
+  setFlag(QGraphicsItem::ItemIsSelectable);
+  setFlag(QGraphicsItem::ItemSendsGeometryChanges);
 
-  this->point = point;
+  for (auto seg : segments)
+    addSegment(seg);
 }
 
-QRectF GraphicalWireJunction::boundingRect() const
+void GraphicalWire::addSegment(GraphicalWireSegment* segment)
 {
-  return QRectF(-RADIUS, -RADIUS, RADIUS * 2, RADIUS * 2);
+  prepareGeometryChange();
+  segments.push_back(segment);
+
+  std::ranges::sort(segments);
+  segments.erase(std::ranges::unique(segments).begin(), segments.end());
 }
 
-void GraphicalWireJunction::paint(QPainter*                       painter,
-                                  const QStyleOptionGraphicsItem* option, QWidget* widget)
+void GraphicalWire::removeSegment(const GraphicalWireSegment* segment)
 {
-  painter->drawEllipse(boundingRect());
+  const auto b = segments.begin();
+  const auto e = segments.end();
+
+  // If pointers are not valid then we can safely return. The segment won't be there
+  // anyway
+  if (!b.base() || !e.base())
+    return;
+
+  const auto pos = std::find(b, e, segment);
+
+  if (pos != e) {
+    prepareGeometryChange();
+    segments.erase(pos);
+  }
+}
+
+QRectF GraphicalWire::boundingRect() const
+{
+  QRectF rect{};
+
+  for (QGraphicsItem* child : childItems())
+    rect = rect.united(child->boundingRect());
+
+  return rect;
+}
+
+QPainterPath GraphicalWire::shape() const
+{
+  QPainterPath combinedPath{};
+
+  for (const auto segment : this->segments)
+    combinedPath.connectPath(segment->shape());
+
+  return combinedPath;
+}
+
+void GraphicalWire::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+                          QWidget* widget)
+{
+  // Draw junctions
+  painter->setPen(QPen(Qt::blue, 3));
+  painter->setBrush(Qt::black);
+
+  for (auto junction : getJunctions())
+    painter->drawEllipse(junction, 3, 3);
+
+  // Draw selection box
+  if (isSelected()) {
+    painter->setBrush(Qt::transparent);
+    painter->setPen(QPen(Qt::black, 3, Qt::DotLine));
+    painter->drawRect(this->boundingRect());
+  }
+}
+
+GraphicalWireSegment* GraphicalWire::segmentAtPoint(const QPointF point) const
+{
+  for (const auto segment : segments) {
+    const QPointF segmentPoint = segment->mapFromScene(point);
+    if (segment->isPointOnPath(segmentPoint)) {
+      return segment;
+    }
+  }
+
+  return nullptr;
+}
+
+std::vector<QPointF> GraphicalWire::getJunctions() const
+{
+  std::vector<QPointF> junctions = {};
+
+  const auto b = this->segments.begin();
+  const auto e = this->segments.end();
+
+  // Unordered pairs of segments
+  for (auto first = b; first != e; ++first) {
+    for (auto second = first + 1; second != e; ++second) {
+      const QPointF firstPoint = (*second)->firstPoint();
+      const QPointF lastPoint  = (*second)->lastPoint();
+
+      const bool firstPointIntersects = (*first)->isPointOnPath(firstPoint);
+      const bool lastPointIntersects  = (*first)->isPointOnPath(lastPoint);
+
+      const bool isSameWire =
+          (*first)->firstPoint() == lastPoint || (*first)->lastPoint() == firstPoint;
+
+      if ((firstPointIntersects || lastPointIntersects) && !isSameWire) {
+        junctions.push_back(firstPointIntersects ? firstPoint : lastPoint);
+      } else if (isSameWire) {
+        // TODO: MERGE WIRES
+      }
+    }
+  }
+
+  return junctions;
+}
+
+std::vector<QPointF> GraphicalWire::getVertices() const
+{
+  const auto junctions = getJunctions();
+
+  const auto e = junctions.end();
+
+  std::vector<QPointF> vertices = {};
+
+  for (const auto segment : segments) {
+    if (std::ranges::find(junctions, segment->lastPoint()) == e)
+      vertices.push_back(segment->lastPoint());
+    if (std::ranges::find(junctions, segment->firstPoint()) == e)
+      vertices.push_back(segment->firstPoint());
+  }
+
+  assert(!vertices.empty());
+  return vertices;
+}
+
+GraphicalWire::~GraphicalWire()
+{
+  // Enforce the calling of the segment destructor before the wire itself gets destructed
+  for (const auto& segment : this->segments) {
+    delete segment;
+  }
 }
 
 GraphicalWireSegment::GraphicalWireSegment(QPointF firstPoint, QGraphicsItem* parent)
@@ -44,7 +169,14 @@ GraphicalWireSegment::GraphicalWireSegment(QPointF firstPoint, QGraphicsItem* pa
   updatePath();
 }
 
-void GraphicalWireSegment::setShowPoints(std::vector<QPointF> points)
+void GraphicalWireSegment::setGraphicalWire(GraphicalWire* graphicalWire)
+{
+  setParentItem(graphicalWire);
+  graphicalWire->addSegment(this);
+  this->graphicalWire = graphicalWire;
+}
+
+void GraphicalWireSegment::setShowPoints(const std::vector<QPointF>& points)
 {
   assert(points.size() <= 2);
 
@@ -69,7 +201,7 @@ void GraphicalWireSegment::addPoints()
   // Check for self intersecting
   QPainterPathStroker stroker;
 
-  auto showStroke = stroker.createStroke(showPath);
+  const auto showStroke = stroker.createStroke(showPath);
 
   auto intersection = shape().intersected(showStroke);
 
@@ -99,15 +231,15 @@ void GraphicalWireSegment::updatePath()
   path.moveTo(this->points[0]);
 
   // Draw definitive points
-  for (int i = 1; i < this->points.size(); i++)
+  for (unsigned int i = 1; i < this->points.size(); i++)
     path.lineTo(this->points[i]);
 
   // Draw showpoints
   if (!this->showPoints.empty()) {
     showPath.moveTo(this->lastPoint());
 
-    for (int i = 0; i < this->showPoints.size(); i++) {
-      showPath.lineTo(this->showPoints[i]);
+    for (auto showPoint : this->showPoints) {
+      showPath.lineTo(showPoint);
     }
   }
 }
@@ -126,7 +258,7 @@ void GraphicalWireSegment::paint(QPainter*                       painter,
 
 QRectF GraphicalWireSegment::boundingRect() const
 {
-  return (this->path.boundingRect())
+  return this->path.boundingRect()
       .united(this->showPath.boundingRect())
       .adjusted(-5, -5, 5, 5);
 }
@@ -139,38 +271,43 @@ QPainterPath GraphicalWireSegment::shape() const
 
 bool GraphicalWireSegment::isPointOnPath(const QPointF point)
 {
-  // Assertions needed to make it work:
-  // 1) Manhattan-style routing system
-  // 2) Points aligned to int-sized grid
+  // Add a small tolerance for point detection
+  constexpr double tolerance = 5.0;  // Adjust based on your needs
 
-  if (points.size() == 0)
+  if (points.empty())
     return false;
 
   if (points.size() == 1)
-    return (point.x() == points[0].x() && point.y() == points[0].y());
+    return QLineF(point, points[0]).length() <= tolerance;
 
   const auto slide_view = points | std::views::slide(2);
 
   // For each sub-segment
   for (const auto el : slide_view) {
-    const bool horizontalSegment = (el[0].y() == el[1].y());
-    if (horizontalSegment && el[0].y() == point.y()) {
+    const bool horizontalSegment = (qAbs(el[0].y() - el[1].y()) <= tolerance);
+    if (horizontalSegment && qAbs(el[0].y() - point.y()) <= tolerance) {
       const auto minX = std::min(el[0].x(), el[1].x());
       const auto maxX = std::max(el[0].x(), el[1].x());
 
-      if (point.x() >= minX && point.x() <= maxX)
+      if (point.x() >= minX - tolerance && point.x() <= maxX + tolerance)
         return true;
     }
 
-    const bool verticalSegment = (el[0].x() == el[1].x());
-    if (verticalSegment && el[0].x() == point.x()) {
+    const bool verticalSegment = (qAbs(el[0].x() - el[1].x()) <= tolerance);
+    if (verticalSegment && qAbs(el[0].x() - point.x()) <= tolerance) {
       const auto minY = std::min(el[0].y(), el[1].y());
       const auto maxY = std::max(el[0].y(), el[1].y());
 
-      if (point.y() >= minY && point.y() <= maxY)
+      if (point.y() >= minY - tolerance && point.y() <= maxY + tolerance)
         return true;
     }
   }
 
   return false;
+}
+
+GraphicalWireSegment::~GraphicalWireSegment()
+{
+  if (graphicalWire)
+    graphicalWire->removeSegment(this);
 }

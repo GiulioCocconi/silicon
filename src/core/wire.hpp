@@ -21,6 +21,7 @@
 #include <format>
 #include <functional>
 #include <initializer_list>
+#include <iostream>
 #include <iterator>
 #include <memory>
 #include <string>
@@ -46,13 +47,14 @@ using action     = std::function<void()>;
 using action_ptr = std::shared_ptr<action>;
 
 class Component;
-using Component_ptr = std::weak_ptr<Component>;
+using Component_weakPtr = std::weak_ptr<Component>;
+using Component_ptr     = std::shared_ptr<Component>;
 
 class Wire {
 private:
   State                   currentState;
   std::vector<action_ptr> updateActions;
-  Component_ptr           authorizedComponent;
+  Component_weakPtr       authorizedComponent;
 
 public:
   Wire();
@@ -61,7 +63,7 @@ public:
   State getCurrentState() const;
   void  forceSetCurrentState(const State newState);
 
-  void setCurrentState(const State newState, const Component_ptr requestedBy);
+  void setCurrentState(const State newState, const Component_weakPtr requestedBy);
 
   void addUpdateAction(const action_ptr a);
   void deleteUpdateAction(const action_ptr a);
@@ -81,7 +83,7 @@ public:
   Bus(std::initializer_list<Wire_ptr> initList);
   int forceSetCurrentValue(const unsigned int value);
 
-  int setCurrentValue(const unsigned int value, const Component_ptr requestedBy);
+  int setCurrentValue(const unsigned int value, const Component_weakPtr requestedBy);
 
   int getCurrentValue() const;
 

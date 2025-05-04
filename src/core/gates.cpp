@@ -17,22 +17,24 @@
 
 #include "gates.hpp"
 
-Gate::Gate(std::vector<Wire_ptr> inputs, Wire_ptr output, std::string name)
+#include <utility>
+
+Gate::Gate(const std::vector<Wire_ptr>& inputs, Wire_ptr output, std::string name)
 {
-  assert(inputs.size() != 0);
+  assert(!inputs.empty());
 
-  this->name = name;
+  this->name = std::move(name);
 
-  for (auto input : inputs)
+  for (const auto& input : inputs)
     this->inputs.push_back({input});
   this->outputs = {{output}};
 }
 
-AndGate::AndGate(std::vector<Wire_ptr> inputs, Wire_ptr output)
-  : Gate(inputs, output, "And")
+AndGate::AndGate(const std::vector<Wire_ptr>& inputs, Wire_ptr output)
+  : Gate(inputs, std::move(output), "And")
 {
   assert(inputs.size() >= 2);
-  this->setAction([this]() {
+  this->setAction([this] {
     State s = State::HIGH;
 
     for (auto input : this->inputs)
@@ -42,10 +44,11 @@ AndGate::AndGate(std::vector<Wire_ptr> inputs, Wire_ptr output)
   });
 }
 
-OrGate::OrGate(std::vector<Wire_ptr> inputs, Wire_ptr output) : Gate(inputs, output, "Or")
+OrGate::OrGate(const std::vector<Wire_ptr>& inputs, Wire_ptr output)
+  : Gate(inputs, output, "Or")
 {
   assert(inputs.size() >= 2);
-  this->setAction([this]() {
+  this->setAction([this] {
     State s = State::LOW;
 
     for (auto input : this->inputs)
@@ -57,19 +60,17 @@ OrGate::OrGate(std::vector<Wire_ptr> inputs, Wire_ptr output) : Gate(inputs, out
 
 NotGate::NotGate(Wire_ptr input, Wire_ptr output) : Gate({input}, output, "Not")
 {
-  const auto a = std::make_shared<action>([this]() {
+  this->setAction([this] {
     State s = !this->inputs[0][0]->getCurrentState();
     this->outputs[0][0]->setCurrentState(s, weak_from_this());
   });
-
-  this->inputs[0][0]->addUpdateAction(a);
 }
 
-NandGate::NandGate(std::vector<Wire_ptr> inputs, Wire_ptr output)
+NandGate::NandGate(const std::vector<Wire_ptr>& inputs, Wire_ptr output)
   : Gate(inputs, output, "Nand")
 {
   assert(inputs.size() >= 2);
-  this->setAction([this]() {
+  this->setAction([this] {
     State s = State::HIGH;
 
     for (auto input : this->inputs)
@@ -79,11 +80,11 @@ NandGate::NandGate(std::vector<Wire_ptr> inputs, Wire_ptr output)
   });
 }
 
-NorGate::NorGate(std::vector<Wire_ptr> inputs, Wire_ptr output)
+NorGate::NorGate(const std::vector<Wire_ptr>& inputs, Wire_ptr output)
   : Gate(inputs, output, "Nor")
 {
   assert(inputs.size() >= 2);
-  this->setAction([this]() {
+  this->setAction([this] {
     State s = State::LOW;
 
     for (auto input : this->inputs)
@@ -93,13 +94,13 @@ NorGate::NorGate(std::vector<Wire_ptr> inputs, Wire_ptr output)
   });
 }
 
-XorGate::XorGate(std::array<Wire_ptr, 2> inputs, Wire_ptr output)
+XorGate::XorGate(const std::array<Wire_ptr, 2>& inputs, Wire_ptr output)
   : Gate({inputs[0], inputs[1]}, output, "Xor")
 {
   assert(inputs.size() >= 2);
-  this->setAction([this]() {
-    State s =
-        (this->inputs[0][0]->getCurrentState() ^ this->inputs[1][0]->getCurrentState());
+  this->setAction([this] {
+    const State s =
+        this->inputs[0][0]->getCurrentState() ^ this->inputs[1][0]->getCurrentState();
     this->outputs[0][0]->setCurrentState(s, weak_from_this());
   });
 }

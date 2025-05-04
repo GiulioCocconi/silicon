@@ -8,6 +8,7 @@ _Common_
 
 - [ ] GUI with QT6
 - [ ] Deployment (setup packages for Win & Mac). See [here](https://www.qt.io/blog/cmake-deployment-api)
+
 _Logic circuits (Silicon LogiFlow)_
 
 - [ ] Multiplexers & demultiplexers
@@ -33,7 +34,7 @@ _Microcontrollers_
 - [ ] TBD
 
 ## Using clangd
-This project is currently being developed using EMACS. The following packages will be usefull:
+This project is currently being developed using EMACS. The following packages will be useful:
 - [lsp-mode](https://emacs-lsp.github.io/) for clangd integration.
 - [dir-config.el](https://github.com/jamescherti/dir-config.el) to load this project specific config.
 
@@ -45,8 +46,8 @@ git clone github.com/GiulioCocconi/silicon
 cd silicon
 git checkout develop
 nix-shell
-mkdir build && cd build
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug ..
+mkdir build
+cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -Bbuild
 ninja
 ```
 

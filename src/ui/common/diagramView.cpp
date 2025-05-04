@@ -76,20 +76,14 @@ void DiagramView::modeChanged(InteractionMode mode)
   setDragMode(QGraphicsView::NoDrag);
 
   switch (mode) {
-    case InteractionMode::NORMAL_MODE:
-      setDragMode(QGraphicsView::RubberBandDrag);
-      break;
-    case InteractionMode::WIRE_CREATION_MODE:
-      setCursor(Qt::CrossCursor);
-      break;
+    case InteractionMode::NORMAL_MODE: setDragMode(QGraphicsView::RubberBandDrag); break;
+    case InteractionMode::WIRE_CREATION_MODE: setCursor(Qt::CrossCursor); break;
     case InteractionMode::PAN_MODE:
       setDragMode(QGraphicsView::ScrollHandDrag);
       setCursor(Qt::SizeAllCursor);
       break;
     case InteractionMode::COMPONENT_PLACING_MODE:
-    case InteractionMode::SIMULATION_MODE:
-      break;
-    default:
-      assert(false);
+    case InteractionMode::SIMULATION_MODE: break;
+    default: assert(false);
   }
 }

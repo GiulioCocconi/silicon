@@ -22,7 +22,7 @@ TextItem::TextItem(const std::string text, QGraphicsItem* parent) : QGraphicsIte
   this->setText(text);
 }
 
-TextItem::setText(const std::string text)
+void TextItem::setText(const std::string text)
 {
   this->rect = QFontMetrics(qApp->font()).boundingRect(text);
   this->text = QString::fromStdString(text);

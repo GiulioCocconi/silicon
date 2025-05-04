@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="SiliconSrc" pattern="file[Silicon]:src/*||file[Silicon]:src//*||file[Silicon]:tests//*||file:CMakeLists.txt" />
+</component>

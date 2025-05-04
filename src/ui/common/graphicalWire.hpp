@@ -27,29 +27,20 @@
 #include <QPainterPath>
 #include <QPoint>
 
+#include <ui/common/enums.hpp>
+
 #include <core/wire.hpp>
 
 class GraphicalWire;
 
-class GraphicalWireJunction : public QGraphicsItem {
-public:
-  GraphicalWireJunction(QPoint point, QGraphicsItem* parent);
-  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
-             QWidget* widget) override;
-
-private:
-  QRectF boundingRect() const override;
-
-  static const int RADIUS = 5;
-
-  QPoint point;
-};
-
 class GraphicalWireSegment : public QGraphicsItem {
 public:
   GraphicalWireSegment(QPointF firstPoint, QGraphicsItem* parent = nullptr);
-  void         paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
-                     QWidget* widget) override;
+  int type() const override { return SiliconTypes::WIRE_SEGMENT; }
+
+  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+             QWidget* widget) override;
+
   QPainterPath shape() const override;
 
   bool isCompleted() { return false; };
@@ -57,10 +48,19 @@ public:
 
   void addPoints();
 
-  void                 setShowPoints(std::vector<QPointF> showPoints);
+  void                 setShowPoints(const std::vector<QPointF>& showPoints);
   std::vector<QPointF> getShowPoints() { return showPoints; }
 
-  QPointF lastPoint() { return points[points.size() - 1]; }
+  QPointF lastPoint() const { return points[points.size() - 1]; }
+  QPointF firstPoint() const { return points[0]; }
+  QPointF lastShowPoint() const { return points[showPoints.size() - 1]; }
+
+  bool empty() const { return points.size() == 1; }
+
+  GraphicalWire* getGraphicalWire() const { return graphicalWire; }
+  void           setGraphicalWire(GraphicalWire* graphicalWire);
+
+  ~GraphicalWireSegment();
 
 private:
   QPainterPath path;
@@ -77,13 +77,31 @@ private:
 
 class GraphicalWire : public QGraphicsItem {
 public:
-  GraphicalWire(QGraphicsItem* parent = nullptr);
-  GraphicalWire(std::vector<GraphicalWireSegment> segments,
-                QGraphicsItem*                    parent = nullptr);
+  GraphicalWire(QGraphicsItem* parent = nullptr) : QGraphicsItem(parent) {};
+  GraphicalWire(const std::vector<GraphicalWireSegment*>& segments,
+                QGraphicsItem*                            parent = nullptr);
 
-  void setBus(Bus bus);
-  Bus  getBus();
+  int type() const override { return SiliconTypes::WIRE; }
+
+  void addSegment(GraphicalWireSegment* segment);
+  void removeSegment(const GraphicalWireSegment* segment);
+
+  void setBus(Bus bus) { this->bus = bus; }
+  Bus  getBus() const { return bus; }
+
+  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+             QWidget* widget) override;
+
+  GraphicalWireSegment* segmentAtPoint(QPointF point) const;
+  std::vector<QPointF>  getJunctions() const;
+  std::vector<QPointF>  getVertices() const;
+  ~GraphicalWire();
+
+  QPainterPath shape() const override;
 
 private:
-  Bus bus;
+  Bus                                bus;
+  std::vector<GraphicalWireSegment*> segments;
+
+  QRectF boundingRect() const override;
 };

@@ -27,12 +27,12 @@ HalfAdder::HalfAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr sum, Wire_ptr cout
      cout = outputs[1][0];
   */
 
-  this->setAction([this]() {
+  this->setAction([this] {
     State cout =
-        (this->inputs[0][0]->getCurrentState() && this->inputs[1][0]->getCurrentState());
+        this->inputs[0][0]->getCurrentState() && this->inputs[1][0]->getCurrentState();
 
     State sum =
-        (this->inputs[0][0]->getCurrentState() ^ this->inputs[1][0]->getCurrentState());
+        this->inputs[0][0]->getCurrentState() ^ this->inputs[1][0]->getCurrentState();
 
     this->outputs[0][0]->setCurrentState(sum, weak_from_this());
     this->outputs[1][0]->setCurrentState(cout, weak_from_this());
@@ -50,7 +50,7 @@ FullAdder::FullAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr cin, Wire_ptr sum,
      sum  = outputs[0][0];
      cout = outputs[1][0]; */
 
-  this->setAction([this]() {
+  this->setAction([this] {
     auto partialSum1   = std::make_shared<Wire>();
     auto partialCarry1 = std::make_shared<Wire>();
     auto partialCarry2 = std::make_shared<Wire>();
@@ -80,7 +80,7 @@ AdderNBits::AdderNBits(std::array<Bus, 2> inputs, Bus sum, Wire_ptr cout)
   assert(inputs.size() == 2);
   assert(inputs[0].size() == sum.size());
 
-  this->setAction([this]() {
+  this->setAction([this] {
     int a = this->inputs[0].getCurrentValue();
     int b = this->inputs[1].getCurrentValue();
 

@@ -1,19 +1,20 @@
 /*
-  Copyright (C) 2025 Giulio Cocconi
+ Copyright (c) 2025. Giulio Cocconi
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
 
 #include "wire.hpp"
 
@@ -64,12 +65,9 @@ State operator^(const State& a, const State& b)
 std::string to_str(State s)
 {
   switch (s) {
-    case State::HIGH:
-      return "HIGH";
-    case State::LOW:
-      return "LOW";
-    case State::ERROR:
-      return "ERROR";
+    case State::HIGH: return "HIGH";
+    case State::LOW: return "LOW";
+    case State::ERROR: return "ERROR";
   }
   assert(false);
 }
@@ -102,7 +100,7 @@ void Wire::forceSetCurrentState(const State newState)
       (*a)();
 }
 
-void Wire::setCurrentState(const State newState, const Component_ptr requestedBy)
+void Wire::setCurrentState(const State newState, const Component_weakPtr requestedBy)
 {
   // Every wire has a mechanism to detect graphs error: the component that
   // controls the wire can be only one at a time and it's stored in the
@@ -113,6 +111,9 @@ void Wire::setCurrentState(const State newState, const Component_ptr requestedBy
     this->authorizedComponent = requestedBy;
 
   bool changeIsAuthorized = this->authorizedComponent.lock() == requestedBy.lock();
+
+  if (!changeIsAuthorized)
+    std::cout << "Change not authorized";
 
   State s = changeIsAuthorized ? newState : State::ERROR;
 
@@ -152,7 +153,7 @@ Bus::Bus(std::vector<Wire_ptr> busData)
 {
   this->busData = busData;
 
-  for (Wire_ptr w : busData)
+  for (Wire_ptr& w : busData)
     if (!w)
       w = std::make_shared<Wire>(State::LOW);
 }
@@ -184,10 +185,13 @@ int Bus::forceSetCurrentValue(const unsigned int value)
   return (value >= (1u << this->size()));
 }
 
-int Bus::setCurrentValue(const unsigned int value, const Component_ptr requestedBy)
+int Bus::setCurrentValue(const unsigned int value, const Component_weakPtr requestedBy)
 {
   for (unsigned short i = 0; i < this->size(); i++) {
-    State s = (value >> i) & 1 ? State::HIGH : State::LOW;
+    if (!this->busData[i])
+      continue;
+
+    const State s = (value >> i) & 1 ? State::HIGH : State::LOW;
     this->busData[i]->setCurrentState(s, requestedBy);
   }
   return (value >= (1u << this->size()));
@@ -198,6 +202,10 @@ int Bus::getCurrentValue() const
   unsigned int res = 0;
 
   for (unsigned int i = 0; i < this->size(); i++) {
+    // If the ith bit of the bus is not connected then the result MUST be 0
+    if (!this->busData[i])
+      return 0;
+
     State s = this->busData[i]->getCurrentState();
     assert(s != State::ERROR);
 

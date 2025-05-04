@@ -26,6 +26,7 @@
 #include <QPainter>
 #include <QRect>
 
+#include <ui/common/enums.hpp>
 #include <ui/common/graphicalWire.hpp>
 
 class GraphicalComponent;
@@ -43,23 +44,31 @@ public:
 
   explicit DiagramScene(QObject* parent = nullptr);
 
-  void            setInteractionMode(InteractionMode mode);
-  InteractionMode getInteractionMode() { return currentInteractionMode; }
+  void                          setInteractionMode(InteractionMode mode);
+  [[nodiscard]] InteractionMode getInteractionMode() const
+  {
+    return currentInteractionMode;
+  }
 
   void clearWireShadow();
   void clearComponentShadow();
+  bool manageJunctionCreation(QPointF cursorPos) const;
 
   void setInteractionMode(InteractionMode mode);
 
   static QPointF snapToGrid(QPointF point);
 
-  static const int GRID_SIZE = 10;
+  static constexpr int GRID_SIZE = 10;
+
+  ~DiagramScene() override;
 
 signals:
   void modeChanged(InteractionMode mode);
 
 private:
   void drawBackground(QPainter* painter, const QRectF& rect) override;
+
+  void calculateWiresForComponents() const;
 
   void setInteractionMode(InteractionMode mode, bool force);
 
@@ -69,7 +78,10 @@ private:
 
   InteractionMode currentInteractionMode = InteractionMode::NORMAL_MODE;
 
+  // Wire and component shadows to be used in `WIRE_CREATION_MODE` and
+  // `COMPONENT_PLACING_MODE`
   GraphicalComponent*   componentToBeDrawn   = nullptr;
   GraphicalWireSegment* wireSegmentToBeDrawn = nullptr;
 };
+
 using InteractionMode = DiagramScene::InteractionMode;
