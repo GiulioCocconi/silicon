@@ -27,8 +27,8 @@ include(GoogleTest)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
-set(src_dir                        "${CMAKE_SOURCE_DIR}/src")
-set(resources_dir                  "${CMAKE_SOURCE_DIR}/resources/app")
+set(src_dir "${CMAKE_SOURCE_DIR}/src")
+set(resources_dir "${CMAKE_SOURCE_DIR}/resources/app")
 
 include_directories(${src_dir})
 
@@ -49,12 +49,12 @@ set(UI_SOURCE_FILES
         ${src_dir}/ui/logiFlow/components/graphicalGates.cpp
         ${src_dir}/ui/logiFlow/logiFlowWindow.cpp)
 
-set(CMAKE_COLOR_DIAGNOSTICS     ON)
+set(CMAKE_COLOR_DIAGNOSTICS ON)
 
-set(CMAKE_CXX_FLAGS_DEBUG       "${CMAKE_CXX_FLAGS_DEBUG} -O0")
-set(CMAKE_CXX_STANDARD          23)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0")
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS        OFF)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(SILICON_BUILD_TESTS "Build silicon tests" ON)
 
@@ -69,10 +69,10 @@ add_compile_definitions(
 # Export compile_commands.json
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
-if(CMAKE_EXPORT_COMPILE_COMMANDS)
-  set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES
-          ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
-endif()
+if (CMAKE_EXPORT_COMPILE_COMMANDS)
+    set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES
+            ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
+endif ()
 
 add_compile_options(-Wall -Wextra -Wno-unused-parameter -fsanitize=address)
 add_link_options(-fsanitize=address -static-libasan)
@@ -136,26 +136,28 @@ qt_add_resources(Silicon "ANSI_icons" BASE ${resources_dir}
 qt_add_resources(Silicon "other_components" BASE ${resources_dir}
         FILES
         ${resources_dir}/other_components/input_off.svg
+        ${resources_dir}/other_components/output_off.svg
         ${resources_dir}/other_components/input_on.svg
+        ${resources_dir}/other_components/output_on.svg
 )
 
 
-if(SILICON_BUILD_TESTS)
-  find_package(GTest QUIET)
+if (SILICON_BUILD_TESTS)
+    find_package(GTest QUIET)
 
-  if(NOT GTest_FOUND)
-    message(STATUS "googletest not found, fetching with FetchContent...")
+    if (NOT GTest_FOUND)
+        message(STATUS "googletest not found, fetching with FetchContent...")
 
-    FetchContent_Declare(
-            GTest
-            GIT_REPOSITORY https://github.com/google/googletest.git
-    )
-    FetchContent_MakeAvailable(GTest)
+        FetchContent_Declare(
+                GTest
+                GIT_REPOSITORY https://github.com/google/googletest.git
+        )
+        FetchContent_MakeAvailable(GTest)
 
-  else()
-    message(STATUS "GOOGLETEST ALREADY INSTALLED!")
-  endif()
+    else ()
+        message(STATUS "GOOGLETEST ALREADY INSTALLED!")
+    endif ()
 
-  add_subdirectory("${CMAKE_SOURCE_DIR}/tests")
-  enable_testing()
-endif()
+    add_subdirectory("${CMAKE_SOURCE_DIR}/tests")
+    enable_testing()
+endif ()

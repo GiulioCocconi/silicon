@@ -1,19 +1,20 @@
 /*
-  Copyright (C) 2025 Giulio Cocconi
+ Copyright (c) 2025. Giulio Cocconi
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
 
 #include "wire.hpp"
 
@@ -64,12 +65,9 @@ State operator^(const State& a, const State& b)
 std::string to_str(State s)
 {
   switch (s) {
-    case State::HIGH:
-      return "HIGH";
-    case State::LOW:
-      return "LOW";
-    case State::ERROR:
-      return "ERROR";
+    case State::HIGH: return "HIGH";
+    case State::LOW: return "LOW";
+    case State::ERROR: return "ERROR";
   }
   assert(false);
 }
@@ -190,7 +188,10 @@ int Bus::forceSetCurrentValue(const unsigned int value)
 int Bus::setCurrentValue(const unsigned int value, const Component_weakPtr requestedBy)
 {
   for (unsigned short i = 0; i < this->size(); i++) {
-    State s = (value >> i) & 1 ? State::HIGH : State::LOW;
+    if (!this->busData[i])
+      continue;
+
+    const State s = (value >> i) & 1 ? State::HIGH : State::LOW;
     this->busData[i]->setCurrentState(s, requestedBy);
   }
   return (value >= (1u << this->size()));
@@ -201,6 +202,10 @@ int Bus::getCurrentValue() const
   unsigned int res = 0;
 
   for (unsigned int i = 0; i < this->size(); i++) {
+    // If the ith bit of the bus is not connected then the result MUST be 0
+    if (!this->busData[i])
+      return 0;
+
     State s = this->busData[i]->getCurrentState();
     assert(s != State::ERROR);
 

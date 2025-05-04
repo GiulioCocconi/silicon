@@ -89,10 +89,36 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
   }
 
   if (mode != SIMULATION_MODE) {
-    // TODO: RESTORE INPUTS AND OUTPUTS TO NEUTRAL SKIN
+    // RESTORE INPUTS AND OUTPUTS TO NEUTRAL SKIN
+
+    // TODO: Make a parent IO class with virtual reset method
+
+    const auto inputComponents =
+        items() | std::views::filter([](auto item) {
+          return item->type() == SiliconTypes::SINGLE_INPUT;
+        })
+        | std::views::transform(
+            [](auto item) { return qgraphicsitem_cast<GraphicalInputSingle*>(item); })
+        | std::ranges::to<std::vector>();
+
+    for (const auto inputComponent : inputComponents) {
+      inputComponent->setState(LOW);
+    }
+
+    const auto outputComponents =
+        items() | std::views::filter([](auto item) {
+          return item->type() == SiliconTypes::SINGLE_OUTPUT;
+        })
+        | std::views::transform(
+            [](auto item) { return qgraphicsitem_cast<GraphicalOutputSingle*>(item); })
+        | std::ranges::to<std::vector>();
+
+    for (const auto outputComponent : outputComponents) {
+      outputComponent->setState(LOW);
+    }
+
   } else {
     calculateWiresForComponents();
-    // TODO: Set inputs to false and calculate outputs
   }
 
   this->currentInteractionMode = mode;
