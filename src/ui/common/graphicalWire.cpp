@@ -18,7 +18,7 @@
 #include "graphicalWire.hpp"
 
 GraphicalWire::GraphicalWire(const std::vector<GraphicalWireSegment*>& segments,
-                             QGraphicsItem*                     parent)
+                             QGraphicsItem*                            parent)
   : QGraphicsItem(parent)
 {
   setFlag(QGraphicsItem::ItemIsSelectable);
@@ -80,10 +80,10 @@ void GraphicalWire::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
 {
   // Draw junctions
   painter->setPen(QPen(Qt::blue, 3));
-  painter->setBrush(Qt::blue);
+  painter->setBrush(Qt::black);
 
   for (auto junction : getJunctions())
-    painter->drawEllipse(junction, 5, 5);
+    painter->drawEllipse(junction, 3, 3);
 
   // Draw selection box
   if (isSelected()) {
@@ -93,12 +93,11 @@ void GraphicalWire::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
   }
 }
 
-GraphicalWireSegment* GraphicalWire::segmentAtPoint(const QPointF point)
+GraphicalWireSegment* GraphicalWire::segmentAtPoint(const QPointF point) const
 {
   for (const auto segment : segments) {
     const QPointF segmentPoint = segment->mapFromScene(point);
     if (segment->isPointOnPath(segmentPoint)) {
-      qDebug() << segment;
       return segment;
     }
   }
@@ -106,7 +105,7 @@ GraphicalWireSegment* GraphicalWire::segmentAtPoint(const QPointF point)
   return nullptr;
 }
 
-std::vector<QPointF> GraphicalWire::getJunctions()
+std::vector<QPointF> GraphicalWire::getJunctions() const
 {
   std::vector<QPointF> junctions = {};
 
@@ -122,8 +121,13 @@ std::vector<QPointF> GraphicalWire::getJunctions()
       const bool firstPointIntersects = (*first)->isPointOnPath(firstPoint);
       const bool lastPointIntersects  = (*first)->isPointOnPath(lastPoint);
 
-      if (firstPointIntersects || lastPointIntersects) {
+      const bool isSameWire =
+          (*first)->firstPoint() == lastPoint || (*first)->lastPoint() == firstPoint;
+
+      if ((firstPointIntersects || lastPointIntersects) && !isSameWire) {
         junctions.push_back(firstPointIntersects ? firstPoint : lastPoint);
+      } else if (isSameWire) {
+        // TODO: MERGE WIRES
       }
     }
   }
@@ -131,24 +135,31 @@ std::vector<QPointF> GraphicalWire::getJunctions()
   return junctions;
 }
 
-std::vector<QPointF> GraphicalWire::getVertices()
+std::vector<QPointF> GraphicalWire::getVertices() const
 {
   const auto junctions = getJunctions();
 
-  const auto b = junctions.begin();
   const auto e = junctions.end();
 
   std::vector<QPointF> vertices = {};
 
   for (const auto segment : segments) {
-    if (std::find(b, e, segment->lastPoint()) == e)
+    if (std::ranges::find(junctions, segment->lastPoint()) == e)
       vertices.push_back(segment->lastPoint());
-    else if (std::find(b, e, segment->firstPoint()) == e)
+    if (std::ranges::find(junctions, segment->firstPoint()) == e)
       vertices.push_back(segment->firstPoint());
   }
 
   assert(!vertices.empty());
   return vertices;
+}
+
+GraphicalWire::~GraphicalWire()
+{
+  // Enforce the calling of the segment destructor before the wire itself gets destructed
+  for (const auto& segment : this->segments) {
+    delete segment;
+  }
 }
 
 GraphicalWireSegment::GraphicalWireSegment(QPointF firstPoint, QGraphicsItem* parent)
@@ -220,7 +231,7 @@ void GraphicalWireSegment::updatePath()
   path.moveTo(this->points[0]);
 
   // Draw definitive points
-  for (int i = 1; i < this->points.size(); i++)
+  for (unsigned int i = 1; i < this->points.size(); i++)
     path.lineTo(this->points[i]);
 
   // Draw showpoints
@@ -247,7 +258,7 @@ void GraphicalWireSegment::paint(QPainter*                       painter,
 
 QRectF GraphicalWireSegment::boundingRect() const
 {
-  return (this->path.boundingRect())
+  return this->path.boundingRect()
       .united(this->showPath.boundingRect())
       .adjusted(-5, -5, 5, 5);
 }
@@ -261,7 +272,7 @@ QPainterPath GraphicalWireSegment::shape() const
 bool GraphicalWireSegment::isPointOnPath(const QPointF point)
 {
   // Add a small tolerance for point detection
-  const double tolerance = 5.0;  // Adjust based on your needs
+  constexpr double tolerance = 5.0;  // Adjust based on your needs
 
   if (points.empty())
     return false;
