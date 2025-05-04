@@ -238,8 +238,6 @@ void DiagramScene::calculateWiresForComponents() const
         | std::ranges::to<std::vector>();
 
     // Find the GraphicalWires colliding with port
-    // TODO: CHANGE LOGIC: A COMPONENT SHOULD BE CONNECTED EVERY TIME THAT ITS PORTS
-    // COLLIDE WITH THE WIRE
     for (const GraphicalWire* wire : collidingWires) {
       const auto vertices = wire->getVertices();
 

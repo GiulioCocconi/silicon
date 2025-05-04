@@ -41,8 +41,7 @@ void GraphicalInputSingle::setState(State state, bool force)
     return;
 
   QString shapePath = (state == HIGH) ? ON_SHAPE_PATH : OFF_SHAPE_PATH;
-  setShape(new QGraphicsSvgItem(shapePath));
-
+  setItemShape(new QGraphicsSvgItem(shapePath));
   this->getComponent()->getOutputs()[0].setCurrentValue(state == HIGH,
                                                         getComponent()->weak_from_this());
 

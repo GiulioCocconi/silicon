@@ -260,23 +260,12 @@ void LogiFlowWindow::updateStatus()
   QString modeMsg = "Interaction Mode: ";
 
   switch (diagramScene->getInteractionMode()) {
-    case DiagramScene::NORMAL_MODE:
-      modeMsg += "NORMAL";
-      break;
-    case DiagramScene::COMPONENT_PLACING_MODE:
-      modeMsg += "COMPONENT PLACING";
-      break;
-    case DiagramScene::WIRE_CREATION_MODE:
-      modeMsg += "WIRE CREATION";
-      break;
-    case DiagramScene::PAN_MODE:
-      modeMsg += "PAN";
-      break;
-    case DiagramScene::SIMULATION_MODE:
-      modeMsg += "SIMULATION";
-      break;
-    default:
-      assert(false);
+    case DiagramScene::NORMAL_MODE: modeMsg += "NORMAL"; break;
+    case DiagramScene::COMPONENT_PLACING_MODE: modeMsg += "COMPONENT PLACING"; break;
+    case DiagramScene::WIRE_CREATION_MODE: modeMsg += "WIRE CREATION"; break;
+    case DiagramScene::PAN_MODE: modeMsg += "PAN"; break;
+    case DiagramScene::SIMULATION_MODE: modeMsg += "SIMULATION"; break;
+    default: assert(false);
   }
 
   statusBar()->showMessage(modeMsg);
