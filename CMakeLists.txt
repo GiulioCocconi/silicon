@@ -37,6 +37,8 @@ set(COMMON_SOURCE_FILES
         ${src_dir}/core/gates.cpp
         ${src_dir}/core/component.cpp)
 
+set(EXTRA_COMPONENTS_SOURCE_FILES
+        ${src_dir}/extraComponents/arithmetic.cpp)
 
 set(UI_SOURCE_FILES
         ${src_dir}/ui/common/diagramView.cpp
@@ -74,8 +76,8 @@ if (CMAKE_EXPORT_COMPILE_COMMANDS)
             ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
 endif ()
 
-add_compile_options(-Wall -Wextra -Wno-unused-parameter -fsanitize=address)
-add_link_options(-fsanitize=address -static-libasan)
+add_compile_options(-Wall -Wextra -Wno-unused-parameter -fsanitize=address -fsanitize=undefined)
+add_link_options(-fsanitize=address -fsanitize=undefined -static-libasan)
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets SvgWidgets)
 qt_standard_project_setup()
@@ -86,6 +88,7 @@ qt_add_executable(Silicon
 target_sources(Silicon
         PRIVATE
         ${COMMON_SOURCE_FILES}
+        ${EXTRA_COMPONENTS_SOURCE_FILES}
         ${UI_SOURCE_FILES})
 
 target_link_libraries(Silicon PRIVATE Qt6::Widgets Qt6::SvgWidgets)
