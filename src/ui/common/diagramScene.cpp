@@ -242,7 +242,7 @@ void DiagramScene::clearComponentShadow()
 void DiagramScene::calculateWiresForComponents() const
 {
   auto logicComponents = items() | std::views::filter([](auto item) {
-                           return item->type() >= SiliconTypes::AND_GATE;
+                           return item->type() >= SiliconTypes::COMPONENT;
                          })
                          | std::views::transform([](auto item) {
                              return qgraphicsitem_cast<GraphicalLogicComponent*>(item);
