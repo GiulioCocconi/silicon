@@ -1,19 +1,20 @@
 /*
-  Copyright (C) 2025 Giulio Cocconi
+ Copyright (c) 2025. Giulio Cocconi
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
 
 #pragma once
 #include <algorithm>
@@ -29,8 +30,8 @@
 
 // Each wire could hold one of three states
 enum State {
-  HIGH,
   LOW,
+  HIGH,
   ERROR,
 };
 
@@ -63,10 +64,12 @@ public:
   State getCurrentState() const;
   void  forceSetCurrentState(const State newState);
 
-  void setCurrentState(const State newState, const Component_weakPtr requestedBy);
+  void setCurrentState(State newState, const Component_weakPtr& requestedBy);
 
   void addUpdateAction(const action_ptr a);
   void deleteUpdateAction(const action_ptr a);
+
+  static void safeSetCurrentState(std::weak_ptr<Wire> w, State newState, const Component_weakPtr& requestedBy);
 };
 
 using Wire_ptr = std::shared_ptr<Wire>;
@@ -81,11 +84,14 @@ public:
   Bus(std::vector<Wire_ptr> busData);
   Bus(std::initializer_list<Wire> initList);
   Bus(std::initializer_list<Wire_ptr> initList);
+
   int forceSetCurrentValue(const unsigned int value);
 
   int setCurrentValue(const unsigned int value, const Component_weakPtr requestedBy);
 
-  int getCurrentValue() const;
+  [[nodiscard]] int getCurrentValue() const;
+
+  [[nodiscard]] bool isInErrorState() const;
 
   Wire_ptr& operator[](unsigned short index) { return this->busData.at(index); }
   operator std::vector<Wire_ptr>() const { return this->busData; }
