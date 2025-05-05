@@ -26,16 +26,12 @@ enum SiliconTypes {
   WIRE_SEGMENT,
   WIRE_JUNCTION,
 
-  TEXT_BOX,
-
   /* LogiFlow */
-  IO = TEXT_BOX + 10,
-  SINGLE_INPUT = TEXT_BOX + 10,
+  SINGLE_INPUT = QGraphicsItem::UserType + 10,
   SINGLE_OUTPUT,
 
   /* Components */
-  COMPONENT = SINGLE_OUTPUT + 10,
-  AND_GATE,
+  AND_GATE = QGraphicsItem::UserType + 10,
   NAND_GATE,
   OR_GATE,
   NOR_GATE,
