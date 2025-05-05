@@ -1,19 +1,20 @@
 /*
-  Copyright (C) 2025 Giulio Cocconi
+ Copyright (c) 2025. Giulio Cocconi
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
 
 #include "graphicalWire.hpp"
 
@@ -283,7 +284,7 @@ bool GraphicalWireSegment::isPointOnPath(const QPointF point)
   const auto slide_view = points | std::views::slide(2);
 
   // For each sub-segment
-  for (const auto el : slide_view) {
+  for (const auto el : slide_view) { // NOLINT(*-use-anyofallof)
     const bool horizontalSegment = (qAbs(el[0].y() - el[1].y()) <= tolerance);
     if (horizontalSegment && qAbs(el[0].y() - point.y()) <= tolerance) {
       const auto minX = std::min(el[0].x(), el[1].x());

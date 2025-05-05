@@ -182,6 +182,8 @@ void GraphicalComponent::setPorts(
   for (const auto& [index, pair] : std::views::enumerate(busToPortInputs)) {
     const auto& [name, pos] = pair;
 
+    // The memory is not leaked since the port address is freed by Qt Garbage collector
+    // ReSharper disable once CppDFAMemoryLeak
     auto p = new Port(index, pos, name);
     this->inputPorts.push_back(p);
     this->setPortLine(p);
@@ -189,6 +191,8 @@ void GraphicalComponent::setPorts(
 
   for (const auto& [index, pair] : std::views::enumerate(busToPortOutputs)) {
     const auto& [name, pos] = pair;
+
+    // ReSharper disable once CppDFAMemoryLeak
     auto p                  = new Port(index, pos, name);
     this->outputPorts.push_back(p);
     this->setPortLine(p);
@@ -242,7 +246,7 @@ void Port::setLine(QGraphicsLineItem* line)
   setParentItem(line->parentItem());
 }
 
-QRectF Port::collisionRect()
+QRectF Port::collisionRect() const
 {
   QPainterPath boundingPath{};
   boundingPath.addRect(boundingRect());
