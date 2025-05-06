@@ -94,6 +94,12 @@ void GraphicalWire::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
   }
 }
 
+void GraphicalWire::clearBusState()
+{
+
+  for (int i = 0; i < this->bus.size(); i++)
+    if (bus[i]) bus[i]->forceSetCurrentState(State::ERROR);
+}
 GraphicalWireSegment* GraphicalWire::segmentAtPoint(const QPointF point) const
 {
   for (const auto segment : segments) {

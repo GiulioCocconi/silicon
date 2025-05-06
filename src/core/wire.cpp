@@ -192,6 +192,8 @@ Bus::Bus(std::initializer_list<Wire> initList) : busData(initList.size())
 int Bus::forceSetCurrentValue(const unsigned int value)
 {
   for (unsigned short i = 0; i < this->size(); i++) {
+    if (!this->busData[i]) continue;
+
     State s = (value >> i) & 1 ? State::HIGH : State::LOW;
     this->busData[i]->forceSetCurrentState(s);
   }
@@ -205,9 +207,8 @@ int Bus::setCurrentValue(const unsigned int value, const Component_weakPtr reque
   for (unsigned short i = 0; i < this->size(); i++) {
     if (!this->busData[i])
       continue;
-
     const State s = (value >> i) & 1 ? State::HIGH : State::LOW;
-    this->busData[i]->setCurrentState(s, requestedBy);
+    Wire::safeSetCurrentState(this->busData[i], s, requestedBy);
   }
   return (value >= (1u << this->size()));
 }

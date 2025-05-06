@@ -2,12 +2,13 @@
 An Open Source Suite for simulating Circuits, Finite State Machines and Microcontrollers (WIP)
 
 ## TODOs
+
 Since it's a pre-alpha product, there are quite a lot of things to be done:
 
 _Common_
 
 - [ ] GUI with QT6
-- [ ] Deployment (setup packages for Win & Mac). See [here](https://www.qt.io/blog/cmake-deployment-api)
+- [ ] Deployment (setup packages for Win & Mac). See [here](https://www.qt.io/blog/cmake-deployment-api).
 
 _Logic circuits (Silicon LogiFlow)_
 
@@ -15,15 +16,15 @@ _Logic circuits (Silicon LogiFlow)_
 - [ ] Timed simulation
 - [ ] Flip flops & synchronous components
 - [ ] Wires-to-bus & bus-to-wires
-- [ ] INPUTS & OUTPUTS!!!!
+- [x] INPUTS & OUTPUTS!!!!
 - [ ] Bus display
 - [ ] 7-segment display
 - [ ] Verilog support
-  * [ ] [Slang](https://github.com/MikePopoloski/slang) for parsing
-  * [ ] [Inja](https://github.com/pantor/inja) for reverse parsing (needs template file)
+    * [ ] [Slang](https://github.com/MikePopoloski/slang) for parsing
+    * [ ] [Inja](https://github.com/pantor/inja) for reverse parsing (needs template file)
 - [ ] File format
-  * [ ] Implement [Quine-McCluskey method](https://en.wikipedia.org/wiki/Quine%E2%80%93McCluskey_algorithm) to minimize the combinatorial logic net
-  * [ ] Using verilog & Slang?
+    * [ ] Implement [Quine-McCluskey method](https://en.wikipedia.org/wiki/Quine%E2%80%93McCluskey_algorithm) to minimize the combinatorial logic net
+    * [ ] Using verilog & Slang?
 
 _FSMs_
 
@@ -34,11 +35,14 @@ _Microcontrollers_
 - [ ] TBD
 
 ## Using clangd
+
 This project is currently being developed using EMACS. The following packages will be useful:
+
 - [lsp-mode](https://emacs-lsp.github.io/) for clangd integration.
 - [dir-config.el](https://github.com/jamescherti/dir-config.el) to load this project specific config.
 
 ## Compiling develop edition
+
 SILICON uses [Nix](https://nixos.org) and [CMAKE](https://cmake.org) in order to manage dependencies. It's recomended to use [Ninja Build](https://ninja-build.org) as a generator. Run the commands below to compile the develop edition of SILICON:
 
 ```

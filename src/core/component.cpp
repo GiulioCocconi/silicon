@@ -18,6 +18,8 @@
 
 #include "component.hpp"
 
+#include <any>
+
 Component::Component(std::vector<Bus> inputs, std::vector<Bus> outputs, std::string name)
 {
   this->inputs  = std::move(inputs);
@@ -55,6 +57,8 @@ void Component::setInputs(const std::vector<Bus>& newInputs)
 
 void Component::setOutput(const unsigned int index, const Bus& bus)
 {
+  if (this->outputs[index] == bus) return;
+
   this->outputs[index] = bus;
 }
 
@@ -66,6 +70,7 @@ void Component::setOutputs(const std::vector<Bus>& newOutputs)
 
   // We set the new outputs
   this->outputs = newOutputs;
+
 }
 void Component::clearWires()
 {
