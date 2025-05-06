@@ -1,19 +1,20 @@
 /*
-  Copyright (C) 2025 Giulio Cocconi
+ Copyright (c) 2025. Giulio Cocconi
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
 
 #include "tests.hpp"
 
@@ -54,9 +55,7 @@ TEST(ArithmeticTest, AdderNBitsFromComponents) {
 
   Wire_ptr cout = partialCarryWires[4];
 
-  // The first Carry-in should be LOW (that's the default value
-  // for Busses so we don't need to explicitly set it).
-  assert(partialCarryWires[0]->getCurrentState() == State::LOW);
+  partialCarryWires[0]->forceSetCurrentState(State::LOW);
 
   for (int i = 0; i < 4; i++)
     fullAdders.emplace_back(std::array<Wire_ptr, 2>{a[i], b[i]},
@@ -95,10 +94,11 @@ TEST(ArithmeticTest, AdderNBitsAtomic) {
   auto sum               = Bus(4);
   auto cout              = std::make_shared<Wire>();
 
-  AdderNBits adder({a, b}, sum, cout);
-
   a.forceSetCurrentValue(0);
   b.forceSetCurrentValue(0);
+
+  AdderNBits adder({a, b}, sum, cout);
+
 
   ASSERT_EQ(cout->getCurrentState(), State::LOW);
   ASSERT_EQ(sum.getCurrentValue(),   0);

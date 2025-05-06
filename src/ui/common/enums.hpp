@@ -27,11 +27,13 @@ enum SiliconTypes {
   WIRE_JUNCTION,
 
   /* LogiFlow */
-  SINGLE_INPUT = QGraphicsItem::UserType + 10,
+  COMPONENT = WIRE_JUNCTION + 10,
+  GENERIC_IO,
+  SINGLE_INPUT, /* Logiflow start */
   SINGLE_OUTPUT,
 
   /* Components */
-  AND_GATE = QGraphicsItem::UserType + 10,
+  AND_GATE,
   NAND_GATE,
   OR_GATE,
   NOR_GATE,
@@ -39,4 +41,6 @@ enum SiliconTypes {
   XOR_GATE,
   HALF_ADDER,
   FULL_ADDER,
+
+  LOGIFLOW_END,
 };

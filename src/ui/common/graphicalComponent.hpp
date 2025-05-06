@@ -56,7 +56,7 @@ public:
 
   void setLine(QGraphicsLineItem* line);
 
-  QRectF collisionRect();
+  QRectF collisionRect() const;
 };
 
 class GraphicalComponent : public QGraphicsObject {

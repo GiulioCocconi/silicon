@@ -76,6 +76,7 @@ Wire::Wire()
 {
   this->currentState  = State::ERROR;
   this->updateActions = {};
+  this->authorizedComponent = {};
 }
 
 Wire::Wire(State s)
@@ -100,7 +101,7 @@ void Wire::forceSetCurrentState(const State newState)
       (*a)();
 }
 
-void Wire::setCurrentState(const State newState, const Component_weakPtr requestedBy)
+void Wire::setCurrentState(const State newState, const Component_weakPtr& requestedBy)
 {
   // Every wire has a mechanism to detect graphs error: the component that
   // controls the wire can be only one at a time and it's stored in the
@@ -110,7 +111,7 @@ void Wire::setCurrentState(const State newState, const Component_weakPtr request
   if (!this->authorizedComponent.lock())
     this->authorizedComponent = requestedBy;
 
-  bool changeIsAuthorized = this->authorizedComponent.lock() == requestedBy.lock();
+  const bool changeIsAuthorized = this->authorizedComponent.lock() == requestedBy.lock();
 
   if (!changeIsAuthorized)
     std::cout << "Change not authorized";
@@ -129,6 +130,19 @@ void Wire::deleteUpdateAction(const action_ptr a)
   if (pos != e)
     this->updateActions.erase(pos);
 }
+void Wire::safeSetCurrentState(std::weak_ptr<Wire> w, State newState,
+                               const Component_weakPtr& requestedBy)
+{
+
+  // Little hack necessary because the component's action logic doesn't know if its output is connected.
+  // Without this, each action would need to check for the output wire's existence every time it runs.
+
+  const auto lockedWire = w.lock();
+  if (!lockedWire)
+    return;
+
+  lockedWire->setCurrentState(newState, requestedBy);
+}
 
 void Wire::addUpdateAction(const action_ptr a)
 {
@@ -146,11 +160,12 @@ Bus::Bus(unsigned short size)
   this->busData = std::vector<Wire_ptr>(size);
 
   for (auto& w : this->busData)
-    w = std::make_shared<Wire>(State::LOW);
+    w = std::make_shared<Wire>(State::ERROR);
 }
 
 Bus::Bus(std::vector<Wire_ptr> busData)
 {
+
   this->busData = busData;
 
   for (Wire_ptr& w : busData)
@@ -177,6 +192,8 @@ Bus::Bus(std::initializer_list<Wire> initList) : busData(initList.size())
 int Bus::forceSetCurrentValue(const unsigned int value)
 {
   for (unsigned short i = 0; i < this->size(); i++) {
+    if (!this->busData[i]) continue;
+
     State s = (value >> i) & 1 ? State::HIGH : State::LOW;
     this->busData[i]->forceSetCurrentState(s);
   }
@@ -190,9 +207,8 @@ int Bus::setCurrentValue(const unsigned int value, const Component_weakPtr reque
   for (unsigned short i = 0; i < this->size(); i++) {
     if (!this->busData[i])
       continue;
-
     const State s = (value >> i) & 1 ? State::HIGH : State::LOW;
-    this->busData[i]->setCurrentState(s, requestedBy);
+    Wire::safeSetCurrentState(this->busData[i], s, requestedBy);
   }
   return (value >= (1u << this->size()));
 }
@@ -213,4 +229,9 @@ int Bus::getCurrentValue() const
       res |= (1 << i);
   }
   return res;
+}
+bool Bus::isInErrorState() const
+{
+  using std::ranges::any_of;
+  return any_of(busData, [](const auto& el) { return el->getCurrentState() == ERROR; });
 }

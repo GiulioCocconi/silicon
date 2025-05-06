@@ -60,7 +60,8 @@ void DiagramScene::setInteractionMode(InteractionMode mode)
 
 void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
 {
-  if (getInteractionMode() == mode && !force)
+  const auto currentMode = getInteractionMode();
+  if (currentMode == mode && !force)
     return;
 
   if (wireSegmentToBeDrawn && mode != WIRE_CREATION_MODE) {
@@ -84,12 +85,16 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
     clearWireShadow();
   }
 
-  if (mode != COMPONENT_PLACING_MODE) {
+  if (currentMode == COMPONENT_PLACING_MODE) {
     clearComponentShadow();
   }
 
-  if (mode != SIMULATION_MODE) {
-    // RESTORE INPUTS AND OUTPUTS TO NEUTRAL SKIN
+  if (mode == SIMULATION_MODE || currentMode == SIMULATION_MODE) {
+    // If we are goint to simulation mode then calculate the wires
+    if (mode == SIMULATION_MODE)
+      calculateWiresForComponents();
+
+    // RESTORE INPUTS TO NEUTRAL STATE
 
     // TODO: Make a parent IO class with virtual reset method
 
@@ -105,20 +110,20 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
       inputComponent->setState(LOW);
     }
 
-    const auto outputComponents =
-        items() | std::views::filter([](auto item) {
-          return item->type() == SiliconTypes::SINGLE_OUTPUT;
-        })
-        | std::views::transform(
-            [](auto item) { return qgraphicsitem_cast<GraphicalOutputSingle*>(item); })
-        | std::ranges::to<std::vector>();
+    // If we are exiting SIMULATION_MODE then restore outputs as well
+    if (currentMode == SIMULATION_MODE) {
+      const auto outputComponents =
+          items() | std::views::filter([](auto item) {
+            return item->type() == SiliconTypes::SINGLE_OUTPUT;
+          })
+          | std::views::transform(
+              [](auto item) { return qgraphicsitem_cast<GraphicalOutputSingle*>(item); })
+          | std::ranges::to<std::vector>();
 
-    for (const auto outputComponent : outputComponents) {
-      outputComponent->setState(LOW);
+      for (const auto outputComponent : outputComponents) {
+        outputComponent->setState(LOW);
+      }
     }
-
-  } else {
-    calculateWiresForComponents();
   }
 
   this->currentInteractionMode = mode;
@@ -241,18 +246,28 @@ void DiagramScene::clearComponentShadow()
 
 void DiagramScene::calculateWiresForComponents() const
 {
-  auto logicComponents = items() | std::views::filter([](auto item) {
-                           return item->type() >= SiliconTypes::AND_GATE;
-                         })
-                         | std::views::transform([](auto item) {
-                             return qgraphicsitem_cast<GraphicalLogicComponent*>(item);
-                           })
-                         | std::ranges::to<std::vector>();
+  const auto wires = items()
+                     | std::views::filter([](auto item) { return item->type() == WIRE; })
+                     | std::views::transform([](auto item) {
+                         return qgraphicsitem_cast<GraphicalWire*>(item);
+                       })
+                     | std::ranges::to<std::vector>();
 
-  for (const GraphicalLogicComponent* component : logicComponents) {
+  // Set wires to initial state
+  for (GraphicalWire* wire : wires) {
+    wire->clearBusState();
+  }
+
+  auto components =
+      items() | std::views::filter([](auto item) { return item->type() >= COMPONENT; })
+      | std::views::transform(
+          [](auto item) { return qgraphicsitem_cast<GraphicalLogicComponent*>(item); })
+      | std::ranges::to<std::vector>();
+
+  for (const GraphicalLogicComponent* component : components) {
     assert(component);
 
-    // Clear all wires (TODO: Make more efficient)
+    // Disconnect the component from all wires (TODO: Make more efficient)
     component->getComponent()->clearWires();
 
     // Check for wire collision

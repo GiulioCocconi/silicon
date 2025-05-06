@@ -202,6 +202,14 @@ void LogiFlowWindow::contextMenuEvent(QContextMenuEvent* event)
 
 /* ACTIONS IMPLEMENTATION */
 
+void LogiFlowWindow::del()
+{
+  for (auto selectedComponent : diagramScene->selectedItems()) {
+    diagramScene->removeItem(selectedComponent);
+    delete selectedComponent;
+  }
+}
+
 void LogiFlowWindow::setNormalMode()
 {
   diagramScene->setInteractionMode(InteractionMode::NORMAL_MODE);
