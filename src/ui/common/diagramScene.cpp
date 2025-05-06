@@ -24,6 +24,10 @@
 DiagramScene::DiagramScene(QObject* parent) : QGraphicsScene(parent)
 {
   setInteractionMode(NORMAL_MODE, true);
+
+  csb = new ComponentSearchBox();
+  csb->setParent(this);
+  connect(csb, &ComponentSearchBox::requestHide, this, &DiagramScene::hideCSB);
 }
 
 QPointF DiagramScene::snapToGrid(const QPointF point)
@@ -60,6 +64,8 @@ void DiagramScene::setInteractionMode(InteractionMode mode)
 
 void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
 {
+  if (!force)
+    assert(views().size() == 1);
   const auto currentMode = getInteractionMode();
   if (currentMode == mode && !force)
     return;
@@ -86,7 +92,39 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
   }
 
   if (currentMode == COMPONENT_PLACING_MODE) {
-    clearComponentShadow();
+    hideCSB();
+    if (componentToBeDrawn)
+      clearComponentShadow();
+
+  } else if (mode == COMPONENT_PLACING_MODE) {
+
+    // We need to show the CSB
+
+    // ALGORITHM: If the cursor is inside the view then try to place the component.
+    //            If the it's outside or the component boundingRect is colliding then
+    //            go to component placing mode and place it manually.
+    //            When the component is placed then go to component placing mode and
+    //            repeat the placing of the same component until ESC is pressed
+    //            (NORMAL_MODE)
+
+    const QPoint globalCursorPos = QCursor::pos();
+
+
+    const auto view = this->views()[0];
+
+    // The default position is the center of the view
+    QPoint posForCSB = view->viewport()->rect().center();
+
+    // Get cursor pos within view
+    const QPoint viewCursorPos = view->mapFromGlobal(globalCursorPos);
+
+    const bool isCursorInsideView =
+        view->viewport()->rect().contains(viewCursorPos);
+
+    if (isCursorInsideView) posForCSB = viewCursorPos;
+
+    showCSB(view->mapToScene(posForCSB));
+
   }
 
   if (mode == SIMULATION_MODE || currentMode == SIMULATION_MODE) {
@@ -244,6 +282,20 @@ void DiagramScene::clearComponentShadow()
   componentToBeDrawn = nullptr;
 }
 
+
+void DiagramScene::showCSB(const QPointF pos)
+{
+  csb->clear();
+  csb->setPos(pos);
+  addItem(csb);
+  csb->focus();
+}
+
+void DiagramScene::hideCSB()
+{
+  removeItem(csb);
+}
+
 void DiagramScene::calculateWiresForComponents() const
 {
   const auto wires = items()
@@ -332,3 +384,4 @@ DiagramScene::~DiagramScene()
     componentToBeDrawn = nullptr;
   }
 }
+

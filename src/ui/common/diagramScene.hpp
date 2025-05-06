@@ -18,15 +18,18 @@
 
 #pragma once
 
+
 #include <ranges>
 
 #include <QCursor>
+#include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QKeyEvent>
 #include <QPainter>
 #include <QRect>
 
+#include <ui/common/componentSearchBox.hpp>
 #include <ui/common/enums.hpp>
 #include <ui/common/graphicalWire.hpp>
 
@@ -51,6 +54,10 @@ public:
     return currentInteractionMode;
   }
 
+
+  void showCSB(QPointF pos);
+
+
   void clearWireShadow();
   void clearComponentShadow();
   bool manageJunctionCreation(QPointF cursorPos) const;
@@ -60,6 +67,9 @@ public:
   static constexpr int GRID_SIZE = 10;
 
   ~DiagramScene() override;
+
+  public slots:
+  void hideCSB();
 
 signals:
   void modeChanged(InteractionMode mode);
@@ -82,6 +92,7 @@ private:
   GraphicalComponent*   componentToBeDrawn   = nullptr;
   GraphicalWireSegment* wireSegmentToBeDrawn = nullptr;
 
+  ComponentSearchBox* csb = nullptr;
 };
 
 using InteractionMode = DiagramScene::InteractionMode;

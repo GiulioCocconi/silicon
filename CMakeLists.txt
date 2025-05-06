@@ -41,6 +41,7 @@ set(EXTRA_COMPONENTS_SOURCE_FILES
         ${src_dir}/extraComponents/arithmetic.cpp)
 
 set(UI_SOURCE_FILES
+        ${src_dir}/ui/common/componentSearchBox.cpp
         ${src_dir}/ui/common/diagramView.cpp
         ${src_dir}/ui/common/diagramScene.cpp
         ${src_dir}/ui/common/graphicalWire.cpp
