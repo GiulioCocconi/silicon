@@ -29,7 +29,7 @@ enum SiliconTypes {
   /* LogiFlow */
   COMPONENT = WIRE_JUNCTION + 10,
   GENERIC_IO,
-  SINGLE_INPUT,
+  SINGLE_INPUT, /* Logiflow start */
   SINGLE_OUTPUT,
 
   /* Components */
@@ -41,4 +41,6 @@ enum SiliconTypes {
   XOR_GATE,
   HALF_ADDER,
   FULL_ADDER,
+
+  LOGIFLOW_END,
 };
