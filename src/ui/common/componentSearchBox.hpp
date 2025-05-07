@@ -18,17 +18,20 @@
 
 #pragma once
 
+#include <ranges>
+
 #include <QGraphicsProxyWidget>
 #include <QKeyEvent>
 #include <QLineEdit>
+#include <QCompleter>
+#include <QAbstractItemView>
 
 #include <ui/common/enums.hpp>
 
 class ComponentSearchBox : public QGraphicsProxyWidget {
   Q_OBJECT
 public:
-  explicit ComponentSearchBox(int            start  = SiliconTypes::SINGLE_INPUT,
-                              int            end    = SiliconTypes::LOGIFLOW_END,
+  explicit ComponentSearchBox(std::map<std::string, SiliconTypes> completionMap = {{"AND GATE", SiliconTypes::AND_GATE}, {"OR GATE", SiliconTypes::OR_GATE}},
                               QString        title  = "Insert component...",
                               QGraphicsItem* parent = nullptr);
   void keyPressEvent(QKeyEvent* event) override;
@@ -36,13 +39,20 @@ public:
   void focus() { le->setFocus(Qt::OtherFocusReason); }
   void clear() { le->clear(); }
 
+  void setCompletionMap(const std::map<std::string, SiliconTypes>& map)
+  {
+    this->completionMap = map;
+  }
+
 signals:
 
   void requestHide();
   void selectedComponent(SiliconTypes type);
 
 private:
-  QLineEdit* le;
-
+  QLineEdit*         le;
+  QCompleter*        completer;
   QGraphicsTextItem* titleItem;
+
+  std::map<std::string, SiliconTypes> completionMap;
 };

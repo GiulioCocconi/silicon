@@ -293,7 +293,7 @@ void DiagramScene::showCSB(const QPointF pos)
 
 void DiagramScene::hideCSB()
 {
-  removeItem(csb);
+  if (csb->scene() == this) removeItem(csb);
 }
 
 void DiagramScene::calculateWiresForComponents() const

@@ -98,6 +98,12 @@ qt_add_resources(Silicon "images" BASE ${resources_dir}
         FILES
         ${resources_dir}/splash.jpg)
 
+
+qt_add_resources(Silicon "fonts" BASE ${resources_dir}
+        FILES
+        ${resources_dir}/fonts/Chango.ttf
+        ${resources_dir}/fonts/Quicksand.ttf)
+
 qt_add_resources(Silicon "icons" BASE ${resources_dir}
         FILES
         ${resources_dir}/icons/arrow-pointer-solid.svg

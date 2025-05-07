@@ -17,45 +17,57 @@
  */
 
 #include "componentSearchBox.hpp"
-ComponentSearchBox::ComponentSearchBox(int start, int end, QString title,
+
+#include <utility>
+ComponentSearchBox::ComponentSearchBox(std::map<std::string, SiliconTypes> map, QString title,
                                            QGraphicsItem* parent)
   : QGraphicsProxyWidget(parent)
 {
-  this->le = new QLineEdit();
 
-  le->setFixedWidth(200);
-  le->setFixedHeight(30);
-
-  this->setWidget(le);
-
-  this->setPos(0,0);
-
+  this->completionMap = std::move(map);
 
   titleItem = new QGraphicsTextItem(this);
+  titleItem->setFont(QFont("Chango"));
   titleItem->setPlainText(title);
 
   // Calculate font baseline offset
   QFontMetrics fm(titleItem->font());
-
-  titleItem->setPos(0, -fm.ascent()*2);
+  titleItem->setPos(0, -fm.ascent()*1.5);
 
   titleItem->setZValue(100);
 
+  const int width = titleItem->boundingRect().width();
+  le = new QLineEdit();
+  le->setFixedHeight(30);
+  le->setFixedWidth(width);
+
+  completer = new QCompleter(std::ranges::views::keys(this->completionMap)
+                             | std::ranges::to<QStringList>());
+
+  completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
+  completer->setFilterMode(Qt::MatchContains);
+  completer->popup()->setFixedWidth(width);
+
+  le->setCompleter(completer);
+
+  this->setWidget(le);
+  this->setPos(0,0);
 }
 
-void ComponentSearchBox::keyPressEvent(QKeyEvent *event) {
+void ComponentSearchBox::keyPressEvent(QKeyEvent* event)
+{
+  qDebug() << event->key();
   if (event->key() == Qt::Key_Escape) {
     emit requestHide();
     return;
   }
 
-  const QString text = event->text();
-
-  if (!text.isEmpty() && text.at(0).isLetter()) {
-    QKeyEvent newEvent(event->type(), event->key(), event->modifiers(), text.toUpper(),
-                       event->isAutoRepeat(), event->count());
-    QGraphicsProxyWidget::keyPressEvent(&newEvent);
+  if (event->key() == Qt::Key_Return) {
+    qDebug("YAY");
+    emit requestHide();
     return;
   }
+
+  const QString text = event->text();
   QGraphicsProxyWidget::keyPressEvent(event);
 }
