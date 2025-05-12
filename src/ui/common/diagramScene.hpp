@@ -59,8 +59,13 @@ public:
 
 
   void clearWireShadow();
+  void setComponentShadow();
   void clearComponentShadow();
   bool manageJunctionCreation(QPointF cursorPos) const;
+
+  void addComponent(GraphicalComponent* component, QPointF pos);
+
+  void placeComponent(SiliconTypes type);
 
   static QPointF snapToGrid(QPointF point);
 
@@ -93,6 +98,12 @@ private:
   GraphicalWireSegment* wireSegmentToBeDrawn = nullptr;
 
   ComponentSearchBox* csb = nullptr;
+
+  static const inline std::map<std::string, SiliconTypes> completionMap = {
+      {"INPUT", SiliconTypes::SINGLE_INPUT},  {"OUTPUT", SiliconTypes::SINGLE_OUTPUT},
+      {"AND GATE", SiliconTypes::AND_GATE},   {"OR GATE", SiliconTypes::OR_GATE},
+      {"NAND GATE", SiliconTypes::NAND_GATE}, {"NOR GATE", SiliconTypes::NOR_GATE},
+      {"NOT GATE", SiliconTypes::NOT_GATE},   {"XOR GATE", SiliconTypes::XOR_GATE}};
 };
 
 using InteractionMode = DiagramScene::InteractionMode;

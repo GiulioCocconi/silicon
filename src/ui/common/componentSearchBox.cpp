@@ -18,11 +18,11 @@
 
 #include "componentSearchBox.hpp"
 
-#include <utility>
 ComponentSearchBox::ComponentSearchBox(std::map<std::string, SiliconTypes> map, QString title,
                                            QGraphicsItem* parent)
   : QGraphicsProxyWidget(parent)
 {
+  assert(!map.empty());
 
   this->completionMap = std::move(map);
 
@@ -45,13 +45,24 @@ ComponentSearchBox::ComponentSearchBox(std::map<std::string, SiliconTypes> map, 
                              | std::ranges::to<QStringList>());
 
   completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion);
+  completer->setCaseSensitivity(Qt::CaseInsensitive);
   completer->setFilterMode(Qt::MatchContains);
   completer->popup()->setFixedWidth(width);
+
+ // Connect signals to handle showing the completer popup
+  connect(le, &QLineEdit::textChanged, this, &ComponentSearchBox::showCompleter);
+  connect(le, &QLineEdit::cursorPositionChanged, this, &ComponentSearchBox::showCompleter);
 
   le->setCompleter(completer);
 
   this->setWidget(le);
   this->setPos(0,0);
+}
+
+void ComponentSearchBox::showCompleter()
+{
+  completer->setCompletionPrefix(le->text());
+  completer->complete();
 }
 
 void ComponentSearchBox::keyPressEvent(QKeyEvent* event)
@@ -63,11 +74,16 @@ void ComponentSearchBox::keyPressEvent(QKeyEvent* event)
   }
 
   if (event->key() == Qt::Key_Return) {
-    qDebug("YAY");
-    emit requestHide();
+    const std::string insertedText = le->text().toStdString();
+    const auto find = completionMap.find(insertedText);
+
+    if (find == completionMap.end())
+      emit requestHide();
+    else
+      emit selectedComponent(find->second, mapToScene(this->pos()));
+
     return;
   }
 
-  const QString text = event->text();
   QGraphicsProxyWidget::keyPressEvent(event);
 }

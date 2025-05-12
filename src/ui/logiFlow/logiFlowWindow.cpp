@@ -49,16 +49,6 @@ LogiFlowWindow::LogiFlowWindow()
 
   updateStatus();
 
-  auto graphicalXor    = new GraphicalXor();
-  auto graphicalNot    = new GraphicalNot();
-  auto graphicalInput  = new GraphicalInputSingle();
-  auto graphicalOutput = new GraphicalOutputSingle();
-
-  addComponent(graphicalNot);
-  addComponent(graphicalXor, QPointF(0, 50));
-  addComponent(graphicalInput, QPointF(-50, 0));
-  addComponent(graphicalOutput, QPointF(-100, 0));
-
   layout->addWidget(diagramView);
 
   createActions();
@@ -235,18 +225,6 @@ void LogiFlowWindow::setComponentPlacingMode()
   diagramScene->setInteractionMode(InteractionMode::COMPONENT_PLACING_MODE);
 }
 
-
-void LogiFlowWindow::addComponent(GraphicalComponent* component, QPointF pos)
-{
-  component->setPos(pos);
-
-  connect(diagramScene, &DiagramScene::modeChanged, component,
-          &GraphicalComponent::modeChanged);
-
-  component->modeChanged(diagramScene->getInteractionMode());
-
-  diagramScene->addItem(component);
-}
 
 void LogiFlowWindow::updateStatus()
 {

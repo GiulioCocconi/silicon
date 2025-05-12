@@ -31,9 +31,13 @@
 class ComponentSearchBox : public QGraphicsProxyWidget {
   Q_OBJECT
 public:
-  explicit ComponentSearchBox(std::map<std::string, SiliconTypes> completionMap = {{"AND GATE", SiliconTypes::AND_GATE}, {"OR GATE", SiliconTypes::OR_GATE}},
+  explicit ComponentSearchBox(std::map<std::string, SiliconTypes> completionMap =
+                                  {{"AND GATE", SiliconTypes::AND_GATE},
+                                   {"OR GATE", SiliconTypes::OR_GATE}},
                               QString        title  = "Insert component...",
                               QGraphicsItem* parent = nullptr);
+  void showCompleter();
+
   void keyPressEvent(QKeyEvent* event) override;
 
   void focus() { le->setFocus(Qt::OtherFocusReason); }
@@ -47,7 +51,7 @@ public:
 signals:
 
   void requestHide();
-  void selectedComponent(SiliconTypes type);
+  void selectedComponent(SiliconTypes type, QPointF pos);
 
 private:
   QLineEdit*         le;
