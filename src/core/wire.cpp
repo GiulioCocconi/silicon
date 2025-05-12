@@ -144,6 +144,12 @@ void Wire::safeSetCurrentState(std::weak_ptr<Wire> w, State newState,
   lockedWire->setCurrentState(newState, requestedBy);
 }
 
+State Wire::safeGetCurrentState(const std::weak_ptr<Wire>& w)
+{
+  const auto lockedWire = w.lock();
+  return lockedWire ? lockedWire->getCurrentState() : ERROR;
+}
+
 void Wire::addUpdateAction(const action_ptr a)
 {
   assert(a);

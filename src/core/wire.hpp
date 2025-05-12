@@ -69,7 +69,9 @@ public:
   void addUpdateAction(const action_ptr a);
   void deleteUpdateAction(const action_ptr a);
 
-  static void safeSetCurrentState(std::weak_ptr<Wire> w, State newState, const Component_weakPtr& requestedBy);
+  static void  safeSetCurrentState(std::weak_ptr<Wire> w, State newState,
+                                   const Component_weakPtr& requestedBy);
+  static State safeGetCurrentState(const std::weak_ptr<Wire>& w);
 };
 
 using Wire_ptr = std::shared_ptr<Wire>;
