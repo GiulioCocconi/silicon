@@ -50,16 +50,6 @@ LogiFlowWindow::LogiFlowWindow()
 
   updateStatus();
 
-  auto graphicalXor    = new GraphicalXor();
-  auto graphicalNot    = new GraphicalNot();
-  auto graphicalInput  = new GraphicalInputSingle();
-  auto graphicalOutput = new GraphicalOutputSingle();
-
-  addComponent(graphicalNot);
-  addComponent(graphicalXor, QPointF(0, 50));
-  addComponent(graphicalInput, QPointF(-50, 0));
-  addComponent(graphicalOutput, QPointF(-100, 0));
-
   layout->addWidget(diagramView);
 
   createActions();
@@ -90,7 +80,7 @@ void LogiFlowWindow::createActions()
   setWireCreationModeAct = new QAction(Icon("link"), "", this);
   setSimulationModeAct   = new QAction(Icon("play"), "", this);
 
-  addComponentAct = new QAction(Icon("plus"), "", this);
+  setComponentPlacingModeAct = new QAction(Icon("plus"), "", this);
 
   newAct->setShortcuts(QKeySequence::New);
   openAct->setShortcuts(QKeySequence::Open);
@@ -106,8 +96,7 @@ void LogiFlowWindow::createActions()
 
   setWireCreationModeAct->setShortcut(Qt::AltModifier | Qt::Key_W);
   setSimulationModeAct->setShortcut(Qt::AltModifier | Qt::ControlModifier | Qt::Key_S);
-
-  addComponentAct->setShortcut(Qt::AltModifier | Qt::Key_A);
+  setComponentPlacingModeAct->setShortcut(Qt::AltModifier | Qt::Key_A);
 
   newAct->setStatusTip(tr("Create a new file"));
   openAct->setStatusTip(tr("Open an existing logiFlow file"));
@@ -140,6 +129,8 @@ void LogiFlowWindow::createActions()
           &LogiFlowWindow::setWireCreationMode);
   connect(setSimulationModeAct, &QAction::triggered, this,
           &LogiFlowWindow::setSimulationMode);
+  connect(setComponentPlacingModeAct, &QAction::triggered, this,
+          &LogiFlowWindow::setComponentPlacingMode);
 }
 
 void LogiFlowWindow::createMenus()
@@ -183,7 +174,7 @@ void LogiFlowWindow::createToolBar()
   toolBar->addAction(setSimulationModeAct);
 
   toolBar->addSeparator();
-  toolBar->addAction(addComponentAct);
+  toolBar->addAction(setComponentPlacingModeAct);
 
   addToolBar(toolBar);
 }
@@ -230,42 +221,11 @@ void LogiFlowWindow::setSimulationMode()
   diagramScene->setInteractionMode(InteractionMode::SIMULATION_MODE);
 }
 
-void LogiFlowWindow::addComponent()
+void LogiFlowWindow::setComponentPlacingMode()
 {
-  const QPoint globalPos = QCursor::pos();
-
-  // Get cursor pos within view
-  const QPoint viewPos = diagramView->mapFromGlobal(globalPos);
-
-  // Get the position of the center of the view
-  const QPoint centerViewPos = diagramView->viewport()->rect().center();
-
-  const bool isCursorInsideView = diagramView->viewport()->rect().contains(viewPos);
-
-  // The position at which the dialog should be displayed
-  const QPoint dialogPos =
-      isCursorInsideView ? globalPos : diagramView->mapToGlobal(centerViewPos);
-
-  qDebug() << "Adding component @ " << dialogPos;
-
-  // FIXME: If the cursor is not inside the view then the scene should be put in component
-  //        placing mode and the component should be placed manually.
-
-  // TODO: When the component is selected in the dialog we should go in component placing
-  //       mode and repeat placing of the same component
+  diagramScene->setInteractionMode(InteractionMode::COMPONENT_PLACING_MODE);
 }
 
-void LogiFlowWindow::addComponent(GraphicalComponent* component, QPointF pos)
-{
-  component->setPos(pos);
-
-  connect(diagramScene, &DiagramScene::modeChanged, component,
-          &GraphicalComponent::modeChanged);
-
-  component->modeChanged(diagramScene->getInteractionMode());
-
-  diagramScene->addItem(component);
-}
 
 void LogiFlowWindow::updateStatus()
 {

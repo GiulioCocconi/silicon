@@ -41,6 +41,7 @@ set(EXTRA_COMPONENTS_SOURCE_FILES
         ${src_dir}/extraComponents/arithmetic.cpp)
 
 set(UI_SOURCE_FILES
+        ${src_dir}/ui/common/componentSearchBox.cpp
         ${src_dir}/ui/common/diagramView.cpp
         ${src_dir}/ui/common/diagramScene.cpp
         ${src_dir}/ui/common/graphicalWire.cpp
@@ -96,6 +97,12 @@ target_link_libraries(Silicon PRIVATE Qt6::Widgets Qt6::SvgWidgets)
 qt_add_resources(Silicon "images" BASE ${resources_dir}
         FILES
         ${resources_dir}/splash.jpg)
+
+
+qt_add_resources(Silicon "fonts" BASE ${resources_dir}
+        FILES
+        ${resources_dir}/fonts/Chango.ttf
+        ${resources_dir}/fonts/Quicksand.ttf)
 
 qt_add_resources(Silicon "icons" BASE ${resources_dir}
         FILES

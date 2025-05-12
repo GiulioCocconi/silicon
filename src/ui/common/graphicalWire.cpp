@@ -34,8 +34,11 @@ void GraphicalWire::addSegment(GraphicalWireSegment* segment)
   prepareGeometryChange();
   segments.push_back(segment);
 
-  std::ranges::sort(segments);
-  segments.erase(std::ranges::unique(segments).begin(), segments.end());
+  qDebug() << segments;
+  if (segments.size() > 1) {
+    std::ranges::sort(segments);
+    segments.erase(std::ranges::unique(segments).begin(), segments.end());
+  }
 }
 
 void GraphicalWire::removeSegment(const GraphicalWireSegment* segment)
@@ -96,9 +99,9 @@ void GraphicalWire::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
 
 void GraphicalWire::clearBusState()
 {
-
   for (int i = 0; i < this->bus.size(); i++)
-    if (bus[i]) bus[i]->forceSetCurrentState(State::ERROR);
+    if (bus[i])
+      bus[i]->forceSetCurrentState(State::ERROR);
 }
 GraphicalWireSegment* GraphicalWire::segmentAtPoint(const QPointF point) const
 {
@@ -128,6 +131,7 @@ std::vector<QPointF> GraphicalWire::getJunctions() const
       const bool firstPointIntersects = (*first)->isPointOnPath(firstPoint);
       const bool lastPointIntersects  = (*first)->isPointOnPath(lastPoint);
 
+      const bool intersects = firstPointIntersects || lastPointIntersects;
       const bool isSameWire =
           (*first)->firstPoint() == lastPoint || (*first)->lastPoint() == firstPoint;
 
@@ -290,7 +294,7 @@ bool GraphicalWireSegment::isPointOnPath(const QPointF point)
   const auto slide_view = points | std::views::slide(2);
 
   // For each sub-segment
-  for (const auto el : slide_view) { // NOLINT(*-use-anyofallof)
+  for (const auto el : slide_view) {  // NOLINT(*-use-anyofallof)
     const bool horizontalSegment = (qAbs(el[0].y() - el[1].y()) <= tolerance);
     if (horizontalSegment && qAbs(el[0].y() - point.y()) <= tolerance) {
       const auto minX = std::min(el[0].x(), el[1].x());

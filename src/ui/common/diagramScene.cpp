@@ -19,11 +19,18 @@
 #include "diagramScene.hpp"
 #include "ui/common/enums.hpp"
 #include "ui/common/graphicalWire.hpp"
+#include "ui/logiFlow/components/graphicalGates.hpp"
 #include "ui/logiFlow/components/graphicalIO.hpp"
 
 DiagramScene::DiagramScene(QObject* parent) : QGraphicsScene(parent)
 {
   setInteractionMode(NORMAL_MODE, true);
+
+  csb = new ComponentSearchBox(completionMap);
+  csb->setParent(this);
+  connect(csb, &ComponentSearchBox::requestHide, this, &DiagramScene::hideCSB);
+  connect(csb, &ComponentSearchBox::selectedComponent, this,
+          &DiagramScene::placeComponent);
 }
 
 QPointF DiagramScene::snapToGrid(const QPointF point)
@@ -60,6 +67,9 @@ void DiagramScene::setInteractionMode(InteractionMode mode)
 
 void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
 {
+  if (!force)
+    assert(views().size() == 1);
+
   const auto currentMode = getInteractionMode();
   if (currentMode == mode && !force)
     return;
@@ -86,7 +96,43 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
   }
 
   if (currentMode == COMPONENT_PLACING_MODE) {
-    clearComponentShadow();
+    hideCSB();
+    if (componentToBeDrawn) {
+      // componentToBeDrawn shadow should be cleared BEFORE switching to another mode,
+      // if it's not then it means the insertion has been aborted and the component should
+      // be removed
+
+      removeItem(componentToBeDrawn);
+      delete componentToBeDrawn;
+      componentToBeDrawn = nullptr;
+    }
+
+  } else if (mode == COMPONENT_PLACING_MODE) {
+    // We need to show the CSB
+
+    // ALGORITHM: If the cursor is inside the view then try to place the component.
+    //            If the it's outside or the component boundingRect is colliding then
+    //            go to component placing mode and place it manually.
+    //            When the component is placed then go to component placing mode and
+    //            repeat the placing of the same component until ESC is pressed
+    //            (NORMAL_MODE)
+
+    const QPoint globalCursorPos = QCursor::pos();
+
+    const auto view = this->views()[0];
+
+    // The default position is the center of the view
+    QPoint posForCSB = view->viewport()->rect().center();
+
+    // Get cursor pos within view
+    const QPoint viewCursorPos = view->mapFromGlobal(globalCursorPos);
+
+    const bool isCursorInsideView = view->viewport()->rect().contains(viewCursorPos);
+
+    if (isCursorInsideView)
+      posForCSB = viewCursorPos;
+
+    showCSB(view->mapToScene(posForCSB));
   }
 
   if (mode == SIMULATION_MODE || currentMode == SIMULATION_MODE) {
@@ -138,7 +184,13 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
   switch (currentInteractionMode) {
     case NORMAL_MODE: break;
     case PAN_MODE: break;
-    case COMPONENT_PLACING_MODE: break;
+    case COMPONENT_PLACING_MODE: {
+      if (!componentToBeDrawn)
+        break;
+
+      componentToBeDrawn->setPos(cursorPos);
+      break;
+    }
     case WIRE_CREATION_MODE: {
       // Let's wait the user to start drawing the wire
       if (!wireSegmentToBeDrawn)
@@ -159,6 +211,7 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
                             pointsToBeAdded.end());
 
       wireSegmentToBeDrawn->setShowPoints(pointsToBeAdded);
+      break;
     }
     case SIMULATION_MODE: break;
     default: assert(false);
@@ -168,20 +221,24 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
 
 void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
 {
-  const QPointF cursorPos = mouseEvent->scenePos();
+  const QPointF cursorPos = DiagramScene::snapToGrid(mouseEvent->scenePos());
 
   switch (currentInteractionMode) {
     case NORMAL_MODE: break;
-    case COMPONENT_PLACING_MODE:
-      // TODO: Print preview of component while placing
+    case COMPONENT_PLACING_MODE: {
+      const auto t = (SiliconTypes)componentToBeDrawn->type();
+      if (componentToBeDrawn) {
+        clearComponentShadow();
+        placeComponent(t);
+      }
       break;
+    }
     case PAN_MODE: break;
     case WIRE_CREATION_MODE: {
       // TODO: Check for collision
       if (!wireSegmentToBeDrawn) {
         // Let's start drawing the wire!
-        const QPointF firstPoint = DiagramScene::snapToGrid(cursorPos);
-        wireSegmentToBeDrawn     = new GraphicalWireSegment(firstPoint);
+        wireSegmentToBeDrawn = new GraphicalWireSegment(cursorPos);
         addItem(wireSegmentToBeDrawn);
         manageJunctionCreation(cursorPos);
       } else {
@@ -236,12 +293,40 @@ void DiagramScene::clearWireShadow()
   wireSegmentToBeDrawn = nullptr;
 }
 
+void DiagramScene::setComponentShadow()
+{
+  assert(componentToBeDrawn);
+  assert(views().size() == 1);
+
+  const auto view      = views()[0];
+  const auto cursorPos = view->mapToScene(view->mapFromGlobal(QCursor::pos()));
+
+  addComponent(componentToBeDrawn, cursorPos);
+  componentToBeDrawn->setParent(this);
+  componentToBeDrawn->setOpacity(0.5);
+}
+
 void DiagramScene::clearComponentShadow()
 {
   if (!componentToBeDrawn)
     return;
-
+  componentToBeDrawn->setOpacity(1.0);
   componentToBeDrawn = nullptr;
+}
+
+void DiagramScene::showCSB(const QPointF pos)
+{
+  csb->clear();
+  csb->setPos(pos);
+  addItem(csb);
+  csb->showCompleter();
+  csb->focus();
+}
+
+void DiagramScene::hideCSB()
+{
+  if (csb->scene() == this)
+    removeItem(csb);
 }
 
 void DiagramScene::calculateWiresForComponents() const
@@ -308,12 +393,46 @@ bool DiagramScene::manageJunctionCreation(const QPointF cursorPos) const
     if (item->type() == WIRE) {
       const auto wire = qgraphicsitem_cast<GraphicalWire*>(item);
       if (wire->segmentAtPoint(cursorPos)) {
-        wire->addSegment(wireSegmentToBeDrawn);
+        wireSegmentToBeDrawn->setGraphicalWire(wire);
         return true;
       }
     }
   }
   return false;
+}
+
+void DiagramScene::addComponent(GraphicalComponent* component, QPointF pos)
+{
+  component->setPos(pos);
+
+  connect(this, &DiagramScene::modeChanged, component, &GraphicalComponent::modeChanged);
+
+  component->modeChanged(this->getInteractionMode());
+
+  addItem(component);
+}
+
+void DiagramScene::placeComponent(const SiliconTypes type)
+{
+  assert(!componentToBeDrawn);
+  switch (type) {
+    case SINGLE_INPUT: componentToBeDrawn = new GraphicalInputSingle(); break;
+    case SINGLE_OUTPUT: componentToBeDrawn = new GraphicalOutputSingle(); break;
+    case AND_GATE: componentToBeDrawn = new GraphicalAnd(); break;
+    case NAND_GATE: componentToBeDrawn = new GraphicalNand(); break;
+    case OR_GATE: componentToBeDrawn = new GraphicalOr(); break;
+    case NOR_GATE: componentToBeDrawn = new GraphicalNor(); break;
+    case NOT_GATE: componentToBeDrawn = new GraphicalNot(); break;
+    case XOR_GATE: componentToBeDrawn = new GraphicalXor(); break;
+    case HALF_ADDER:
+    case FULL_ADDER:
+    default: assert(false && "Component not implemented");
+  }
+
+  // TODO: IMPLEMENT COMPONENT SHADOW
+  setInteractionMode(COMPONENT_PLACING_MODE);
+  setComponentShadow();
+  hideCSB();
 }
 
 DiagramScene::~DiagramScene()

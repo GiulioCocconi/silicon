@@ -90,7 +90,6 @@ public:
   void setBus(Bus bus) { this->bus = bus; }
   Bus  getBus() const { return bus; }
 
-
   void clearBusState();
 
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,

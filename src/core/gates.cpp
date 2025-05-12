@@ -39,7 +39,7 @@ AndGate::AndGate(const std::vector<Wire_ptr>& inputs, Wire_ptr output)
     State s = State::HIGH;
 
     for (auto input : this->inputs)
-      s = s && input[0]->getCurrentState();
+      s = s && Wire::safeGetCurrentState(input[0]);
 
     Wire::safeSetCurrentState(this->outputs[0][0], s, weak_from_this());
   });
@@ -53,7 +53,7 @@ OrGate::OrGate(const std::vector<Wire_ptr>& inputs, Wire_ptr output)
     State s = State::LOW;
 
     for (auto input : this->inputs)
-      s = s || input[0]->getCurrentState();
+      s = s || Wire::safeGetCurrentState(input[0]);
 
     Wire::safeSetCurrentState(this->outputs[0][0], s, weak_from_this());
   });
@@ -62,7 +62,7 @@ OrGate::OrGate(const std::vector<Wire_ptr>& inputs, Wire_ptr output)
 NotGate::NotGate(Wire_ptr input, Wire_ptr output) : Gate({input}, output, "Not")
 {
   this->setAction([this] {
-    State s = !this->inputs[0][0]->getCurrentState();
+    State s = Wire::safeGetCurrentState(inputs[0][0]);
 
     Wire::safeSetCurrentState(this->outputs[0][0], s, weak_from_this());
   });
@@ -76,7 +76,7 @@ NandGate::NandGate(const std::vector<Wire_ptr>& inputs, Wire_ptr output)
     State s = State::HIGH;
 
     for (auto input : this->inputs)
-      s = s && input[0]->getCurrentState();
+      s = s && Wire::safeGetCurrentState(input[0]);
 
     Wire::safeSetCurrentState(this->outputs[0][0], !s, weak_from_this());
   });
@@ -90,7 +90,7 @@ NorGate::NorGate(const std::vector<Wire_ptr>& inputs, Wire_ptr output)
     State s = State::LOW;
 
     for (auto input : this->inputs)
-      s = s || input[0]->getCurrentState();
+      s = s || Wire::safeGetCurrentState(input[0]);
 
     Wire::safeSetCurrentState(this->outputs[0][0], !s, weak_from_this());
   });
@@ -102,7 +102,7 @@ XorGate::XorGate(const std::array<Wire_ptr, 2>& inputs, Wire_ptr output)
   assert(inputs.size() >= 2);
   this->setAction([this] {
     const State s =
-        this->inputs[0][0]->getCurrentState() ^ this->inputs[1][0]->getCurrentState();
+        Wire::safeGetCurrentState(this->inputs[0][0]) ^ Wire::safeGetCurrentState(this->inputs[1][0]);
 
     Wire::safeSetCurrentState(this->outputs[0][0], s, weak_from_this());
   });

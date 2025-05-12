@@ -18,15 +18,18 @@
 
 #pragma once
 
+
 #include <ranges>
 
 #include <QCursor>
+#include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QKeyEvent>
 #include <QPainter>
 #include <QRect>
 
+#include <ui/common/componentSearchBox.hpp>
 #include <ui/common/enums.hpp>
 #include <ui/common/graphicalWire.hpp>
 
@@ -51,17 +54,27 @@ public:
     return currentInteractionMode;
   }
 
+
+  void showCSB(QPointF pos);
+
+
   void clearWireShadow();
+  void setComponentShadow();
   void clearComponentShadow();
   bool manageJunctionCreation(QPointF cursorPos) const;
 
-  void setInteractionMode(InteractionMode mode);
+  void addComponent(GraphicalComponent* component, QPointF pos);
+
+  void placeComponent(SiliconTypes type);
 
   static QPointF snapToGrid(QPointF point);
 
   static constexpr int GRID_SIZE = 10;
 
   ~DiagramScene() override;
+
+  public slots:
+  void hideCSB();
 
 signals:
   void modeChanged(InteractionMode mode);
@@ -84,6 +97,13 @@ private:
   GraphicalComponent*   componentToBeDrawn   = nullptr;
   GraphicalWireSegment* wireSegmentToBeDrawn = nullptr;
 
+  ComponentSearchBox* csb = nullptr;
+
+  static const inline std::map<std::string, SiliconTypes> completionMap = {
+      {"INPUT", SiliconTypes::SINGLE_INPUT},  {"OUTPUT", SiliconTypes::SINGLE_OUTPUT},
+      {"AND GATE", SiliconTypes::AND_GATE},   {"OR GATE", SiliconTypes::OR_GATE},
+      {"NAND GATE", SiliconTypes::NAND_GATE}, {"NOR GATE", SiliconTypes::NOR_GATE},
+      {"NOT GATE", SiliconTypes::NOT_GATE},   {"XOR GATE", SiliconTypes::XOR_GATE}};
 };
 
 using InteractionMode = DiagramScene::InteractionMode;

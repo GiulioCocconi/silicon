@@ -31,6 +31,8 @@
 #include <QStatusBar>
 #include <QToolBar>
 
+
+#include <ui/common/componentSearchBox.hpp>
 #include <ui/common/diagramScene.hpp>
 #include <ui/common/diagramView.hpp>
 #include <ui/common/graphicalComponent.hpp>
@@ -72,13 +74,11 @@ private slots:
   void setPanMode();
   void setWireCreationMode();
   void setSimulationMode();
-
-  void addComponent();
+  void setComponentPlacingMode();
 
   void updateStatus();
 
 private:
-  void addComponent(GraphicalComponent* component, QPointF pos = QPointF(0, 0));
 
   void createActions();
   void createMenus();
@@ -114,7 +114,7 @@ private:
   QAction* setWireCreationModeAct;
   QAction* setSimulationModeAct;
 
-  QAction* addComponentAct;
+  QAction* setComponentPlacingModeAct;
 
   QLabel* infoLabel;
 };
