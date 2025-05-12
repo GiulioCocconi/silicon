@@ -116,7 +116,7 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
         continue;
 
       qDebug() << collidingItem->type();
-      if (collidingItem->type() >= AND_GATE) {
+      if (collidingItem->type() >= COMPONENT) {
         this->collidingStatus = COLLIDING_WITH_COMPONENT;
         goto rejectedPos;
 
@@ -193,7 +193,7 @@ void GraphicalComponent::setPorts(
     const auto& [name, pos] = pair;
 
     // ReSharper disable once CppDFAMemoryLeak
-    auto p                  = new Port(index, pos, name);
+    auto p = new Port(index, pos, name);
     this->outputPorts.push_back(p);
     this->setPortLine(p);
   }

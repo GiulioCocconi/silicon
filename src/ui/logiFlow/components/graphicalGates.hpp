@@ -97,7 +97,7 @@ public:
   GraphicalXor(QGraphicsItem* parent = nullptr)
 
     : GraphicalGate(
-          std::make_shared<NorGate>(std::vector<Wire_ptr>{nullptr, nullptr}, nullptr),
+          std::make_shared<XorGate>(std::array<Wire_ptr, 2>{nullptr, nullptr}, nullptr),
           new QGraphicsSvgItem(":/gates/XOR_ANSI.svg"), parent)
   {
   }
