@@ -5,14 +5,16 @@ pkgs.mkShell {
     vulkan-headers 
     libxkbcommon.dev
     gtest.dev
-    qt6.full
-    qtcreator
+    qt6.qtbase
+    qt6.qtsvg
+    ninja
     cmake
-    yosys
+    clang-tools
     gdb
     ddd
     valgrind
   ];
   hardeningDisable = [ "all" ];
+  NIX_LANG_CPP = "TRUE";
 }
 

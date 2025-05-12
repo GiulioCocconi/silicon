@@ -1,111 +1,109 @@
 /*
-  Copyright (C) 2025 Giulio Cocconi
+ Copyright (c) 2025. Giulio Cocconi
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
 
 #include "gates.hpp"
 
-Gate::Gate(std::vector<Wire_ptr> inputs, Wire_ptr output,
-	   std::string name) {
+#include <utility>
 
-  assert(inputs.size() != 0);
+Gate::Gate(const std::vector<Wire_ptr>& inputs, Wire_ptr output, std::string name)
+{
+  assert(!inputs.empty());
 
-  this->name = name;
+  this->name = std::move(name);
 
-  for (auto input : inputs)
+  for (const auto& input : inputs)
     this->inputs.push_back({input});
   this->outputs = {{output}};
 }
 
-AndGate::AndGate(std::vector<Wire_ptr> inputs, Wire_ptr output) :
-  Gate(inputs, output, "And")
+AndGate::AndGate(const std::vector<Wire_ptr>& inputs, Wire_ptr output)
+  : Gate(inputs, std::move(output), "And")
 {
   assert(inputs.size() >= 2);
-  this->setAction([this]() {
+  this->setAction([this] {
     State s = State::HIGH;
 
     for (auto input : this->inputs)
-      s = s && input[0]->getCurrentState();
+      s = s && Wire::safeGetCurrentState(input[0]);
 
-    this->outputs[0][0]->setCurrentState(s, weak_from_this());
+    Wire::safeSetCurrentState(this->outputs[0][0], s, weak_from_this());
   });
 }
 
-OrGate::OrGate(std::vector<Wire_ptr> inputs, Wire_ptr output) :
-  Gate(inputs, output, "Or")
+OrGate::OrGate(const std::vector<Wire_ptr>& inputs, Wire_ptr output)
+  : Gate(inputs, output, "Or")
 {
   assert(inputs.size() >= 2);
-  this->setAction([this]() {
+  this->setAction([this] {
     State s = State::LOW;
 
     for (auto input : this->inputs)
-      s = s || input[0]->getCurrentState();
+      s = s || Wire::safeGetCurrentState(input[0]);
 
-    this->outputs[0][0]->setCurrentState(s, weak_from_this());
+    Wire::safeSetCurrentState(this->outputs[0][0], s, weak_from_this());
   });
 }
 
-NotGate::NotGate(Wire_ptr input, Wire_ptr output) :
-  Gate({input}, output, "Not")
+NotGate::NotGate(Wire_ptr input, Wire_ptr output) : Gate({input}, output, "Not")
 {
-  const auto a = std::make_shared<action>([this]() {
-    State s = !this->inputs[0][0]->getCurrentState();
-    this->outputs[0][0]->setCurrentState(s, weak_from_this());
-  });
+  this->setAction([this] {
+    State s = Wire::safeGetCurrentState(inputs[0][0]);
 
-  this->inputs[0][0]->addUpdateAction(a);
+    Wire::safeSetCurrentState(this->outputs[0][0], s, weak_from_this());
+  });
 }
 
-NandGate::NandGate(std::vector<Wire_ptr> inputs, Wire_ptr output) :
-  Gate(inputs, output, "Nand")
+NandGate::NandGate(const std::vector<Wire_ptr>& inputs, Wire_ptr output)
+  : Gate(inputs, output, "Nand")
 {
   assert(inputs.size() >= 2);
-  this->setAction([this]() {
-
+  this->setAction([this] {
     State s = State::HIGH;
 
     for (auto input : this->inputs)
-      s = s && input[0]->getCurrentState();
+      s = s && Wire::safeGetCurrentState(input[0]);
 
-    this->outputs[0][0]->setCurrentState(!s, weak_from_this());
+    Wire::safeSetCurrentState(this->outputs[0][0], !s, weak_from_this());
   });
-
 }
 
-NorGate::NorGate(std::vector<Wire_ptr> inputs, Wire_ptr output) :
-  Gate(inputs, output, "Nor")
+NorGate::NorGate(const std::vector<Wire_ptr>& inputs, Wire_ptr output)
+  : Gate(inputs, output, "Nor")
 {
   assert(inputs.size() >= 2);
-  this->setAction([this]() {
-
+  this->setAction([this] {
     State s = State::LOW;
 
     for (auto input : this->inputs)
-      s = s || input[0]->getCurrentState();
+      s = s || Wire::safeGetCurrentState(input[0]);
 
-    this->outputs[0][0]->setCurrentState(!s, weak_from_this());
+    Wire::safeSetCurrentState(this->outputs[0][0], !s, weak_from_this());
   });
 }
 
-XorGate::XorGate(std::array<Wire_ptr, 2> inputs, Wire_ptr output) :
-  Gate({inputs[0], inputs[1]}, output, "Xor")
+XorGate::XorGate(const std::array<Wire_ptr, 2>& inputs, Wire_ptr output)
+  : Gate({inputs[0], inputs[1]}, output, "Xor")
 {
   assert(inputs.size() >= 2);
-  this->setAction([this]() {
-    State s = (this->inputs[0][0]->getCurrentState() ^
-	       this->inputs[1][0]->getCurrentState());
-    this->outputs[0][0]->setCurrentState(s, weak_from_this());
+  this->setAction([this] {
+    const State s =
+        Wire::safeGetCurrentState(this->inputs[0][0]) ^ Wire::safeGetCurrentState(this->inputs[1][0]);
+
+    Wire::safeSetCurrentState(this->outputs[0][0], s, weak_from_this());
   });
 }

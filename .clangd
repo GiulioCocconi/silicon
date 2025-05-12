@@ -1,0 +1,10 @@
+If:
+    PathMatch: [ .*\.cpp, .*\.h ]
+
+CompileFlags:
+    Add: [-std=c++23]
+
+Completion:
+  AllScopes: Yes
+  ArgumentLists: FullPlaceholders
+  HeaderInsertion: Never

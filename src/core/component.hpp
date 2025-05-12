@@ -1,25 +1,29 @@
 /*
-  Copyright (C) 2025 Giulio Cocconi
+ Copyright (c) 2025. Giulio Cocconi
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+ */
 
 #pragma once
+
+#include <array>
 #include <cassert>
 #include <memory>
-#include <array>
+#include <ranges>
 #include <string>
+#include <utility>
 
 #include <core/wire.hpp>
 
@@ -31,18 +35,24 @@ protected:
   std::string name;
 
   action_ptr act;
+
 public:
-  Component() {};
-  Component(std::vector<Bus> inputs, std::vector<Bus> outputs,
-	    std::string name);
+  Component() = default;
+  Component(std::vector<Bus> inputs, std::vector<Bus> outputs, std::string name);
 
-  void setAction(action a);
-  void setInputs(std::vector<Bus> newInputs);
+  void setAction(const action& a);
 
-  std::vector<Bus> getInputs()  { return inputs;  }
-  std::vector<Bus> getOutputs() { return outputs; }
-  std::string      getName()    { return name;    }
+  void setInput(const unsigned int index, const Bus& bus);
+  void setInputs(const std::vector<Bus>& newInputs);
 
+  void setOutput(unsigned int index, const Bus& bus);
+  void setOutputs(const std::vector<Bus>& newOutputs);
+
+  void clearWires();
+
+  std::vector<Bus> getInputs() const { return inputs; }
+  std::vector<Bus> getOutputs() const { return outputs; }
+  std::string      getName() const { return name; }
 
   virtual ~Component();
 };

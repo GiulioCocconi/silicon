@@ -17,48 +17,33 @@
 
 #include "graphicalGates.hpp"
 
-
-GraphicalGate::GraphicalGate(const std::weak_ptr<Gate> gate,
-			     QGraphicsItem*            shape,
-			     QGraphicsItem*            parent)
-  : GraphicalComponent(gate, shape, parent)
+GraphicalGate::GraphicalGate(const std::shared_ptr<Gate> gate, QGraphicsItem* shape,
+                             QGraphicsItem* parent)
+  : GraphicalLogicComponent(gate, shape, parent)
 {
   // TODO: ADD SUPPORT FOR OVER 2 INPUTS GATES
-  assert(gate.lock()->getInputs().size() == 2);
-
+  assert(associatedComponent->getInputs().size() == 2);
 
   isEditable = false;
 
   std::vector<std::pair<std::string, QPoint>> inputVec;
   inputVec.reserve(2);
 
-  inputVec.emplace_back("a",
-			QPoint(-20,10));
+  inputVec.emplace_back("a", QPoint(-20, 10));
 
-  inputVec.emplace_back("b",
-			QPoint(-20,30));
+  inputVec.emplace_back("b", QPoint(-20, 30));
 
-  const auto outputPoint = QPoint(80, 20);
+  constexpr auto outputPoint = QPoint(80, 20);
 
-  setPorts(inputVec,
-	   {std::pair<std::string, QPoint>{"o", outputPoint}});
-
+  setPorts(inputVec, {std::pair<std::string, QPoint>{"o", outputPoint}});
 }
 
-GraphicalNot::GraphicalNot(const std::weak_ptr<NotGate> gate,
-			   QGraphicsItem* parent)
-  : GraphicalComponent(gate,
-		       new QGraphicsSvgItem(":/gates/NOT_ANSI.svg"),
-		       parent)
+GraphicalNot::GraphicalNot(QGraphicsItem* parent)
+  : GraphicalLogicComponent(std::make_shared<NotGate>(nullptr, nullptr),
+                            new QGraphicsSvgItem(":/gates/NOT_ANSI.svg"), parent)
 {
   isEditable = false;
 
-  assert(gate.lock()->getInputs().size() == 1);
-
-  isEditable = false;
-
-  setPorts({std::pair<std::string, QPoint>{"i", QPoint(-20,  20)}},
-	   {std::pair<std::string, QPoint>{"o", QPoint(80,   20)}});
-
+  setPorts({std::pair<std::string, QPoint>{"i", QPoint(-20, 20)}},
+           {std::pair<std::string, QPoint>{"o", QPoint(80, 20)}});
 }
-

@@ -1,40 +1,46 @@
 /*
-  Copyright (C) 2025 Giulio Cocconi
+ Copyright (c) 2025. Giulio Cocconi
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+   This program is free software: you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation, either version 3 of the License, or
+   (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#include <iostream>
-#include <memory>
+ */
 
 #include <QApplication>
+#include <QCommandLineParser>
+#include <QFont>
+#include <QFontDatabase>
+#include <QIcon>
+#include <QLabel>
 #include <QMainWindow>
 #include <QSplashScreen>
-#include <QLabel>
-#include <QIcon>
-#include <QCommandLineParser>
 
 #include <core/gates.hpp>
 #include <core/wire.hpp>
 #include <ui/logiFlow/logiFlowWindow.hpp>
 
-int siliconMain(int argc, char** argv) {
-
+int siliconMain(int argc, char** argv)
+{
   QApplication app(argc, argv);
   app.setApplicationName("SILICON");
   app.setStyle("Fusion");
   app.setApplicationVersion(SILICON_VERSION);
+
+  // LOAD THE FONTS
+  QFontDatabase::addApplicationFont(":/fonts/Chango.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/Quicksand.ttf");
+
+  app.setFont(QFont("Quicksand", app.font().pointSize() * 1.2, QFont::Medium));
 
   // TODO: Create an icon!!!
   // app.setWindowIcon(QIcon)
@@ -48,19 +54,15 @@ int siliconMain(int argc, char** argv) {
   parser.addVersionOption();
   parser.process(app);
 
-
-
   // Splash screen
   QSplashScreen splashScreen(QPixmap(":/splash.jpg"));
   splashScreen.show();
-  splashScreen.showMessage("Loading...",
-			   Qt::AlignBottom | Qt::AlignHCenter, Qt::white);
+  splashScreen.showMessage("Loading...", Qt::AlignBottom | Qt::AlignHCenter, Qt::white);
 
   // Force processing of events to show the splash screen immediately
   app.processEvents();
 
-
-  LogiFlowWindow lfWin {};
+  LogiFlowWindow lfWin{};
   lfWin.show();
 
   splashScreen.finish(&lfWin);
@@ -68,9 +70,11 @@ int siliconMain(int argc, char** argv) {
 }
 
 #if 0
-#include <ui/components/graphicalGates.cpp>
+#  include <iostream>
+#  include <memory>
+#  include <ui/components/graphicalGates.cpp>
 
-#include <QGraphicsEllipseItem>
+#  include <QGraphicsEllipseItem>
 int main(int argc, char** argv) {
   auto a = std::make_shared<Wire>(State::HIGH);
   auto o = std::make_shared<Wire>();
@@ -81,8 +85,8 @@ int main(int argc, char** argv) {
 }
 
 #else
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
   return siliconMain(argc, argv);
 }
 #endif
-

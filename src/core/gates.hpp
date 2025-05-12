@@ -16,31 +16,28 @@
 */
 
 #pragma once
-#include <cassert>
-#include <memory>
 #include <array>
-#include <string>
-#include <core/wire.hpp>
+#include <cassert>
 #include <core/component.hpp>
+#include <core/wire.hpp>
+#include <memory>
+#include <string>
 
 class Gate : public Component {
 public:
   using Component::setAction;
-  Gate(std::vector<Wire_ptr> inputs, Wire_ptr output,
-       std::string name);
+  Gate(const std::vector<Wire_ptr>& inputs, Wire_ptr output, std::string name);
   Gate() {};
 };
 
-
 class AndGate : public Gate {
 public:
-  AndGate(std::vector<Wire_ptr> inputs, Wire_ptr output);
+  AndGate(const std::vector<Wire_ptr>& inputs, Wire_ptr output);
 };
-
 
 class OrGate : public Gate {
 public:
-  OrGate(std::vector<Wire_ptr> inputs, Wire_ptr output);
+  OrGate(const std::vector<Wire_ptr>& inputs, Wire_ptr output);
 };
 
 class NotGate : public Gate {
@@ -50,16 +47,15 @@ public:
 
 class NandGate : public Gate {
 public:
-  NandGate(std::vector<Wire_ptr> inputs, Wire_ptr output);
+  NandGate(const std::vector<Wire_ptr>& inputs, Wire_ptr output);
 };
-
 
 class NorGate : public Gate {
 public:
-  NorGate(std::vector<Wire_ptr> inputs, Wire_ptr output);
+  NorGate(const std::vector<Wire_ptr>& inputs, Wire_ptr output);
 };
 
 class XorGate : public Gate {
 public:
-  XorGate(std::array<Wire_ptr,2> inputs, Wire_ptr output);
+  XorGate(const std::array<Wire_ptr, 2>& inputs, Wire_ptr output);
 };

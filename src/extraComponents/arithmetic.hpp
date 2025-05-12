@@ -16,12 +16,12 @@
 */
 
 #pragma once
-#include <cassert>
-#include <memory>
 #include <array>
-#include <core/wire.hpp>
+#include <cassert>
 #include <core/gates.hpp>
+#include <core/wire.hpp>
 #include <iostream>
+#include <memory>
 
 class HalfAdder : public Component {
 public:
@@ -32,12 +32,11 @@ public:
 class FullAdder : public Component {
 public:
   FullAdder() {};
-  FullAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr cin,
-	    Wire_ptr sum, Wire_ptr cout);
+  FullAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr cin, Wire_ptr sum, Wire_ptr cout);
 };
 
 class AdderNBits : public Component {
 public:
   AdderNBits() {};
-  AdderNBits(std::array<Bus, 2> inputs,Bus sum, Wire_ptr cout);
+  AdderNBits(std::array<Bus, 2> inputs, Bus sum, Wire_ptr cout);
 };

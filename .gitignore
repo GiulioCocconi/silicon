@@ -4,3 +4,14 @@ bin/
 *.out
 vgcore.*
 Testing/
+.cache/
+
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+.idea/QtSettings.xml
+.idea/editor.xml
+
+compile_commands.json
