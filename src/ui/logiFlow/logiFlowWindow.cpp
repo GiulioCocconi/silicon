@@ -17,6 +17,7 @@
  */
 
 #include "logiFlowWindow.hpp"
+#include "ui/common/diagramScene.hpp"
 
 LogiFlowWindow::LogiFlowWindow()
 {
