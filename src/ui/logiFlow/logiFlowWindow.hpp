@@ -31,7 +31,6 @@
 #include <QStatusBar>
 #include <QToolBar>
 
-
 #include <ui/common/componentSearchBox.hpp>
 #include <ui/common/diagramScene.hpp>
 #include <ui/common/diagramView.hpp>
@@ -64,7 +63,11 @@ private slots:
   void exportImage() {}
   void undo() {}
   void redo() {}
-  void cut() { copy(); del(); }
+  void cut()
+  {
+    copy();
+    del();
+  }
   void copy() {}
   void paste() {}
   void del();  // Delete is a CPP keyword
@@ -79,7 +82,6 @@ private slots:
   void updateStatus();
 
 private:
-
   void createActions();
   void createMenus();
   void createToolBar();
