@@ -18,8 +18,8 @@
 
 #include "componentSearchBox.hpp"
 
-ComponentSearchBox::ComponentSearchBox(std::map<std::string, SiliconTypes> map, QString title,
-                                           QGraphicsItem* parent)
+ComponentSearchBox::ComponentSearchBox(std::map<std::string, SiliconTypes> map,
+                                       QString title, QGraphicsItem* parent)
   : QGraphicsProxyWidget(parent)
 {
   assert(!map.empty());
@@ -32,12 +32,12 @@ ComponentSearchBox::ComponentSearchBox(std::map<std::string, SiliconTypes> map, 
 
   // Calculate font baseline offset
   QFontMetrics fm(titleItem->font());
-  titleItem->setPos(0, -fm.ascent()*1.5);
+  titleItem->setPos(0, -fm.ascent() * 1.5);
 
   titleItem->setZValue(100);
 
   const int width = titleItem->boundingRect().width();
-  le = new QLineEdit();
+  le              = new QLineEdit();
   le->setFixedHeight(30);
   le->setFixedWidth(width);
 
@@ -49,14 +49,15 @@ ComponentSearchBox::ComponentSearchBox(std::map<std::string, SiliconTypes> map, 
   completer->setFilterMode(Qt::MatchContains);
   completer->popup()->setFixedWidth(width);
 
- // Connect signals to handle showing the completer popup
+  // Connect signals to handle showing the completer popup
   connect(le, &QLineEdit::textChanged, this, &ComponentSearchBox::showCompleter);
-  connect(le, &QLineEdit::cursorPositionChanged, this, &ComponentSearchBox::showCompleter);
+  connect(le, &QLineEdit::cursorPositionChanged, this,
+          &ComponentSearchBox::showCompleter);
 
   le->setCompleter(completer);
 
   this->setWidget(le);
-  this->setPos(0,0);
+  this->setPos(0, 0);
 }
 
 void ComponentSearchBox::showCompleter()
@@ -75,7 +76,7 @@ void ComponentSearchBox::keyPressEvent(QKeyEvent* event)
 
   if (event->key() == Qt::Key_Return) {
     const std::string insertedText = le->text().toStdString();
-    const auto find = completionMap.find(insertedText);
+    const auto        find         = completionMap.find(insertedText);
 
     if (find == completionMap.end())
       emit requestHide();

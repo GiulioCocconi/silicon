@@ -20,11 +20,11 @@
 
 #include <ranges>
 
+#include <QAbstractItemView>
+#include <QCompleter>
 #include <QGraphicsProxyWidget>
 #include <QKeyEvent>
 #include <QLineEdit>
-#include <QCompleter>
-#include <QAbstractItemView>
 
 #include <ui/common/enums.hpp>
 

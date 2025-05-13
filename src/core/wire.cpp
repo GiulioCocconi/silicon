@@ -74,8 +74,8 @@ std::string to_str(State s)
 
 Wire::Wire()
 {
-  this->currentState  = State::ERROR;
-  this->updateActions = {};
+  this->currentState        = State::ERROR;
+  this->updateActions       = {};
   this->authorizedComponent = {};
 }
 
@@ -133,9 +133,9 @@ void Wire::deleteUpdateAction(const action_ptr a)
 void Wire::safeSetCurrentState(std::weak_ptr<Wire> w, State newState,
                                const Component_weakPtr& requestedBy)
 {
-
-  // Little hack necessary because the component's action logic doesn't know if its output is connected.
-  // Without this, each action would need to check for the output wire's existence every time it runs.
+  // Little hack necessary because the component's action logic doesn't know if its output
+  // is connected. Without this, each action would need to check for the output wire's
+  // existence every time it runs.
 
   const auto lockedWire = w.lock();
   if (!lockedWire)
@@ -171,7 +171,6 @@ Bus::Bus(unsigned short size)
 
 Bus::Bus(std::vector<Wire_ptr> busData)
 {
-
   this->busData = busData;
 
   for (Wire_ptr& w : busData)
@@ -198,7 +197,8 @@ Bus::Bus(std::initializer_list<Wire> initList) : busData(initList.size())
 int Bus::forceSetCurrentValue(const unsigned int value)
 {
   for (unsigned short i = 0; i < this->size(); i++) {
-    if (!this->busData[i]) continue;
+    if (!this->busData[i])
+      continue;
 
     State s = (value >> i) & 1 ? State::HIGH : State::LOW;
     this->busData[i]->forceSetCurrentState(s);

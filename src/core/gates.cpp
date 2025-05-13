@@ -101,8 +101,8 @@ XorGate::XorGate(const std::array<Wire_ptr, 2>& inputs, Wire_ptr output)
 {
   assert(inputs.size() >= 2);
   this->setAction([this] {
-    const State s =
-        Wire::safeGetCurrentState(this->inputs[0][0]) ^ Wire::safeGetCurrentState(this->inputs[1][0]);
+    const State s = Wire::safeGetCurrentState(this->inputs[0][0])
+                    ^ Wire::safeGetCurrentState(this->inputs[1][0]);
 
     Wire::safeSetCurrentState(this->outputs[0][0], s, weak_from_this());
   });

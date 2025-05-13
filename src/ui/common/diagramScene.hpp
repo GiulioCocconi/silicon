@@ -18,13 +18,12 @@
 
 #pragma once
 
-
 #include <ranges>
 
 #include <QCursor>
-#include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
+#include <QGraphicsView>
 #include <QKeyEvent>
 #include <QPainter>
 #include <QRect>
@@ -54,9 +53,7 @@ public:
     return currentInteractionMode;
   }
 
-
   void showCSB(QPointF pos);
-
 
   void clearWireShadow();
   void setComponentShadow();
@@ -73,7 +70,7 @@ public:
 
   ~DiagramScene() override;
 
-  public slots:
+public slots:
   void hideCSB();
 
 signals:

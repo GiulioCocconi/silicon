@@ -57,7 +57,8 @@ void Component::setInputs(const std::vector<Bus>& newInputs)
 
 void Component::setOutput(const unsigned int index, const Bus& bus)
 {
-  if (this->outputs[index] == bus) return;
+  if (this->outputs[index] == bus)
+    return;
 
   this->outputs[index] = bus;
 }
@@ -70,7 +71,6 @@ void Component::setOutputs(const std::vector<Bus>& newOutputs)
 
   // We set the new outputs
   this->outputs = newOutputs;
-
 }
 void Component::clearWires()
 {
@@ -84,7 +84,7 @@ void Component::clearWires()
   }
 
   for (const auto [index, bus] : std::views::enumerate(this->inputs)) {
-    const auto            busSize = bus.size();
+    const auto                  busSize = bus.size();
     const std::vector<Wire_ptr> wires(busSize);
 
     const auto newBus = Bus(wires);
