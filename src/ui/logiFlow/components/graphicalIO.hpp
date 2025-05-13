@@ -41,7 +41,6 @@ public:
 
   void setState(State state);
 
-
 private:
   State skinState = LOW;
 
@@ -53,7 +52,6 @@ class DummyInputComponent : public Component {
 public:
   DummyInputComponent(Bus bus, std::string name) : Component({}, {bus}, name) {}
   void setState(int value) { this->outputs[0].setCurrentValue(value, weak_from_this()); };
-
 };
 
 class GraphicalOutputSingle : public GraphicalLogicComponent {

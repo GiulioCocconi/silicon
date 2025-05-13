@@ -226,7 +226,6 @@ void LogiFlowWindow::setComponentPlacingMode()
   diagramScene->setInteractionMode(InteractionMode::COMPONENT_PLACING_MODE);
 }
 
-
 void LogiFlowWindow::updateStatus()
 {
   QString modeMsg = "Interaction Mode: ";

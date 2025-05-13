@@ -45,14 +45,14 @@ This project is currently being developed using EMACS. The following packages wi
 
 SILICON uses [Nix](https://nixos.org) and [CMAKE](https://cmake.org) in order to manage dependencies. It's recomended to use [Ninja Build](https://ninja-build.org) as a generator. Run the commands below to compile the develop edition of SILICON:
 
-```
-git clone github.com/GiulioCocconi/silicon
+```shell
+git clone https://github.com/GiulioCocconi/silicon
 cd silicon
 git checkout develop
 nix-shell
 mkdir build
 cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -Bbuild
-ninja
+ninja -C build
 ```
 
 Clangd uses the file `compile_commands.json`, that should be placed in the project root. CMAKE generates it in the build subdirectory so you need to symlink it:
@@ -60,4 +60,10 @@ Clangd uses the file `compile_commands.json`, that should be placed in the proje
 ```
 cd <project-root>
 ln -s ./build/compile_commands.json compile_commands.json
+```
+
+In order to be able to use the `git hooks` written for this project you need to set a specific config value (it's local to the project so you shouldn't need to worry):
+
+```shell
+git config core.hooksPath hooks/
 ```
