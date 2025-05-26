@@ -196,8 +196,11 @@ void LogiFlowWindow::contextMenuEvent(QContextMenuEvent* event)
 void LogiFlowWindow::del()
 {
   for (auto selectedComponent : diagramScene->selectedItems()) {
-    diagramScene->removeItem(selectedComponent);
-    delete selectedComponent;
+    // Trying to remove non user-defined components leads to crash
+    if (selectedComponent->type() > UNKNOWN) {
+      diagramScene->removeItem(selectedComponent);
+      delete selectedComponent;
+    }
   }
 }
 
@@ -240,4 +243,18 @@ void LogiFlowWindow::updateStatus()
   }
 
   statusBar()->showMessage(modeMsg);
+}
+
+void LogiFlowWindow::rotate()
+{
+  auto selectedComponents =
+      std::ranges::views::filter(diagramScene->selectedItems(),
+                                 [](auto el) { return el.type() == COMPONENT; })
+      | std::ranges::to<std::vector>();
+
+  if (selectedComponents.size() != 1)
+    return;
+
+  auto component = selectedComponents[0];
+  component->rotate();
 }
