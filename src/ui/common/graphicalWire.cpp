@@ -135,7 +135,7 @@ std::vector<QPointF> GraphicalWire::getJunctions() const
       const bool isSameWire =
           (*first)->firstPoint() == lastPoint || (*first)->lastPoint() == firstPoint;
 
-      if ((firstPointIntersects || lastPointIntersects) && !isSameWire) {
+      if (intersects && !isSameWire) {
         junctions.push_back(firstPointIntersects ? firstPoint : lastPoint);
       } else if (isSameWire) {
         // TODO: MERGE WIRES

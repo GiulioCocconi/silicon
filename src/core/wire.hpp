@@ -66,10 +66,10 @@ public:
 
   void setCurrentState(State newState, const Component_weakPtr& requestedBy);
 
-  void addUpdateAction(const action_ptr a);
-  void deleteUpdateAction(const action_ptr a);
+  void addUpdateAction(const action_ptr& a);
+  void deleteUpdateAction(const action_ptr& a);
 
-  static void  safeSetCurrentState(std::weak_ptr<Wire> w, State newState,
+  static void  safeSetCurrentState(const std::weak_ptr<Wire>& w, State newState,
                                    const Component_weakPtr& requestedBy);
   static State safeGetCurrentState(const std::weak_ptr<Wire>& w);
 };
@@ -89,9 +89,9 @@ public:
 
   int forceSetCurrentValue(const unsigned int value);
 
-  int setCurrentValue(const unsigned int value, const Component_weakPtr requestedBy);
+  int setCurrentValue(unsigned int value, const Component_weakPtr& requestedBy);
 
-  [[nodiscard]] int getCurrentValue() const;
+  [[nodiscard]] unsigned int getCurrentValue() const;
 
   [[nodiscard]] bool isInErrorState() const;
 
