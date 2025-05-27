@@ -72,6 +72,7 @@ void LogiFlowWindow::createActions()
   cutAct         = new QAction(Icon("cut"), tr("Cu&t"), this);
   copyAct        = new QAction(Icon("copy"), tr("&Copy"), this);
   pasteAct       = new QAction(Icon("paste"), tr("&Paste"), this);
+  rotateAct      = new QAction(Icon("rotate"), tr("&Rotate"), this);
   deleteAct      = new QAction(Icon("delete"), tr("&Delete"), this);
   aboutAct       = new QAction(Icon("info"), tr("&About"), this);
 
@@ -91,6 +92,7 @@ void LogiFlowWindow::createActions()
   redoAct->setShortcuts(QKeySequence::Redo);
   cutAct->setShortcuts(QKeySequence::Cut);
   copyAct->setShortcuts(QKeySequence::Copy);
+  rotateAct->setShortcut(Qt::AltModifier | Qt::Key_R);
   deleteAct->setShortcuts(QKeySequence::Delete);
   pasteAct->setShortcuts(QKeySequence::Paste);
 
@@ -120,6 +122,7 @@ void LogiFlowWindow::createActions()
   connect(cutAct, &QAction::triggered, this, &LogiFlowWindow::cut);
   connect(copyAct, &QAction::triggered, this, &LogiFlowWindow::copy);
   connect(pasteAct, &QAction::triggered, this, &LogiFlowWindow::paste);
+  connect(rotateAct, &QAction::triggered, this, &LogiFlowWindow::rotate);
   connect(deleteAct, &QAction::triggered, this, &LogiFlowWindow::del);
   connect(aboutAct, &QAction::triggered, this, &LogiFlowWindow::about);
 
@@ -150,6 +153,8 @@ void LogiFlowWindow::createMenus()
   editMenu->addAction(cutAct);
   editMenu->addAction(copyAct);
   editMenu->addAction(pasteAct);
+  editMenu->addAction(rotateAct);
+  editMenu->addAction(deleteAct);
   editMenu->addSeparator();
 
   helpMenu = menuBar()->addMenu(tr("&Help"));
@@ -186,12 +191,39 @@ void LogiFlowWindow::contextMenuEvent(QContextMenuEvent* event)
   menu.addAction(cutAct);
   menu.addAction(copyAct);
   menu.addAction(pasteAct);
+  menu.addAction(rotateAct);
   menu.addAction(deleteAct);
   menu.exec(event->globalPos());
 }
 #endif  // QT_NO_CONTEXTMENU
 
 /* ACTIONS IMPLEMENTATION */
+
+void LogiFlowWindow::rotate()
+{
+  qDebug() << "Rotate act!";
+  auto selectedComponents =
+      std::ranges::views::filter(diagramScene->selectedItems(),
+                                 [](auto el) { return el->type() >= COMPONENT; })
+      | std::ranges::to<std::vector>();
+
+  switch (diagramScene->getInteractionMode()) {
+    case InteractionMode::NORMAL_MODE: {
+      if (selectedComponents.size() != 1)
+        return;
+
+      auto component = qgraphicsitem_cast<GraphicalComponent*>(selectedComponents[0]);
+      component->rotate();
+      break;
+    }
+    case InteractionMode::COMPONENT_PLACING_MODE: {
+      diagramScene->getComponentToBeDrawn()->rotate();
+      break;
+    }
+
+    default: return;
+  }
+}
 
 void LogiFlowWindow::del()
 {
@@ -243,18 +275,4 @@ void LogiFlowWindow::updateStatus()
   }
 
   statusBar()->showMessage(modeMsg);
-}
-
-void LogiFlowWindow::rotate()
-{
-  auto selectedComponents =
-      std::ranges::views::filter(diagramScene->selectedItems(),
-                                 [](auto el) { return el.type() == COMPONENT; })
-      | std::ranges::to<std::vector>();
-
-  if (selectedComponents.size() != 1)
-    return;
-
-  auto component = selectedComponents[0];
-  component->rotate();
 }

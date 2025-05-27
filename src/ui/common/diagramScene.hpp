@@ -53,6 +53,8 @@ public:
     return currentInteractionMode;
   }
 
+  [[nodiscard]] GraphicalComponent* getComponentToBeDrawn();
+
   void showCSB(QPointF pos);
 
   void clearWireShadow();
