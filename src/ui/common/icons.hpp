@@ -30,7 +30,7 @@
 
 class Icon : public QIcon {
 public:
-  Icon(const QString commonName, const QSize targetSize = QSize(32, 32));
+  Icon(const QString& commonName, const QSize targetSize = QSize(32, 32));
 
 private:
   static const inline std::unordered_map<QString, QString> commonToAwesomeMap{
@@ -60,5 +60,5 @@ private:
       {"delete", "trash-solid"},
       {"xmark", "xmark-solid"}};
 
-  static QString getPathFromCommonName(QString commonName);
+  static QString getPathFromCommonName(const QString& commonName);
 };
