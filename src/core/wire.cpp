@@ -96,7 +96,7 @@ void Wire::forceSetCurrentState(const State newState)
 
   this->currentState = newState;
 
-  for (action_ptr a : this->updateActions)
+  for (const action_ptr& a : this->updateActions)
     if (a)
       (*a)();
 }
@@ -121,7 +121,7 @@ void Wire::setCurrentState(const State newState, const Component_weakPtr& reques
   this->forceSetCurrentState(s);
 }
 
-void Wire::deleteUpdateAction(const action_ptr a)
+void Wire::deleteUpdateAction(const action_ptr& a)
 {
   const auto b   = this->updateActions.begin();
   const auto e   = this->updateActions.end();
@@ -130,7 +130,7 @@ void Wire::deleteUpdateAction(const action_ptr a)
   if (pos != e)
     this->updateActions.erase(pos);
 }
-void Wire::safeSetCurrentState(std::weak_ptr<Wire> w, State newState,
+void Wire::safeSetCurrentState(const std::weak_ptr<Wire>& w, State newState,
                                const Component_weakPtr& requestedBy)
 {
   // Little hack necessary because the component's action logic doesn't know if its output
@@ -150,7 +150,7 @@ State Wire::safeGetCurrentState(const std::weak_ptr<Wire>& w)
   return lockedWire ? lockedWire->getCurrentState() : ERROR;
 }
 
-void Wire::addUpdateAction(const action_ptr a)
+void Wire::addUpdateAction(const action_ptr& a)
 {
   assert(a);
 
@@ -181,7 +181,7 @@ Bus::Bus(std::vector<Wire_ptr> busData)
 Bus::Bus(std::initializer_list<Wire_ptr> initList) : busData(initList.size())
 {
   size_t i = 0;
-  for (auto val : initList) {
+  for (const auto& val : initList) {
     busData[i++] = val;
   }
 }
@@ -189,7 +189,7 @@ Bus::Bus(std::initializer_list<Wire_ptr> initList) : busData(initList.size())
 Bus::Bus(std::initializer_list<Wire> initList) : busData(initList.size())
 {
   size_t i = 0;
-  for (auto val : initList) {
+  for (const auto& val : initList) {
     busData[i++] = std::make_shared<Wire>(val);
   }
 }
@@ -208,7 +208,7 @@ int Bus::forceSetCurrentValue(const unsigned int value)
   return (value >= (1u << this->size()));
 }
 
-int Bus::setCurrentValue(const unsigned int value, const Component_weakPtr requestedBy)
+int Bus::setCurrentValue(const unsigned int value, const Component_weakPtr& requestedBy)
 {
   for (unsigned short i = 0; i < this->size(); i++) {
     if (!this->busData[i])
@@ -219,12 +219,13 @@ int Bus::setCurrentValue(const unsigned int value, const Component_weakPtr reque
   return (value >= (1u << this->size()));
 }
 
-int Bus::getCurrentValue() const
+unsigned int Bus::getCurrentValue() const
 {
   unsigned int res = 0;
 
   for (unsigned int i = 0; i < this->size(); i++) {
-    // If the ith bit of the bus is not connected then the result MUST be 0
+    // When the ith bit of the bus is not connected then the value of the whole bus MUST
+    // be 0
     if (!this->busData[i])
       return 0;
 

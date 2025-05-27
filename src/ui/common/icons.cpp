@@ -17,7 +17,7 @@
 
 #include "icons.hpp"
 
-Icon::Icon(const QString commonName, const QSize targetSize)
+Icon::Icon(const QString& commonName, const QSize targetSize)
 {
   QSvgRenderer renderer{};
 
@@ -42,7 +42,7 @@ Icon::Icon(const QString commonName, const QSize targetSize)
   addPixmap(pixmap);
 }
 
-QString Icon::getPathFromCommonName(QString commonName)
+QString Icon::getPathFromCommonName(const QString& commonName)
 {
   auto it = commonToAwesomeMap.find(commonName);
 
