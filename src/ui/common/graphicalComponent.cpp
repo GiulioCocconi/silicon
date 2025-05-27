@@ -75,7 +75,7 @@ void GraphicalComponent::paint(QPainter* painter, const QStyleOptionGraphicsItem
   }
 }
 
-QRectF GraphicalComponent::collisionRect()
+QRectF GraphicalComponent::collisionRect() const
 {
   QPainterPath componentPath{};
   componentPath.addRect(itemShape->boundingRect());
@@ -89,6 +89,14 @@ QRectF GraphicalComponent::collisionRect()
   return componentPath.boundingRect();
 }
 
+void GraphicalComponent::rotate()
+{
+  qDebug() << "Rotating";
+  setRotation(rotation() + 90);
+  prepareGeometryChange();
+  update();
+}
+
 QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVariant& value)
 {
   // TODO: Implement with QGraphicsItem::ItemRotationChange for rotations
@@ -97,7 +105,7 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
     return QGraphicsItem::itemChange(change, value);
 
   if (change == ItemPositionChange) {
-    // 'value' is the new proposed position, snapped to the grid.
+    // 'proposedPos' is the new proposed position, snapped to the grid.
     auto proposedPos = DiagramScene::snapToGrid(value.toPointF());
 
     // Collision detection:
@@ -105,10 +113,21 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
 
     // Calculate the bounding rectangle at the *new* position in scene coordinates.
     // Use the item's bounding rectangle, offset by the proposed new position.
-    const auto newRect = this->boundingRect().translated(proposedPos);
+    const auto newRect = this->boundingRectWithoutMargins().translated(proposedPos);
 
-    // Get a list of items that would collide with this item at the new position.
-    const auto collidingItems = scene()->items(newRect, Qt::IntersectsItemBoundingRect);
+    // Rotate newRect by item's rotation centered at item most-topleft pos using
+    // QTransform
+    const auto transform = QTransform()
+                               .translate(proposedPos.x(), proposedPos.y())
+                               .rotate(rotation())
+                               .translate(-proposedPos.x(), -proposedPos.y());
+
+    const auto rotatedRect = transform.mapRect(newRect);
+
+    // Get a list of items that would collide with this item at the new (rotated)
+    // position.
+    const auto collidingItems =
+        scene()->items(rotatedRect, Qt::IntersectsItemBoundingRect);
 
     for (QGraphicsItem* collidingItem : collidingItems) {
       // Skip collision with self or children
@@ -119,8 +138,9 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
       if (collidingItem->type() >= COMPONENT) {
         this->collidingStatus = COLLIDING_WITH_COMPONENT;
         goto rejectedPos;
+      }
 
-      } else if (collidingItem->type() == WIRE) {
+      if (collidingItem->type() == WIRE) {
         // Check if the wire shape collides with the component shape excluding the port
         // points
         const auto   collidingWire = qgraphicsitem_cast<GraphicalWire*>(collidingItem);
