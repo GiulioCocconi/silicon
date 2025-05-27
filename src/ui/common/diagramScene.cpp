@@ -226,16 +226,21 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
   switch (currentInteractionMode) {
     case NORMAL_MODE: break;
     case COMPONENT_PLACING_MODE: {
-      const auto t = (SiliconTypes)componentToBeDrawn->type();
+      // Next components should inherit the type and rotation of the previous one
+      const auto type     = (SiliconTypes)componentToBeDrawn->type();
+      const auto rotation = componentToBeDrawn->rotation();
+
       if (componentToBeDrawn) {
         clearComponentShadow();
-        placeComponent(t);
+
+        // Propose the placing of the next component
+        placeComponent(type);
+        componentToBeDrawn->setRotation(rotation);
       }
       break;
     }
     case PAN_MODE: break;
     case WIRE_CREATION_MODE: {
-      // TODO: Check for collision
       if (!wireSegmentToBeDrawn) {
         // Let's start drawing the wire!
         wireSegmentToBeDrawn = new GraphicalWireSegment(cursorPos);
