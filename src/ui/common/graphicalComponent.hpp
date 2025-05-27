@@ -70,7 +70,7 @@ protected:
 
   void   paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
                QWidget* widget) override;
-  QRectF collisionRect();
+  QRectF collisionRect() const;
 
   QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
 
@@ -87,6 +87,7 @@ public slots:
 public:
   GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* parent = nullptr);
 
+  void rotate();
   bool isColliding() { return collidingStatus != NOT_COLLIDING; }
 
   virtual void

@@ -180,10 +180,7 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
 {
   const QPointF cursorPos = DiagramScene::snapToGrid(mouseEvent->scenePos());
 
-  // TODO: Print preview of component and wire while placing
   switch (currentInteractionMode) {
-    case NORMAL_MODE: break;
-    case PAN_MODE: break;
     case COMPONENT_PLACING_MODE: {
       if (!componentToBeDrawn)
         break;
@@ -213,6 +210,9 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
       wireSegmentToBeDrawn->setShowPoints(pointsToBeAdded);
       break;
     }
+
+    case NORMAL_MODE:
+    case PAN_MODE:
     case SIMULATION_MODE: break;
     default: assert(false);
   }
@@ -282,6 +282,11 @@ void DiagramScene::keyPressEvent(QKeyEvent* event)
     default: break;
   }
   QGraphicsScene::keyPressEvent(event);
+}
+
+GraphicalComponent* DiagramScene::getComponentToBeDrawn()
+{
+  return componentToBeDrawn;
 }
 
 void DiagramScene::clearWireShadow()

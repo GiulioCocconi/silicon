@@ -70,6 +70,7 @@ private slots:
   }
   void copy() {}
   void paste() {}
+  void rotate();
   void del();  // Delete is a CPP keyword
   void about() {}
 
@@ -108,6 +109,7 @@ private:
   QAction* cutAct;
   QAction* copyAct;
   QAction* pasteAct;
+  QAction* rotateAct;
   QAction* deleteAct;
   QAction* aboutAct;
 
