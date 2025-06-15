@@ -61,6 +61,8 @@ public:
   GraphicalWire* getGraphicalWire() const { return graphicalWire; }
   void           setGraphicalWire(GraphicalWire* graphicalWire);
 
+  QRectF boundingRect() const override;
+
   ~GraphicalWireSegment();
 
 private:
@@ -70,8 +72,6 @@ private:
   std::vector<QPointF> points;
   std::vector<QPointF> showPoints;
   GraphicalWire*       graphicalWire = nullptr;
-
-  QRectF boundingRect() const override;
 
   void updatePath();
 };
