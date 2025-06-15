@@ -25,7 +25,10 @@ GraphicalWire::GraphicalWire(const std::vector<GraphicalWireSegment*>& segments,
   setFlag(QGraphicsItem::ItemIsSelectable);
   setFlag(QGraphicsItem::ItemSendsGeometryChanges);
 
-  for (auto seg : segments)
+  // Ensure this item can receive mouse events
+  setAcceptedMouseButtons(Qt::AllButtons);
+
+  for (const auto seg : segments)
     addSegment(seg);
 }
 
@@ -73,8 +76,11 @@ QPainterPath GraphicalWire::shape() const
 {
   QPainterPath combinedPath{};
 
-  for (const auto segment : this->segments)
-    combinedPath.connectPath(segment->shape());
+  for (const auto segment : this->segments) {
+    assert(segment->parentItem() == this);
+    combinedPath.addPath(segment->mapToParent(segment->shape()).simplified());
+    // combinedPath.connectPath(segment->shape());
+  }
 
   return combinedPath;
 }
@@ -176,6 +182,9 @@ GraphicalWire::~GraphicalWire()
 GraphicalWireSegment::GraphicalWireSegment(QPointF firstPoint, QGraphicsItem* parent)
   : QGraphicsItem(parent)
 {
+  setFlag(QGraphicsItem::ItemSendsGeometryChanges);
+  setFlag(QGraphicsItem::ItemIsSelectable, false);
+
   points.push_back(firstPoint);
   updatePath();
 }
@@ -183,6 +192,11 @@ GraphicalWireSegment::GraphicalWireSegment(QPointF firstPoint, QGraphicsItem* pa
 void GraphicalWireSegment::setGraphicalWire(GraphicalWire* graphicalWire)
 {
   setParentItem(graphicalWire);
+
+  // The flag is deleted by QGraphicsItem::setParentItem()
+  graphicalWire->setFlag(QGraphicsItem::ItemIsSelectable);
+  graphicalWire->setFlag(QGraphicsItem::ItemSendsGeometryChanges);
+
   graphicalWire->addSegment(this);
   this->graphicalWire = graphicalWire;
 }
