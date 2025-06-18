@@ -44,3 +44,6 @@ enum SiliconTypes {
 
   LOGIFLOW_END,
 };
+
+constexpr QColor ON_COLOR       = QColor(255, 153, 85);
+constexpr QColor INTERNAL_COLOR = QColor(255, 230, 213);

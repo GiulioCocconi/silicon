@@ -272,11 +272,79 @@ void GraphicalWireSegment::updatePath()
 void GraphicalWireSegment::paint(QPainter*                       painter,
                                  const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
-  painter->setPen(QPen(Qt::blue, 3));
+  const int    size = (this->graphicalWire) ? this->graphicalWire->getBus().size() : 1;
+  const QColor color =
+      (size > 1) ? Qt::green
+                 : Qt::blue;  // Normal corlor is blue or green for multi-wire buses
+
+  painter->setPen(QPen(color, 3));
   painter->drawPath(path);
 
+  // Draw the showPath in red
   painter->setPen(QPen(Qt::red, 3));
   painter->drawPath(showPath);
+
+  if (size > 1) {
+    painter->setPen(QPen(color, 2.0));
+
+    const qreal totalLength = path.length();
+
+    if (totalLength < 2 * interval) {
+      return;  // Path is too short to draw any slashes
+    }
+
+    int counter = 0;
+    // Iterate along the path's length
+    for (qreal dist = interval; dist < totalLength; dist += interval) {
+      /* 0   1   2   3   4   5   6 *
+       * |  [ ]  |       |  [ ]  | */
+
+      const bool drawSlash = counter % 2 == 0;
+      const bool drawBox   = (counter - 1) % 4 == 0;
+
+      // Calculate the percentage along the path for the current distance
+      qreal percent = path.percentAtLength(dist);
+      painter->save();
+
+      // Get the point and angle at that percentage
+      QPointF centerPoint = path.pointAtPercent(percent);
+      qreal   pathAngle   = path.angleAtPercent(percent);
+
+      // Move the coordinate system's origin to the center of our slash
+      painter->translate(centerPoint);
+
+      // Rotate the coordinate system. `angleAtPercent()` is counter-clockwise whilst
+      // `rotate()` is clockwise, we use a negative angle to align.
+      painter->rotate(-pathAngle);
+
+      if (drawSlash) {
+        // Now that the coordinate system is aligned with the path,
+        // we can draw a simple rotated line.
+        painter->rotate(slashAngle);
+
+        constexpr qreal halfLen = slashLength / 2.0;
+        painter->drawLine(QPointF(-halfLen, 0), QPointF(halfLen, 0));
+      }
+
+      else if (drawBox) {
+        // Rotate the coordinate system back to the original position in order not to
+        // write the size upside down
+        if (pathAngle == 180)
+          painter->rotate(180);
+
+        const QRect   box  = QRect(-boxWidth / 2, -boxHeight / 2, boxWidth, boxHeight);
+        const QString text = QString("0..%1").arg(size - 1);
+
+        painter->setBrush(INTERNAL_COLOR);
+        painter->drawRoundedRect(box, 5, 5);
+        painter->drawText(box, text, QTextOption(Qt::AlignCenter));
+      }
+
+      // Restore the painter's state to what it was before the save()
+      painter->restore();
+      counter++;
+    }
+  }
 }
 
 // FIXME: The path shape behaves like the path is closed even if it's not.
@@ -285,7 +353,8 @@ QRectF GraphicalWireSegment::boundingRect() const
 {
   return this->path.boundingRect()
       .united(this->showPath.boundingRect())
-      .adjusted(-5, -5, 5, 5);
+      .adjusted(-5, -5, 5, 5)
+      .adjusted(-boxHeight / 2, -boxHeight / 2, boxHeight / 2, boxHeight / 2);
 }
 
 QPainterPath GraphicalWireSegment::shape() const

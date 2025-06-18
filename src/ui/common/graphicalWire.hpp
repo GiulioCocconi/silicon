@@ -27,6 +27,7 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QPoint>
+#include <QRect>
 
 #include <ui/common/enums.hpp>
 
@@ -74,6 +75,13 @@ private:
   GraphicalWire*       graphicalWire = nullptr;
 
   void updatePath();
+
+  static constexpr int interval    = 60;
+  static constexpr int slashLength = 20;
+  static constexpr int slashAngle  = 135;
+
+  static constexpr int boxHeight = 20;
+  static constexpr int boxWidth  = interval / 2;
 };
 
 class GraphicalWire : public QGraphicsItem {
