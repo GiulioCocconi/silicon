@@ -7,8 +7,17 @@ Since it's a pre-alpha product, there are quite a lot of things to be done:
 
 _Common_
 
-- [ ] GUI with QT6
-- [ ] Deployment (setup packages for Win & Mac). See [here](https://www.qt.io/blog/cmake-deployment-api).
+- [ ] GUI with QT6:
+    * [ ] Implement logic for moving graphicalWires,
+    * [ ] Use [QSettings](https://doc.qt.io/qt-6/qsettings.html) to save user preferences
+- [ ] Multi-OS support
+- [ ] Documentation
+    * [ ] [Doxygen](https://www.doxygen.nl/index.html)?
+    * [ ] [Read the Docs](https://readthedocs.org/)?
+- [ ] CI/CD
+    * [ ] [GitHub Actions](https://github.com/features/actions)
+    * [ ] Multi-OS support
+        * [ ] Deployment (setup packages for Win & Mac). See [here](https://www.qt.io/blog/cmake-deployment-api).
 
 _Logic circuits (Silicon LogiFlow)_
 
@@ -43,13 +52,24 @@ This project is currently being developed using EMACS. The following packages wi
 
 ## Compiling develop edition
 
-SILICON uses [Nix](https://nixos.org) and [CMAKE](https://cmake.org) in order to manage dependencies. It's recomended to use [Ninja Build](https://ninja-build.org) as a generator. Run the commands below to compile the develop edition of SILICON:
+SILICON uses [Nix](https://nixos.org) and [CMAKE](https://cmake.org) in order to manage dependencies. It's recomended to use [Ninja Build](https://ninja-build.org) as a generator.
+
+You can install Nix using the [official instructions](https://nixos.org/download.html),
+however I personally recommend using [Lix](https://lix.systems/install), a modern Nix fork, which can be installed running the following command in a Linux system:
+
+```shell
+curl -sSf -L https://install.lix.systems/lix | sh -s -- install
+```
+
+*Building on Windows is not supported yet, MacOS is untested.*
+
+Run the commands below to compile the develop edition of SILICON:
 
 ```shell
 git clone https://github.com/GiulioCocconi/silicon
 cd silicon
 git checkout develop
-nix-shell
+nix-shell # It automatically installs CMake and Ninja
 mkdir build
 cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -Bbuild
 ninja -C build
