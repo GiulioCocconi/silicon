@@ -28,7 +28,8 @@ GraphicalComponent::GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* pare
   setAcceptHoverEvents(true);
   setAcceptedMouseButtons(Qt::AllButtons);
 
-  setItemShape(shape);
+  if (shape)
+    setItemShape(shape);
 }
 
 void GraphicalComponent::setItemShape(QGraphicsItem* shape)
@@ -134,7 +135,6 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
       if (collidingItem == this || childItems().contains(collidingItem))
         continue;
 
-      qDebug() << collidingItem->type();
       if (collidingItem->type() >= COMPONENT) {
         this->collidingStatus = COLLIDING_WITH_COMPONENT;
         goto rejectedPos;
@@ -221,8 +221,13 @@ void GraphicalComponent::setPorts(
 
 void GraphicalComponent::setPortLine(Port* port)
 {
-  const auto width  = static_cast<int>(getItemShape()->boundingRect().width());
-  const auto height = static_cast<int>(getItemShape()->boundingRect().height());
+  assert(itemShape);
+
+  const auto shapeRect    = itemShape->boundingRect();
+  const auto topLeftX     = shapeRect.topLeft().x();
+  const auto topLeftY     = shapeRect.topLeft().y();
+  const auto bottomRightX = shapeRect.bottomRight().x();
+  const auto bottomRightY = shapeRect.bottomRight().y();
 
   const auto portPos = port->getPosition();
   const auto portX   = portPos.x();
@@ -231,20 +236,20 @@ void GraphicalComponent::setPortLine(Port* port)
   QPoint projectionOnShape{};
 
   // Left side
-  if (portX < 0) {
-    projectionOnShape = QPoint(0, portY);
+  if (portX < topLeftX) {
+    projectionOnShape = QPoint(topLeftX, portY);
   }
   // Right side
-  else if (portX > width)
-    projectionOnShape = QPoint(width, portY);
+  else if (portX > bottomRightX)
+    projectionOnShape = QPoint(bottomRightX, portY);
 
   // Up side
-  else if (portY < 0)
-    projectionOnShape = QPoint(portX, 0);
+  else if (portY < topLeftY)
+    projectionOnShape = QPoint(portX, topLeftY);
 
   // Down side
-  else if (portY > height)
-    projectionOnShape = QPoint(portX, height);
+  else if (portY > bottomRightY)
+    projectionOnShape = QPoint(portX, bottomRightY);
   else
     assert(false);
 
