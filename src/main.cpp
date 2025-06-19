@@ -31,7 +31,7 @@
 
 int siliconMain(int argc, char** argv)
 {
-  QApplication app(argc, argv);
+  const QApplication app(argc, argv);
   app.setApplicationName("SILICON");
   app.setStyle("Fusion");
   app.setApplicationVersion(SILICON_VERSION);
@@ -39,6 +39,7 @@ int siliconMain(int argc, char** argv)
   // LOAD THE FONTS
   QFontDatabase::addApplicationFont(":/fonts/Chango.ttf");
   QFontDatabase::addApplicationFont(":/fonts/Quicksand.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/NovaMono.ttf");
 
   app.setFont(QFont("Quicksand", app.font().pointSize() * 1.2, QFont::Medium));
 

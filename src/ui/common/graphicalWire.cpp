@@ -284,8 +284,9 @@ void GraphicalWireSegment::paint(QPainter*                       painter,
   painter->setPen(QPen(Qt::red, 3));
   painter->drawPath(showPath);
 
-  if (size > 1) {
+  if (true || size > 1) {
     painter->setPen(QPen(color, 2.0));
+    painter->setFont(QFont("NovaMono", painter->font().pointSize() * 0.8));
 
     const qreal totalLength = path.length();
 
@@ -333,7 +334,7 @@ void GraphicalWireSegment::paint(QPainter*                       painter,
           painter->rotate(180);
 
         const QRect   box  = QRect(-boxWidth / 2, -boxHeight / 2, boxWidth, boxHeight);
-        const QString text = QString("0..%1").arg(size - 1);
+        const QString text = QString("%1..0").arg(size - 1);
 
         painter->setBrush(INTERNAL_COLOR);
         painter->drawRoundedRect(box, 5, 5);

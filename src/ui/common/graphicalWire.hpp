@@ -81,7 +81,7 @@ private:
   static constexpr int slashAngle  = 135;
 
   static constexpr int boxHeight = 20;
-  static constexpr int boxWidth  = interval / 2;
+  static constexpr int boxWidth  = interval * 0.6;
 };
 
 class GraphicalWire : public QGraphicsItem {

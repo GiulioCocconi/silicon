@@ -102,7 +102,8 @@ qt_add_resources(Silicon "images" BASE ${resources_dir}
 qt_add_resources(Silicon "fonts" BASE ${resources_dir}
         FILES
         ${resources_dir}/fonts/Chango.ttf
-        ${resources_dir}/fonts/Quicksand.ttf)
+        ${resources_dir}/fonts/Quicksand.ttf
+        ${resources_dir}/fonts/NovaMono.ttf)
 
 qt_add_resources(Silicon "icons" BASE ${resources_dir}
         FILES
@@ -161,6 +162,7 @@ if (SILICON_BUILD_TESTS)
         FetchContent_Declare(
                 GTest
                 GIT_REPOSITORY https://github.com/google/googletest.git
+                GIT_TAG main
         )
         FetchContent_MakeAvailable(GTest)
 
