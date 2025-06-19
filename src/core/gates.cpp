@@ -18,8 +18,6 @@
 
 #include "gates.hpp"
 
-#include <utility>
-
 Gate::Gate(const std::vector<Wire_ptr>& inputs, Wire_ptr output, std::string name)
 {
   assert(!inputs.empty());
