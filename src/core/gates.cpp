@@ -60,7 +60,7 @@ OrGate::OrGate(const std::vector<Wire_ptr>& inputs, Wire_ptr output)
 NotGate::NotGate(Wire_ptr input, Wire_ptr output) : Gate({input}, output, "Not")
 {
   this->setAction([this] {
-    State s = Wire::safeGetCurrentState(inputs[0][0]);
+    State s = !Wire::safeGetCurrentState(inputs[0][0]);
 
     Wire::safeSetCurrentState(this->outputs[0][0], s, weak_from_this());
   });
