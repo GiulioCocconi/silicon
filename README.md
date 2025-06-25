@@ -5,6 +5,7 @@ An Open Source Suite for simulating Circuits, Finite State Machines and Microcon
 
 Since it's a pre-alpha product, there are quite a lot of things to be done:
 
+A roadmap (+ various diagrams/ideas) is available [here](https://www.canva.com/design/DAGqb7QaA-w/_ld_l41b__KKIG6wlUhFLg/view)![Canva](https://img.shields.io/badge/Canva-%2300C4CC.svg?style=for-the-badge&logo=Canva&logoColor=white), written partly in Italian.
 _Common_
 
 - [ ] GUI with QT6:
