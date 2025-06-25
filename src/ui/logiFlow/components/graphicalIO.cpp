@@ -18,8 +18,6 @@
 
 #include "graphicalIO.hpp"
 
-// TODO: IMPLEMENT COMPONENT LOGIC
-
 GraphicalInputSingle::GraphicalInputSingle(std::string name, QGraphicsItem* parent)
   : GraphicalLogicComponent(std::make_shared<DummyInputComponent>(Bus(1), name),
                             new QGraphicsSvgItem(":/other_components/input_off.svg"),

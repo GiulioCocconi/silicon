@@ -21,6 +21,7 @@
 #include "ui/common/graphicalWire.hpp"
 #include "ui/logiFlow/components/graphicalGates.hpp"
 #include "ui/logiFlow/components/graphicalIO.hpp"
+#include "ui/logiFlow/components/graphicalUtils.hpp"
 
 DiagramScene::DiagramScene(QObject* parent) : QGraphicsScene(parent)
 {
@@ -31,6 +32,20 @@ DiagramScene::DiagramScene(QObject* parent) : QGraphicsScene(parent)
   connect(csb, &ComponentSearchBox::requestHide, this, &DiagramScene::hideCSB);
   connect(csb, &ComponentSearchBox::selectedComponent, this,
           &DiagramScene::placeComponent);
+
+  auto ws      = new GraphicalWireSplitter();
+  auto wm      = new GraphicalWireMerger();
+  auto input1  = new GraphicalInputSingle();
+  auto input2  = new GraphicalInputSingle();
+  auto output1 = new GraphicalOutputSingle();
+  auto output2 = new GraphicalOutputSingle();
+
+  addComponent(ws, QPointF(200, 0));
+  addComponent(wm, QPointF(0, 0));
+  addComponent(input1, QPointF(-70, -100));
+  addComponent(input2, QPointF(-120, -100));
+  addComponent(output1, QPointF(230, -100));
+  addComponent(output2, QPointF(280, -100));
 }
 
 QPointF DiagramScene::snapToGrid(const QPointF point)
@@ -137,8 +152,9 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
 
   if (mode == SIMULATION_MODE || currentMode == SIMULATION_MODE) {
     // If we are goint to simulation mode then calculate the wires
-    if (mode == SIMULATION_MODE)
+    if (mode == SIMULATION_MODE) {
       calculateWiresForComponents();
+    }
 
     // RESTORE INPUTS TO NEUTRAL STATE
 
@@ -226,11 +242,11 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
   switch (currentInteractionMode) {
     case NORMAL_MODE: break;
     case COMPONENT_PLACING_MODE: {
-      // Next components should inherit the type and rotation of the previous one
-      const auto type     = (SiliconTypes)componentToBeDrawn->type();
-      const auto rotation = componentToBeDrawn->rotation();
-
       if (componentToBeDrawn) {
+        // Next components should inherit the type and rotation of the previous one
+        const auto type     = (SiliconTypes)componentToBeDrawn->type();
+        const auto rotation = componentToBeDrawn->rotation();
+
         clearComponentShadow();
 
         // Propose the placing of the next component
@@ -289,7 +305,7 @@ void DiagramScene::keyPressEvent(QKeyEvent* event)
   QGraphicsScene::keyPressEvent(event);
 }
 
-GraphicalComponent* DiagramScene::getComponentToBeDrawn()
+GraphicalComponent* DiagramScene::getComponentToBeDrawn() const
 {
   return componentToBeDrawn;
 }
@@ -359,37 +375,50 @@ void DiagramScene::calculateWiresForComponents() const
           [](auto item) { return qgraphicsitem_cast<GraphicalLogicComponent*>(item); })
       | std::ranges::to<std::vector>();
 
-  for (const GraphicalLogicComponent* component : components) {
-    assert(component);
+  for (const GraphicalLogicComponent* graphicalComponent : components) {
+    assert(graphicalComponent);
 
     // Disconnect the component from all wires (TODO: Make more efficient)
-    component->getComponent()->clearWires();
+    graphicalComponent->getComponent()->clearWires();
 
-    // Check for wire collision
+    // Wires colliding with the component
     auto collidingWires =
-        collidingItems(component)
+        collidingItems(graphicalComponent)
         | std::views::filter([](auto el) { return el->type() == SiliconTypes::WIRE; })
         | std::views::transform(
             [](auto el) { return qgraphicsitem_cast<GraphicalWire*>(el); })
         | std::ranges::to<std::vector>();
 
-    // Find the GraphicalWires colliding with port
-    for (const GraphicalWire* wire : collidingWires) {
+    // For each wire that collides with the component we need to find the port the wire
+    // is connected to
+
+    for (GraphicalWire* wire : collidingWires) {
       const auto vertices = wire->getVertices();
 
-      for (const auto [index, p] : std::views::enumerate(component->getInputPorts())) {
-        const auto portPositionInScene = component->mapToScene(p->getPosition());
+      // Check for collision with input ports
+      for (const auto [index, p] :
+           std::views::enumerate(graphicalComponent->getInputPorts())) {
+        const auto portPositionInScene = graphicalComponent->mapToScene(p->getPosition());
         const auto findResult          = std::ranges::find(vertices, portPositionInScene);
         if (findResult != vertices.end()) {
-          component->getComponent()->setInput(index, wire->getBus());
+          // If it collides with an input port then we need to set the corresponding input
+          // to the wire's bus itself
+          graphicalComponent->getComponent()->setInput(index, wire->getBus());
         }
       }
 
-      for (const auto [index, p] : std::views::enumerate(component->getOutputPorts())) {
-        const auto portPositionInScene = component->mapToScene(p->getPosition());
+      for (const auto [index, p] :
+           std::views::enumerate(graphicalComponent->getOutputPorts())) {
+        const auto portPositionInScene = graphicalComponent->mapToScene(p->getPosition());
         const auto findResult          = std::ranges::find(vertices, portPositionInScene);
         if (findResult != vertices.end()) {
-          component->getComponent()->setOutput(index, wire->getBus());
+          // If it collides with an output port then we need to set the wire dimension to
+          // match the output dimension and set the corresponding output to the wire's bus
+          // itself
+          auto outputSize =
+              graphicalComponent->getComponent()->getOutputs()[index].size();
+          wire->setBusSize(outputSize);
+          graphicalComponent->getComponent()->setOutput(index, wire->getBus());
         }
       }
     }
@@ -426,6 +455,7 @@ void DiagramScene::placeComponent(const SiliconTypes type)
 {
   assert(!componentToBeDrawn);
   switch (type) {
+    case UNKNOWN: assert(false && "Unknown component");
     case SINGLE_INPUT: componentToBeDrawn = new GraphicalInputSingle(); break;
     case SINGLE_OUTPUT: componentToBeDrawn = new GraphicalOutputSingle(); break;
     case AND_GATE: componentToBeDrawn = new GraphicalAnd(); break;
@@ -434,6 +464,8 @@ void DiagramScene::placeComponent(const SiliconTypes type)
     case NOR_GATE: componentToBeDrawn = new GraphicalNor(); break;
     case NOT_GATE: componentToBeDrawn = new GraphicalNot(); break;
     case XOR_GATE: componentToBeDrawn = new GraphicalXor(); break;
+    case WIRE_SPLITTER: componentToBeDrawn = new GraphicalWireSplitter(); break;
+    case WIRE_MERGER: componentToBeDrawn = new GraphicalWireMerger(); break;
     case HALF_ADDER:
     case FULL_ADDER:
     default: assert(false && "Component not implemented");

@@ -62,6 +62,12 @@ void GraphicalWire::removeSegment(const GraphicalWireSegment* segment)
   }
 }
 
+void GraphicalWire::setBusSize(const unsigned int size)
+{
+  this->bus.setSize(size);
+  prepareGeometryChange();
+}
+
 QRectF GraphicalWire::boundingRect() const
 {
   QRectF rect{};
@@ -272,10 +278,8 @@ void GraphicalWireSegment::updatePath()
 void GraphicalWireSegment::paint(QPainter*                       painter,
                                  const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
-  const int    size = (this->graphicalWire) ? this->graphicalWire->getBus().size() : 1;
-  const QColor color =
-      (size > 1) ? Qt::green
-                 : Qt::blue;  // Normal corlor is blue or green for multi-wire buses
+  const int    size  = (this->graphicalWire) ? this->graphicalWire->getBus().size() : 1;
+  const QColor color = (size > 1) ? Qt::darkGreen : Qt::blue;
 
   painter->setPen(QPen(color, 3));
   painter->drawPath(path);
@@ -284,7 +288,7 @@ void GraphicalWireSegment::paint(QPainter*                       painter,
   painter->setPen(QPen(Qt::red, 3));
   painter->drawPath(showPath);
 
-  if (true || size > 1) {
+  if (size > 1) {
     painter->setPen(QPen(color, 2.0));
     painter->setFont(QFont("NovaMono", painter->font().pointSize() * 0.8));
 
@@ -319,8 +323,8 @@ void GraphicalWireSegment::paint(QPainter*                       painter,
       painter->rotate(-pathAngle);
 
       if (drawSlash) {
-        // Now that the coordinate system is aligned with the path,
-        // we can draw a simple rotated line.
+        // Now that the coordinate system is aligned with the path we can draw a simple
+        // rotated line.
         painter->rotate(slashAngle);
 
         constexpr qreal halfLen = slashLength / 2.0;
@@ -334,7 +338,7 @@ void GraphicalWireSegment::paint(QPainter*                       painter,
           painter->rotate(180);
 
         const QRect   box  = QRect(-boxWidth / 2, -boxHeight / 2, boxWidth, boxHeight);
-        const QString text = QString("%1..0").arg(size - 1);
+        const QString text = QString("%1").arg(size);
 
         painter->setBrush(INTERNAL_COLOR);
         painter->drawRoundedRect(box, 5, 5);
@@ -367,7 +371,7 @@ QPainterPath GraphicalWireSegment::shape() const
 bool GraphicalWireSegment::isPointOnPath(const QPointF point)
 {
   // Add a small tolerance for point detection
-  constexpr double tolerance = 5.0;  // Adjust based on your needs
+  constexpr double tolerance = 5.0;
 
   if (points.empty())
     return false;
