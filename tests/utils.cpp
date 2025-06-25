@@ -16,37 +16,32 @@
 
  */
 
-#pragma once
-#include <QGraphicsItem>
+#include "tests.hpp"
 
-enum SiliconTypes {
-  UNKNOWN = QGraphicsItem::UserType,
-  PORT,
-  WIRE,
-  WIRE_SEGMENT,
-  WIRE_JUNCTION,
+#include <extraComponents/utils.hpp>
 
-  /* LogiFlow */
-  COMPONENT = WIRE_JUNCTION + 10,
-  GENERIC_IO,
-  SINGLE_INPUT, /* Logiflow start */
-  SINGLE_OUTPUT,
+TEST(UtilsTest, WireMergerCase)
+{
+  auto a = std::make_shared<Wire>(State::LOW);
+  auto b = std::make_shared<Wire>(State::HIGH);
 
-  /* Components */
-  WIRE_SPLITTER,
-  WIRE_MERGER,
+  auto bus = Bus(2);
 
-  AND_GATE,
-  NAND_GATE,
-  OR_GATE,
-  NOR_GATE,
-  NOT_GATE,
-  XOR_GATE,
-  HALF_ADDER,
-  FULL_ADDER,
+  WireMerger wm = WireMerger({{a}, {b}}, bus);
+  a->forceSetCurrentState(State::HIGH);
 
-  LOGIFLOW_END,
-};
+  ASSERT_EQ(bus.getCurrentValue(), 3);
+}
 
-constexpr QColor ON_COLOR       = QColor(255, 153, 85);
-constexpr QColor INTERNAL_COLOR = QColor(255, 230, 213);
+TEST(UtilsTest, WireSplitterCase)
+{
+  auto a = std::make_shared<Wire>();
+  auto b = std::make_shared<Wire>();
+
+  auto bus = Bus(2);
+  bus.forceSetCurrentValue(2);
+
+  WireSplitter ws = WireSplitter(bus, {{a}, {b}});
+  ASSERT_EQ(a->getCurrentState(), State::LOW);
+  ASSERT_EQ(b->getCurrentState(), State::HIGH);
+}

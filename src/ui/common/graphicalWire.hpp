@@ -96,16 +96,18 @@ public:
   void removeSegment(const GraphicalWireSegment* segment);
 
   void setBus(Bus bus) { this->bus = bus; }
-  Bus  getBus() const { return bus; }
+  void setBusSize(const unsigned int size);
+
+  Bus getBus() const { return bus; }
 
   void clearBusState();
 
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;
 
-  GraphicalWireSegment* segmentAtPoint(QPointF point) const;
-  std::vector<QPointF>  getJunctions() const;
-  std::vector<QPointF>  getVertices() const;
+  [[nodiscard]] GraphicalWireSegment* segmentAtPoint(QPointF point) const;
+  [[nodiscard]] std::vector<QPointF>  getJunctions() const;
+  [[nodiscard]] std::vector<QPointF>  getVertices() const;
   ~GraphicalWire();
 
   QPainterPath shape() const override;

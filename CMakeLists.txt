@@ -38,7 +38,8 @@ set(COMMON_SOURCE_FILES
         ${src_dir}/core/component.cpp)
 
 set(EXTRA_COMPONENTS_SOURCE_FILES
-        ${src_dir}/extraComponents/arithmetic.cpp)
+        ${src_dir}/extraComponents/arithmetic.cpp
+        ${src_dir}/extraComponents/utils.cpp)
 
 set(UI_SOURCE_FILES
         ${src_dir}/ui/common/componentSearchBox.cpp
@@ -50,6 +51,7 @@ set(UI_SOURCE_FILES
         ${src_dir}/ui/logiFlow/components/graphicalLogicComponent.cpp
         ${src_dir}/ui/logiFlow/components/graphicalIO.cpp
         ${src_dir}/ui/logiFlow/components/graphicalGates.cpp
+        ${src_dir}/ui/logiFlow/components/graphicalUtils.cpp
         ${src_dir}/ui/logiFlow/logiFlowWindow.cpp)
 
 set(CMAKE_COLOR_DIAGNOSTICS ON)

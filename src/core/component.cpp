@@ -50,6 +50,10 @@ void Component::setInputs(const std::vector<Bus>& newInputs)
   if (this->inputs == newInputs)
     return;
 
+  if (this->inputs.size() == 0) {
+    this->inputs = newInputs;
+  }
+
   for (const auto& [index, bus] : std::views::enumerate(newInputs)) {
     setInput(index, bus);
   }

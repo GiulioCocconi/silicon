@@ -138,8 +138,10 @@ void Wire::safeSetCurrentState(const std::weak_ptr<Wire>& w, State newState,
   // existence every time it runs.
 
   const auto lockedWire = w.lock();
-  if (!lockedWire)
+  if (!lockedWire) {
+    std::cout << "Wire not found";
     return;
+  }
 
   lockedWire->setCurrentState(newState, requestedBy);
 }
@@ -161,12 +163,15 @@ void Wire::addUpdateAction(const action_ptr& a)
   (*a)();
 }
 
-Bus::Bus(unsigned short size)
+Bus::Bus(const unsigned short size)
 {
-  this->busData = std::vector<Wire_ptr>(size);
+  this->busData = std::vector(size, std::make_shared<Wire>(State::ERROR));
+}
 
-  for (auto& w : this->busData)
-    w = std::make_shared<Wire>(State::ERROR);
+void Bus::setSize(const unsigned short size)
+{
+  this->busData.resize(size, std::make_shared<Wire>(State::ERROR));
+  assert(this->busData.size() == size);
 }
 
 Bus::Bus(std::vector<Wire_ptr> busData)
