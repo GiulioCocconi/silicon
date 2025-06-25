@@ -43,8 +43,7 @@ int siliconMain(int argc, char** argv)
 
   app.setFont(QFont("Quicksand", app.font().pointSize() * 1.2, QFont::Medium));
 
-  // TODO: Create an icon!!!
-  // app.setWindowIcon(QIcon)
+  app.setWindowIcon(QPixmap(":/app_icon.svg"));
 
   // Command Line Parser
 
