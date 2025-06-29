@@ -27,6 +27,7 @@
 
 #include <core/gates.hpp>
 #include <core/wire.hpp>
+#include <ui/common/icons.hpp>
 #include <ui/logiFlow/logiFlowWindow.hpp>
 
 int siliconMain(int argc, char** argv)
@@ -43,7 +44,7 @@ int siliconMain(int argc, char** argv)
 
   app.setFont(QFont("Quicksand", app.font().pointSize() * 1.2, QFont::Medium));
 
-  app.setWindowIcon(QPixmap(":/app_icon.svg"));
+  QApplication::setWindowIcon(Icon("silicon", {QSize(32, 32), QSize(128, 128)}));
 
   // Command Line Parser
 
