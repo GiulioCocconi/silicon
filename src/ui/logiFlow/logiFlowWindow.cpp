@@ -52,6 +52,8 @@ LogiFlowWindow::LogiFlowWindow()
 
   layout->addWidget(diagramView);
 
+  aboutDialog = new AboutDialog("Silicon", this);
+
   createActions();
   createMenus();
   createToolBar();
@@ -234,6 +236,11 @@ void LogiFlowWindow::del()
       delete selectedComponent;
     }
   }
+}
+
+void LogiFlowWindow::about()
+{
+  aboutDialog->show();
 }
 
 void LogiFlowWindow::setNormalMode()

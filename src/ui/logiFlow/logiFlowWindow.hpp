@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "ui/common/aboutDialog.hpp"
+
 #include <QBrush>
 #include <QColor>
 #include <QDockWidget>
@@ -72,7 +74,7 @@ private slots:
   void paste() {}
   void rotate();
   void del();  // Delete is a CPP keyword
-  void about() {}
+  void about();
 
   void setNormalMode();
   void setPanMode();
@@ -121,4 +123,6 @@ private:
   QAction* setComponentPlacingModeAct;
 
   QLabel* infoLabel;
+
+  AboutDialog* aboutDialog;
 };
