@@ -32,20 +32,6 @@ DiagramScene::DiagramScene(QObject* parent) : QGraphicsScene(parent)
   connect(csb, &ComponentSearchBox::requestHide, this, &DiagramScene::hideCSB);
   connect(csb, &ComponentSearchBox::selectedComponent, this,
           &DiagramScene::placeComponent);
-
-  auto ws      = new GraphicalWireSplitter();
-  auto wm      = new GraphicalWireMerger();
-  auto input1  = new GraphicalInputSingle();
-  auto input2  = new GraphicalInputSingle();
-  auto output1 = new GraphicalOutputSingle();
-  auto output2 = new GraphicalOutputSingle();
-
-  addComponent(ws, QPointF(200, 0));
-  addComponent(wm, QPointF(0, 0));
-  addComponent(input1, QPointF(-70, -100));
-  addComponent(input2, QPointF(-120, -100));
-  addComponent(output1, QPointF(230, -100));
-  addComponent(output2, QPointF(280, -100));
 }
 
 QPointF DiagramScene::snapToGrid(const QPointF point)
