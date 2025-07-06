@@ -19,16 +19,13 @@ AboutDialog::AboutDialog(const QString& title, QWidget* parent) : QDialog(parent
   setWindowTitle(QString("About %1").arg(title));
   setFixedSize(600, 500);
 
-  QVBoxLayout* mainLayout = new QVBoxLayout(this);
-  QHBoxLayout* topLayout  = new QHBoxLayout();
-
   const auto icon = QApplication::windowIcon();
   assert(!icon.isNull());
 
-  const auto titleLabel = new QLabel(title, this);
+  titleLabel = new QLabel(title, this);
   titleLabel->setFont(QFont("Chango", 50, QFont::Bold));
 
-  const auto iconLabel = new QLabel(this);
+  iconLabel = new QLabel(this);
   iconLabel->setPixmap(icon.pixmap(QSize(128, 128)));
   iconLabel->setScaledContents(true);
 
@@ -37,13 +34,6 @@ AboutDialog::AboutDialog(const QString& title, QWidget* parent) : QDialog(parent
   topLayout->addWidget(titleLabel, 80);
 
   mainLayout->addLayout(topLayout);
-
-  auto explainatoryText = new QLabel(
-      QString("This software is a part of the SILICON suite (v. %1), developed by "
-              "Giulio Cocconi and released under the GNU General Public License "
-              "v. 3.0.\n\n It makes use of the following licensed resources:")
-          .arg(SILICON_VERSION),
-      this);
 
   explainatoryText->setWordWrap(true);
 
@@ -66,7 +56,7 @@ AboutDialog::AboutDialog(const QString& title, QWidget* parent) : QDialog(parent
 void AboutDialog::loadLicenses()
 {
   if (this->licenseText.isEmpty()) {
-    QDir dir(":/licenses/");
+    const QDir dir(":/licenses/");
 
     QStringList fileList = dir.entryList(QDir::Files);
 

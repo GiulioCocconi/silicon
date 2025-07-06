@@ -37,6 +37,18 @@ public:
 private:
   void loadLicenses();
 
+  QLabel* explainatoryText = new QLabel(
+      QString("This software is a part of the SILICON suite (v. %1), developed by "
+              "Giulio Cocconi and released under the GNU General Public License "
+              "v. 3.0.\n\n It makes use of the following licensed resources:")
+          .arg(SILICON_VERSION),
+      this);
+
+  QVBoxLayout* mainLayout = new QVBoxLayout(this);
+  QHBoxLayout* topLayout  = new QHBoxLayout();
+
+  QLabel*         titleLabel;
+  QLabel*         iconLabel;
   QPlainTextEdit* licenseTextEdit;
   QPushButton*    closeButton;
   QString         licenseText = "";

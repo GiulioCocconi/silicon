@@ -92,7 +92,6 @@ QRectF GraphicalComponent::collisionRect() const
 
 void GraphicalComponent::rotate()
 {
-  qDebug() << "Rotating";
   setRotation(rotation() + 90);
   prepareGeometryChange();
   update();
