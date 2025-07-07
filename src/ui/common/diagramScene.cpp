@@ -146,13 +146,13 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
 
     // TODO: Make a parent IO class with virtual reset method
 
-    const auto inputComponents =
-        items() | std::views::filter([](auto item) {
-          return item->type() == SiliconTypes::SINGLE_INPUT;
-        })
-        | std::views::transform(
-            [](auto item) { return qgraphicsitem_cast<GraphicalInputSingle*>(item); })
-        | std::ranges::to<std::vector>();
+    const auto inputComponents = items() | std::views::filter([](auto item) {
+                                   return item->type() == SiliconTypes::SINGLE_INPUT;
+                                 })
+                                 | std::views::transform([](auto item) {
+                                     return qgraphicsitem_cast<GraphicalInput*>(item);
+                                   })
+                                 | std::ranges::to<std::vector>();
 
     for (const auto inputComponent : inputComponents) {
       inputComponent->setState(LOW);
@@ -268,7 +268,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
 
       for (auto item : itemsAtPos) {
         if (item && item->type() == SiliconTypes::SINGLE_INPUT) {
-          auto* input = qgraphicsitem_cast<GraphicalInputSingle*>(item);
+          auto* input = qgraphicsitem_cast<GraphicalInput*>(item);
           input->toggle();
         }
       }
@@ -442,7 +442,7 @@ void DiagramScene::placeComponent(const SiliconTypes type)
   assert(!componentToBeDrawn);
   switch (type) {
     case UNKNOWN: assert(false && "Unknown component");
-    case SINGLE_INPUT: componentToBeDrawn = new GraphicalInputSingle(); break;
+    case SINGLE_INPUT: componentToBeDrawn = new GraphicalInput(); break;
     case SINGLE_OUTPUT: componentToBeDrawn = new GraphicalOutputSingle(); break;
     case AND_GATE: componentToBeDrawn = new GraphicalAnd(); break;
     case NAND_GATE: componentToBeDrawn = new GraphicalNand(); break;

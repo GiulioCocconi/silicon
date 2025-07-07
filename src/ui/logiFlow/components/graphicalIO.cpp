@@ -18,7 +18,7 @@
 
 #include "graphicalIO.hpp"
 
-GraphicalInputSingle::GraphicalInputSingle(std::string name, QGraphicsItem* parent)
+GraphicalInput::GraphicalInput(std::string name, QGraphicsItem* parent)
   : GraphicalLogicComponent(std::make_shared<DummyInputComponent>(Bus(1), name),
                             new QGraphicsSvgItem(":/other_components/input_off.svg"),
                             parent)
@@ -27,14 +27,34 @@ GraphicalInputSingle::GraphicalInputSingle(std::string name, QGraphicsItem* pare
 
   setPorts({}, {std::pair<std::string, QPoint>{"o", QPoint(20, 60)}});
   setState(LOW);
+
+  auto nameLayout = new QHBoxLayout();
+  auto nameLabel  = new QLabel("Name:");
+
+  nameLayout->addWidget(nameLabel);
+  nameLayout->addWidget(nameInput);
+
+  auto propertiesWidget = new QWidget();
+  propertiesWidget->setLayout(nameLayout);
+
+  propertiesDialog = new PropertiesDialog({propertiesWidget});
+
+  connect(this->propertiesDialog, &PropertiesDialog::accepted, this,
+          &GraphicalInput::propertiesDialogAccepted);
+
+  connect(this->propertiesDialog, &PropertiesDialog::rejected, this,
+          &GraphicalInput::propertiesDialogRejected);
+
+  // Every time the component is placed we should set its properties
+  GraphicalInput::showPropertiesDialog();
 }
 
-void GraphicalInputSingle::toggle()
+void GraphicalInput::toggle()
 {
   setState(!skinState);
 }
 
-void GraphicalInputSingle::setState(State state)
+void GraphicalInput::setState(State state)
 {
   this->skinState = state;
 
@@ -43,8 +63,37 @@ void GraphicalInputSingle::setState(State state)
   this->getComponent()->getOutputs()[0].setCurrentValue(state == HIGH,
                                                         getComponent()->weak_from_this());
 }
+void GraphicalInput::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+                           QWidget* widget)
+{
+  painter->setFont(font);
+  painter->drawText(QPointF(0, -1),
+                    QString::fromStdString(this->getComponent()->getName()));
 
-State GraphicalInputSingle::getState()
+  GraphicalLogicComponent::paint(painter, option, widget);
+}
+void GraphicalInput::showPropertiesDialog()
+{
+  nameInput->setText(QString::fromStdString(this->getComponent()->getName()));
+  GraphicalLogicComponent::showPropertiesDialog();
+}
+
+void GraphicalInput::propertiesDialogAccepted()
+{
+  const auto newName = nameInput->text().toStdString();
+  this->associatedComponent->setName(newName);
+
+  prepareGeometryChange();
+}
+QRectF GraphicalInput::boundingRect() const
+{
+  const auto fontHeight = QFontMetrics(font).height();
+  auto       rect       = GraphicalLogicComponent::boundingRect();
+  // Add some extra space for the name
+  return rect.adjusted(0, -fontHeight, 0, 0);
+}
+
+State GraphicalInput::getState()
 {
   const int value = this->getComponent()->getOutputs()[0].getCurrentValue();
   return (value == 1) ? State::HIGH : State::LOW;

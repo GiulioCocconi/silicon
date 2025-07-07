@@ -174,6 +174,15 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
   return QGraphicsItem::itemChange(change, value);
 }
 
+void GraphicalComponent::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
+{
+  if (event->button() == Qt::LeftButton) {
+    showPropertiesDialog();
+    return;
+  }
+  QGraphicsObject::mouseDoubleClickEvent(event);
+}
+
 void GraphicalComponent::modeChanged(InteractionMode mode)
 {
   switch (mode) {
@@ -192,6 +201,19 @@ void GraphicalComponent::modeChanged(InteractionMode mode)
       break;
     default: assert(false);
   }
+}
+
+void GraphicalComponent::propertiesDialogAccepted() {}
+
+void GraphicalComponent::propertiesDialogRejected()
+{
+  assert(scene());
+  auto diagramScene = dynamic_cast<DiagramScene*>(scene());
+
+  // If the changes are rejected when the component is being placed then we shouldn't
+  // place it anymore
+  if (diagramScene->getInteractionMode() == InteractionMode::COMPONENT_PLACING_MODE)
+    diagramScene->setInteractionMode(InteractionMode::NORMAL_MODE);
 }
 
 void GraphicalComponent::setPorts(
@@ -216,6 +238,12 @@ void GraphicalComponent::setPorts(
     this->outputPorts.push_back(p);
     this->setPortLine(p);
   }
+}
+
+void GraphicalComponent::showPropertiesDialog()
+{
+  if (this->propertiesDialog)
+    propertiesDialog->show();
 }
 
 void GraphicalComponent::setPortLine(Port* port)
@@ -279,4 +307,33 @@ QRectF Port::collisionRect() const
   subtract.addEllipse(position, 5, 5);
 
   return boundingPath.subtracted(subtract).boundingRect();
+}
+
+PropertiesDialog::PropertiesDialog(const QList<QWidget*>& widgets, QWidget* parent)
+  : QDialog(parent)
+{
+  setWindowTitle("Properties");
+  setFixedSize(1200, 300);
+  setModal(true);
+
+  setLayout(new QVBoxLayout());
+
+  for (auto widget : widgets) {
+    layout()->addWidget(widget);
+  }
+
+  // ReSharper disable CppDFAMemoryLeak
+  auto confirmationLayout = new QHBoxLayout();
+  auto confirmButton      = new QPushButton("Confirm", this);
+  auto cancelButton       = new QPushButton("Cancel", this);
+
+  confirmButton->setDefault(true);
+
+  connect(confirmButton, &QPushButton::clicked, this, &QDialog::accept);
+  connect(cancelButton, &QPushButton::clicked, this, &QDialog::reject);
+
+  confirmationLayout->addWidget(confirmButton);
+  confirmationLayout->addWidget(cancelButton);
+
+  layout()->addItem(confirmationLayout);
 }
