@@ -18,6 +18,8 @@
 
 #include "graphicalComponent.hpp"
 
+#include <QLabel>
+
 GraphicalComponent::GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* parent)
   : QGraphicsObject(parent)
 {
@@ -316,16 +318,24 @@ PropertiesDialog::PropertiesDialog(const QList<QWidget*>& widgets, QWidget* pare
   setFixedSize(1200, 300);
   setModal(true);
 
-  setLayout(new QVBoxLayout());
-
-  for (auto widget : widgets) {
-    layout()->addWidget(widget);
-  }
+  auto mainLayout = new QVBoxLayout();
+  setLayout(mainLayout);
+  mainLayout->setSpacing(10);
 
   // ReSharper disable CppDFAMemoryLeak
-  auto confirmationLayout = new QHBoxLayout();
-  auto confirmButton      = new QPushButton("Confirm", this);
-  auto cancelButton       = new QPushButton("Cancel", this);
+  const auto titleLabel = new QLabel("Edit properties...", this);
+  titleLabel->setFont(QFont("Chango", 20, QFont::Bold));
+  mainLayout->addWidget(titleLabel);
+
+  for (auto widget : widgets) {
+    mainLayout->addWidget(widget);
+  }
+
+  mainLayout->addStretch();
+
+  const auto confirmationLayout = new QHBoxLayout();
+  const auto confirmButton      = new QPushButton("Confirm", this);
+  const auto cancelButton       = new QPushButton("Cancel", this);
 
   confirmButton->setDefault(true);
 
@@ -335,5 +345,5 @@ PropertiesDialog::PropertiesDialog(const QList<QWidget*>& widgets, QWidget* pare
   confirmationLayout->addWidget(confirmButton);
   confirmationLayout->addWidget(cancelButton);
 
-  layout()->addItem(confirmationLayout);
+  mainLayout->addItem(confirmationLayout);
 }
