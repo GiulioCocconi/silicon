@@ -19,7 +19,7 @@ void GraphicalWireSplitter::setSize(const unsigned int size)
   std::vector<std::pair<std::string, QPoint>> outputPorts;
   outputPorts.reserve(size);
 
-  for (int i = 1; i <= size; i++) {
+  for (unsigned int i = 1; i <= size; i++) {
     QPoint portLoc(10, -20 * i + 10);
     path.lineTo(portLoc);
 
@@ -55,7 +55,7 @@ void GraphicalWireMerger::setSize(const unsigned int size)
   std::vector<std::pair<std::string, QPoint>> inputPorts;
   inputPorts.reserve(size);
 
-  for (int i = 1; i <= size; i++) {
+  for (unsigned int i = 1; i <= size; i++) {
     QPoint portLoc(-10, -20 * i + 10);
     path.lineTo(portLoc);
 

@@ -90,12 +90,23 @@ QPainterPath GraphicalWire::shape() const
 
   return combinedPath;
 }
+QColor GraphicalWire::getColor()
+{
+  return bus.size() > 1 ? AppColors::GREEN : AppColors::BLUE;
+}
+
+QColor GraphicalWire::getColor(GraphicalWire* w)
+{
+  if (!w)
+    return AppColors::BLUE;
+  return w->getColor();
+}
 
 void GraphicalWire::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
                           QWidget* widget)
 {
   // Draw junctions
-  painter->setPen(QPen(Qt::blue, 3));
+  painter->setPen(QPen(this->getColor(), 3));
   painter->setBrush(Qt::black);
 
   for (auto junction : getJunctions())
@@ -111,7 +122,7 @@ void GraphicalWire::paint(QPainter* painter, const QStyleOptionGraphicsItem* opt
 
 void GraphicalWire::clearBusState()
 {
-  for (int i = 0; i < this->bus.size(); i++)
+  for (unsigned int i = 0; i < this->bus.size(); i++)
     if (bus[i])
       bus[i]->forceSetCurrentState(State::ERROR);
 }
@@ -279,7 +290,7 @@ void GraphicalWireSegment::paint(QPainter*                       painter,
                                  const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
   const int    size  = (this->graphicalWire) ? this->graphicalWire->getBus().size() : 1;
-  const QColor color = (size > 1) ? Qt::darkGreen : Qt::blue;
+  const QColor color = GraphicalWire::getColor(this->graphicalWire);
 
   painter->setPen(QPen(color, 3));
   painter->drawPath(path);
@@ -340,8 +351,9 @@ void GraphicalWireSegment::paint(QPainter*                       painter,
         const QRect   box  = QRect(-boxWidth / 2, -boxHeight / 2, boxWidth, boxHeight);
         const QString text = QString("%1").arg(size);
 
-        painter->setBrush(INTERNAL_COLOR);
+        painter->setBrush(AppColors::INTERNAL);
         painter->drawRoundedRect(box, 5, 5);
+        painter->setBrush(Qt::black);
         painter->drawText(box, text, QTextOption(Qt::AlignCenter));
       }
 

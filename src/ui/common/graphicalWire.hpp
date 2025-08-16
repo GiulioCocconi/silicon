@@ -112,6 +112,9 @@ public:
 
   QPainterPath shape() const override;
 
+  QColor        getColor();
+  static QColor getColor(GraphicalWire* w);
+
 private:
   Bus                                bus;
   std::vector<GraphicalWireSegment*> segments;

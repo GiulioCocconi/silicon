@@ -48,5 +48,10 @@ enum SiliconTypes {
   LOGIFLOW_END,
 };
 
-constexpr QColor ON_COLOR       = QColor(255, 153, 85);
-constexpr QColor INTERNAL_COLOR = QColor(255, 230, 213);
+namespace AppColors {
+inline const QColor ORANGE   = {"#ff9955"};
+inline const QColor BLUE     = {"#4997d0"};
+inline const QColor GREEN    = {"#9acd32"};
+inline const QColor VIOLET   = {"#ff3333"};
+inline const QColor INTERNAL = {"#ffe6d5"};
+}  // namespace AppColors

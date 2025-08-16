@@ -178,7 +178,7 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
 
 void GraphicalComponent::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
 {
-  if (event->button() == Qt::LeftButton) {
+  if (event->button() == Qt::LeftButton && isSelected()) {
     showPropertiesDialog();
     return;
   }
@@ -210,11 +210,12 @@ void GraphicalComponent::propertiesDialogAccepted() {}
 void GraphicalComponent::propertiesDialogRejected()
 {
   assert(scene());
-  auto diagramScene = dynamic_cast<DiagramScene*>(scene());
+  auto       diagramScene = dynamic_cast<DiagramScene*>(scene());
+  const auto currentMode  = diagramScene->getInteractionMode();
 
   // If the changes are rejected when the component is being placed then we shouldn't
   // place it anymore
-  if (diagramScene->getInteractionMode() == InteractionMode::COMPONENT_PLACING_MODE)
+  if (currentMode == InteractionMode::COMPONENT_PLACING_MODE)
     diagramScene->setInteractionMode(InteractionMode::NORMAL_MODE);
 }
 
@@ -285,7 +286,8 @@ void GraphicalComponent::setPortLine(Port* port)
   port->setLine(new QGraphicsLineItem(QLineF(portPos, projectionOnShape), this));
 }
 
-Port::Port(unsigned int index, QPoint position, std::string name, QGraphicsItem* parent)
+Port::Port(const unsigned int index, const QPoint position, std::string name,
+           QGraphicsItem* parent)
   : QGraphicsItem(parent)
 {
   this->index    = index;
@@ -324,10 +326,10 @@ PropertiesDialog::PropertiesDialog(const QList<QWidget*>& widgets, QWidget* pare
 
   // ReSharper disable CppDFAMemoryLeak
   const auto titleLabel = new QLabel("Edit properties...", this);
-  titleLabel->setFont(QFont("Chango", 20, QFont::Bold));
+  titleLabel->setFont(QFont("Chango", 20));
   mainLayout->addWidget(titleLabel);
 
-  for (auto widget : widgets) {
+  for (const auto widget : widgets) {
     mainLayout->addWidget(widget);
   }
 
