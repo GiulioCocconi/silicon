@@ -1,6 +1,5 @@
 /*
  Copyright (c) 2025. Giulio Cocconi
-
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
@@ -17,41 +16,16 @@
  */
 
 #pragma once
-#include <QGraphicsItem>
 
-enum SiliconTypes {
-  UNKNOWN = QGraphicsItem::UserType,
-  PORT,
-  WIRE,
-  WIRE_SEGMENT,
-  WIRE_JUNCTION,
+#include <core/component.hpp>
+#include <core/wire.hpp>
 
-  /* LogiFlow */
-  COMPONENT = WIRE_JUNCTION + 10,
-  GENERIC_IO,
-  SINGLE_INPUT, /* Logiflow start */
-  SINGLE_OUTPUT,
-
-  /* Components */
-  WIRE_SPLITTER,
-  WIRE_MERGER,
-
-  AND_GATE,
-  NAND_GATE,
-  OR_GATE,
-  NOR_GATE,
-  NOT_GATE,
-  XOR_GATE,
-  HALF_ADDER,
-  FULL_ADDER,
-
-  LOGIFLOW_END,
+class WireSplitter : public Component {
+public:
+  WireSplitter(Bus input, std::vector<Bus> outputs);
 };
 
-namespace AppColors {
-inline const QColor ORANGE   = {"#ff9955"};
-inline const QColor BLUE     = {"#4997d0"};
-inline const QColor GREEN    = {"#9acd32"};
-inline const QColor VIOLET   = {"#ff3333"};
-inline const QColor INTERNAL = {"#ffe6d5"};
-}  // namespace AppColors
+class WireMerger : public Component {
+public:
+  WireMerger(const std::vector<Bus>& inputs, Bus output);
+};

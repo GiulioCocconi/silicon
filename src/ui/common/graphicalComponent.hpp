@@ -24,6 +24,11 @@
 #include <QPoint>
 #include <QRect>
 
+#include <QDialog>
+#include <QHBoxLayout>
+#include <QPushButton>
+#include <QVBoxLayout>
+
 #include <core/component.hpp>
 #include <ui/common/diagramScene.hpp>
 
@@ -59,6 +64,11 @@ public:
   QRectF collisionRect() const;
 };
 
+class PropertiesDialog : public QDialog {
+public:
+  explicit PropertiesDialog(const QList<QWidget*>& widgets, QWidget* parent = nullptr);
+};
+
 class GraphicalComponent : public QGraphicsObject {
   Q_OBJECT
 protected:
@@ -73,6 +83,7 @@ protected:
   QRectF collisionRect() const;
 
   QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
+  void     mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) override;
 
   CollidingStatus collidingStatus = CollidingStatus::NOT_COLLIDING;
 
@@ -81,8 +92,13 @@ protected:
 
   void setPortLine(Port* port);
 
+  PropertiesDialog* propertiesDialog = nullptr;
+
 public slots:
   void modeChanged(InteractionMode mode);
+
+  virtual void propertiesDialogAccepted();
+  virtual void propertiesDialogRejected();
 
 public:
   GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* parent = nullptr);
@@ -93,6 +109,8 @@ public:
   virtual void
   setPorts(const std::vector<std::pair<std::string, QPoint>>& busToPortInputs,
            const std::vector<std::pair<std::string, QPoint>>& busToPortOutputs);
+
+  virtual void showPropertiesDialog();
 
   [[nodiscard]] std::vector<Port*> getInputPorts() const { return inputPorts; };
   [[nodiscard]] std::vector<Port*> getOutputPorts() const { return outputPorts; };

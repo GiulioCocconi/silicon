@@ -47,10 +47,16 @@ LogiFlowWindow::LogiFlowWindow()
   diagramView->setScene(diagramScene);
 
   connect(diagramScene, &DiagramScene::modeChanged, this, &LogiFlowWindow::updateStatus);
-
   updateStatus();
 
+  connect(diagramScene, &DiagramScene::selectionChanged, this,
+          &LogiFlowWindow::selectionChanged);
+
   layout->addWidget(diagramView);
+
+  aboutDialog = new AboutDialog("Silicon", this);
+
+  undoStack = new QUndoStack(this);
 
   createActions();
   createMenus();
@@ -67,14 +73,25 @@ void LogiFlowWindow::createActions()
   saveAct        = new QAction(Icon("save"), tr("&Save"), this);
   exportImageAct = new QAction(Icon("export"), tr("&Export..."), this);
   exitAct        = new QAction(Icon("xmark"), tr("E&xit"), this);
-  undoAct        = new QAction(Icon("undo"), tr("&Undo"), this);
-  redoAct        = new QAction(Icon("redo"), tr("&Redo"), this);
   cutAct         = new QAction(Icon("cut"), tr("Cu&t"), this);
   copyAct        = new QAction(Icon("copy"), tr("&Copy"), this);
   pasteAct       = new QAction(Icon("paste"), tr("&Paste"), this);
   rotateAct      = new QAction(Icon("rotate"), tr("&Rotate"), this);
   deleteAct      = new QAction(Icon("delete"), tr("&Delete"), this);
   aboutAct       = new QAction(Icon("info"), tr("&About"), this);
+
+  undoAct = undoStack->createUndoAction(this, tr("&Undo"));
+  undoAct->setIcon(Icon("undo"));
+
+  redoAct = undoStack->createRedoAction(this, tr("&Redo"));
+  redoAct->setIcon(Icon("redo"));
+
+  // The rotate, cut, copy and delete actions should be disabled when no component is
+  // selected
+  rotateAct->setEnabled(false);
+  cutAct->setEnabled(false);
+  copyAct->setEnabled(false);
+  deleteAct->setEnabled(false);
 
   setNormalModeAct       = new QAction(Icon("mouse-pointer"), "", this);
   setPanModeAct          = new QAction(Icon("pan"), "", this);
@@ -117,8 +134,6 @@ void LogiFlowWindow::createActions()
   connect(saveAct, &QAction::triggered, this, &LogiFlowWindow::save);
   connect(exportImageAct, &QAction::triggered, this, &LogiFlowWindow::exportImage);
   connect(exitAct, &QAction::triggered, this, &QWidget::close);
-  connect(undoAct, &QAction::triggered, this, &LogiFlowWindow::undo);
-  connect(redoAct, &QAction::triggered, this, &LogiFlowWindow::redo);
   connect(cutAct, &QAction::triggered, this, &LogiFlowWindow::cut);
   connect(copyAct, &QAction::triggered, this, &LogiFlowWindow::copy);
   connect(pasteAct, &QAction::triggered, this, &LogiFlowWindow::paste);
@@ -201,7 +216,6 @@ void LogiFlowWindow::contextMenuEvent(QContextMenuEvent* event)
 
 void LogiFlowWindow::rotate()
 {
-  qDebug() << "Rotate act!";
   auto selectedComponents =
       std::ranges::views::filter(diagramScene->selectedItems(),
                                  [](auto el) { return el->type() >= COMPONENT; })
@@ -236,6 +250,11 @@ void LogiFlowWindow::del()
   }
 }
 
+void LogiFlowWindow::about() const
+{
+  aboutDialog->show();
+}
+
 void LogiFlowWindow::setNormalMode()
 {
   diagramScene->setInteractionMode(InteractionMode::NORMAL_MODE);
@@ -261,7 +280,7 @@ void LogiFlowWindow::setComponentPlacingMode()
   diagramScene->setInteractionMode(InteractionMode::COMPONENT_PLACING_MODE);
 }
 
-void LogiFlowWindow::updateStatus()
+void LogiFlowWindow::updateStatus() const
 {
   QString modeMsg = "Interaction Mode: ";
 
@@ -275,4 +294,23 @@ void LogiFlowWindow::updateStatus()
   }
 
   statusBar()->showMessage(modeMsg);
+}
+void LogiFlowWindow::selectionChanged()
+{
+  auto interactionMode = diagramScene->getInteractionMode();
+  // Enable rotation only when a single component is selected or when in component placing
+  // mode
+
+  rotateAct->setEnabled((interactionMode == InteractionMode::NORMAL_MODE
+                         && diagramScene->selectedItems().size() == 1)
+                        || interactionMode == InteractionMode::COMPONENT_PLACING_MODE);
+
+  // Enable cut, copy, paste and delete only when in normal mode and some items are
+  // selected
+  const bool cutCopyDelete = interactionMode == InteractionMode::NORMAL_MODE
+                             && !diagramScene->selectedItems().empty();
+
+  cutAct->setEnabled(cutCopyDelete);
+  copyAct->setEnabled(cutCopyDelete);
+  deleteAct->setEnabled(cutCopyDelete);
 }

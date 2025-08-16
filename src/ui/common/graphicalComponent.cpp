@@ -18,6 +18,8 @@
 
 #include "graphicalComponent.hpp"
 
+#include <QLabel>
+
 GraphicalComponent::GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* parent)
   : QGraphicsObject(parent)
 {
@@ -28,7 +30,8 @@ GraphicalComponent::GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* pare
   setAcceptHoverEvents(true);
   setAcceptedMouseButtons(Qt::AllButtons);
 
-  setItemShape(shape);
+  if (shape)
+    setItemShape(shape);
 }
 
 void GraphicalComponent::setItemShape(QGraphicsItem* shape)
@@ -91,7 +94,6 @@ QRectF GraphicalComponent::collisionRect() const
 
 void GraphicalComponent::rotate()
 {
-  qDebug() << "Rotating";
   setRotation(rotation() + 90);
   prepareGeometryChange();
   update();
@@ -134,7 +136,6 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
       if (collidingItem == this || childItems().contains(collidingItem))
         continue;
 
-      qDebug() << collidingItem->type();
       if (collidingItem->type() >= COMPONENT) {
         this->collidingStatus = COLLIDING_WITH_COMPONENT;
         goto rejectedPos;
@@ -175,6 +176,15 @@ QVariant GraphicalComponent::itemChange(GraphicsItemChange change, const QVarian
   return QGraphicsItem::itemChange(change, value);
 }
 
+void GraphicalComponent::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
+{
+  if (event->button() == Qt::LeftButton && isSelected()) {
+    showPropertiesDialog();
+    return;
+  }
+  QGraphicsObject::mouseDoubleClickEvent(event);
+}
+
 void GraphicalComponent::modeChanged(InteractionMode mode)
 {
   switch (mode) {
@@ -193,6 +203,20 @@ void GraphicalComponent::modeChanged(InteractionMode mode)
       break;
     default: assert(false);
   }
+}
+
+void GraphicalComponent::propertiesDialogAccepted() {}
+
+void GraphicalComponent::propertiesDialogRejected()
+{
+  assert(scene());
+  auto       diagramScene = dynamic_cast<DiagramScene*>(scene());
+  const auto currentMode  = diagramScene->getInteractionMode();
+
+  // If the changes are rejected when the component is being placed then we shouldn't
+  // place it anymore
+  if (currentMode == InteractionMode::COMPONENT_PLACING_MODE)
+    diagramScene->setInteractionMode(InteractionMode::NORMAL_MODE);
 }
 
 void GraphicalComponent::setPorts(
@@ -219,10 +243,21 @@ void GraphicalComponent::setPorts(
   }
 }
 
+void GraphicalComponent::showPropertiesDialog()
+{
+  if (this->propertiesDialog)
+    propertiesDialog->show();
+}
+
 void GraphicalComponent::setPortLine(Port* port)
 {
-  const auto width  = static_cast<int>(getItemShape()->boundingRect().width());
-  const auto height = static_cast<int>(getItemShape()->boundingRect().height());
+  assert(itemShape);
+
+  const auto shapeRect    = itemShape->boundingRect();
+  const auto topLeftX     = shapeRect.topLeft().x();
+  const auto topLeftY     = shapeRect.topLeft().y();
+  const auto bottomRightX = shapeRect.bottomRight().x();
+  const auto bottomRightY = shapeRect.bottomRight().y();
 
   const auto portPos = port->getPosition();
   const auto portX   = portPos.x();
@@ -231,27 +266,28 @@ void GraphicalComponent::setPortLine(Port* port)
   QPoint projectionOnShape{};
 
   // Left side
-  if (portX < 0) {
-    projectionOnShape = QPoint(0, portY);
+  if (portX < topLeftX) {
+    projectionOnShape = QPoint(topLeftX, portY);
   }
   // Right side
-  else if (portX > width)
-    projectionOnShape = QPoint(width, portY);
+  else if (portX > bottomRightX)
+    projectionOnShape = QPoint(bottomRightX, portY);
 
   // Up side
-  else if (portY < 0)
-    projectionOnShape = QPoint(portX, 0);
+  else if (portY < topLeftY)
+    projectionOnShape = QPoint(portX, topLeftY);
 
   // Down side
-  else if (portY > height)
-    projectionOnShape = QPoint(portX, height);
+  else if (portY > bottomRightY)
+    projectionOnShape = QPoint(portX, bottomRightY);
   else
     assert(false);
 
   port->setLine(new QGraphicsLineItem(QLineF(portPos, projectionOnShape), this));
 }
 
-Port::Port(unsigned int index, QPoint position, std::string name, QGraphicsItem* parent)
+Port::Port(const unsigned int index, const QPoint position, std::string name,
+           QGraphicsItem* parent)
   : QGraphicsItem(parent)
 {
   this->index    = index;
@@ -275,4 +311,41 @@ QRectF Port::collisionRect() const
   subtract.addEllipse(position, 5, 5);
 
   return boundingPath.subtracted(subtract).boundingRect();
+}
+
+PropertiesDialog::PropertiesDialog(const QList<QWidget*>& widgets, QWidget* parent)
+  : QDialog(parent)
+{
+  setWindowTitle("Properties");
+  setFixedSize(1200, 300);
+  setModal(true);
+
+  auto mainLayout = new QVBoxLayout();
+  setLayout(mainLayout);
+  mainLayout->setSpacing(10);
+
+  // ReSharper disable CppDFAMemoryLeak
+  const auto titleLabel = new QLabel("Edit properties...", this);
+  titleLabel->setFont(QFont("Chango", 20));
+  mainLayout->addWidget(titleLabel);
+
+  for (const auto widget : widgets) {
+    mainLayout->addWidget(widget);
+  }
+
+  mainLayout->addStretch();
+
+  const auto confirmationLayout = new QHBoxLayout();
+  const auto confirmButton      = new QPushButton("Confirm", this);
+  const auto cancelButton       = new QPushButton("Cancel", this);
+
+  confirmButton->setDefault(true);
+
+  connect(confirmButton, &QPushButton::clicked, this, &QDialog::accept);
+  connect(cancelButton, &QPushButton::clicked, this, &QDialog::reject);
+
+  confirmationLayout->addWidget(confirmButton);
+  confirmationLayout->addWidget(cancelButton);
+
+  mainLayout->addItem(confirmationLayout);
 }

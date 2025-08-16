@@ -27,6 +27,7 @@
 #include <QPainter>
 #include <QPainterPath>
 #include <QPoint>
+#include <QRect>
 
 #include <ui/common/enums.hpp>
 
@@ -74,6 +75,13 @@ private:
   GraphicalWire*       graphicalWire = nullptr;
 
   void updatePath();
+
+  static constexpr int interval    = 60;
+  static constexpr int slashLength = 20;
+  static constexpr int slashAngle  = 135;
+
+  static constexpr int boxHeight = 20;
+  static constexpr int boxWidth  = interval * 0.6;
 };
 
 class GraphicalWire : public QGraphicsItem {
@@ -88,19 +96,24 @@ public:
   void removeSegment(const GraphicalWireSegment* segment);
 
   void setBus(Bus bus) { this->bus = bus; }
-  Bus  getBus() const { return bus; }
+  void setBusSize(const unsigned int size);
+
+  Bus getBus() const { return bus; }
 
   void clearBusState();
 
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;
 
-  GraphicalWireSegment* segmentAtPoint(QPointF point) const;
-  std::vector<QPointF>  getJunctions() const;
-  std::vector<QPointF>  getVertices() const;
+  [[nodiscard]] GraphicalWireSegment* segmentAtPoint(QPointF point) const;
+  [[nodiscard]] std::vector<QPointF>  getJunctions() const;
+  [[nodiscard]] std::vector<QPointF>  getVertices() const;
   ~GraphicalWire();
 
   QPainterPath shape() const override;
+
+  QColor        getColor();
+  static QColor getColor(GraphicalWire* w);
 
 private:
   Bus                                bus;

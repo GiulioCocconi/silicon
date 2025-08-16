@@ -30,10 +30,11 @@
 
 class Icon : public QIcon {
 public:
-  Icon(const QString& commonName, const QSize targetSize = QSize(32, 32));
+  Icon(const QString& commonName, const std::vector<QSize> targetSizes = {QSize(32, 32)});
 
 private:
   static const inline std::unordered_map<QString, QString> commonToAwesomeMap{
+      {"silicon", "silicon-icon"},
       {"mouse-pointer", "arrow-pointer-solid"},
       {"pan", "arrows-up-down-left-right-solid"},
       {"chart", "chart-line-solid"},

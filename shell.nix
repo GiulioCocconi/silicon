@@ -13,7 +13,16 @@ pkgs.mkShell {
     gdb
     ddd
     valgrind
+    surelog
+    yosys
+    yosys-synlig
   ];
+
+
+  FONTCONFIG_FILE = pkgs.makeFontsConf {
+    fontDirectories = with pkgs; [ quicksand ];
+  };
+  
   hardeningDisable = [ "all" ];
   NIX_LANG_CPP = "TRUE";
 }

@@ -18,10 +18,12 @@
 #pragma once
 #include <array>
 #include <cassert>
-#include <core/component.hpp>
-#include <core/wire.hpp>
 #include <memory>
 #include <string>
+#include <utility>
+
+#include <core/component.hpp>
+#include <core/wire.hpp>
 
 class Gate : public Component {
 public:

@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "ui/common/aboutDialog.hpp"
+
 #include <QBrush>
 #include <QColor>
 #include <QDockWidget>
@@ -30,6 +32,7 @@
 #include <QMenuBar>
 #include <QStatusBar>
 #include <QToolBar>
+#include <QUndoStack>
 
 #include <ui/common/componentSearchBox.hpp>
 #include <ui/common/diagramScene.hpp>
@@ -61,8 +64,6 @@ private slots:
   void open() {}
   void save() {}
   void exportImage() {}
-  void undo() {}
-  void redo() {}
   void cut()
   {
     copy();
@@ -72,7 +73,7 @@ private slots:
   void paste() {}
   void rotate();
   void del();  // Delete is a CPP keyword
-  void about() {}
+  void about() const;
 
   void setNormalMode();
   void setPanMode();
@@ -80,7 +81,8 @@ private slots:
   void setSimulationMode();
   void setComponentPlacingMode();
 
-  void updateStatus();
+  void updateStatus() const;
+  void selectionChanged();
 
 private:
   void createActions();
@@ -104,8 +106,6 @@ private:
   QAction* saveAct;
   QAction* exportImageAct;
   QAction* exitAct;
-  QAction* undoAct;
-  QAction* redoAct;
   QAction* cutAct;
   QAction* copyAct;
   QAction* pasteAct;
@@ -120,5 +120,9 @@ private:
 
   QAction* setComponentPlacingModeAct;
 
-  QLabel* infoLabel;
+  QAction*    undoAct;
+  QAction*    redoAct;
+  QUndoStack* undoStack;
+
+  AboutDialog* aboutDialog;
 };

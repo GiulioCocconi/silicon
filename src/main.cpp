@@ -27,11 +27,12 @@
 
 #include <core/gates.hpp>
 #include <core/wire.hpp>
+#include <ui/common/icons.hpp>
 #include <ui/logiFlow/logiFlowWindow.hpp>
 
 int siliconMain(int argc, char** argv)
 {
-  QApplication app(argc, argv);
+  const QApplication app(argc, argv);
   app.setApplicationName("SILICON");
   app.setStyle("Fusion");
   app.setApplicationVersion(SILICON_VERSION);
@@ -39,11 +40,11 @@ int siliconMain(int argc, char** argv)
   // LOAD THE FONTS
   QFontDatabase::addApplicationFont(":/fonts/Chango.ttf");
   QFontDatabase::addApplicationFont(":/fonts/Quicksand.ttf");
+  QFontDatabase::addApplicationFont(":/fonts/NovaMono.ttf");
 
   app.setFont(QFont("Quicksand", app.font().pointSize() * 1.2, QFont::Medium));
 
-  // TODO: Create an icon!!!
-  // app.setWindowIcon(QIcon)
+  QApplication::setWindowIcon(Icon("silicon", {QSize(32, 32), QSize(128, 128)}));
 
   // Command Line Parser
 

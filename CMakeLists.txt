@@ -38,7 +38,8 @@ set(COMMON_SOURCE_FILES
         ${src_dir}/core/component.cpp)
 
 set(EXTRA_COMPONENTS_SOURCE_FILES
-        ${src_dir}/extraComponents/arithmetic.cpp)
+        ${src_dir}/extraComponents/arithmetic.cpp
+        ${src_dir}/extraComponents/utils.cpp)
 
 set(UI_SOURCE_FILES
         ${src_dir}/ui/common/componentSearchBox.cpp
@@ -47,9 +48,11 @@ set(UI_SOURCE_FILES
         ${src_dir}/ui/common/graphicalWire.cpp
         ${src_dir}/ui/common/graphicalComponent.cpp
         ${src_dir}/ui/common/icons.cpp
+        ${src_dir}/ui/common/aboutDialog.cpp
         ${src_dir}/ui/logiFlow/components/graphicalLogicComponent.cpp
         ${src_dir}/ui/logiFlow/components/graphicalIO.cpp
         ${src_dir}/ui/logiFlow/components/graphicalGates.cpp
+        ${src_dir}/ui/logiFlow/components/graphicalUtils.cpp
         ${src_dir}/ui/logiFlow/logiFlowWindow.cpp)
 
 set(CMAKE_COLOR_DIAGNOSTICS ON)
@@ -94,63 +97,29 @@ target_sources(Silicon
 
 target_link_libraries(Silicon PRIVATE Qt6::Widgets Qt6::SvgWidgets)
 
-qt_add_resources(Silicon "images" BASE ${resources_dir}
-        FILES
-        ${resources_dir}/splash.jpg)
+file(GLOB image_resources CONFIGURE_DEPENDS "${resources_dir}/*.jpg" "${resources_dir}/*.png")
+file(GLOB font_resources CONFIGURE_DEPENDS "${resources_dir}/fonts/*.ttf" "${resources_dir}/fonts/*.otf")
+file(GLOB licenses_file CONFIGURE_DEPENDS "${resources_dir}/licenses/*.txt")
 
+file(GLOB app_icons CONFIGURE_DEPENDS "${resources_dir}/*.svg")
+file(GLOB ui_icons CONFIGURE_DEPENDS "${resources_dir}/icons/*.svg")
+file(GLOB gate_icons CONFIGURE_DEPENDS "${resources_dir}/gates/*.svg")
+file(GLOB component_icons CONFIGURE_DEPENDS "${resources_dir}/other_components/*.svg")
+
+set(all_icons ${ui_icons} ${gate_icons} ${component_icons})
+
+qt_add_resources(Silicon "images" BASE ${resources_dir}
+        FILES ${image_resources})
 
 qt_add_resources(Silicon "fonts" BASE ${resources_dir}
-        FILES
-        ${resources_dir}/fonts/Chango.ttf
-        ${resources_dir}/fonts/Quicksand.ttf)
+        FILES ${font_resources})
 
 qt_add_resources(Silicon "icons" BASE ${resources_dir}
-        FILES
-        ${resources_dir}/icons/arrow-pointer-solid.svg
-        ${resources_dir}/icons/arrows-up-down-left-right-solid.svg
-        ${resources_dir}/icons/chart-line-solid.svg
-        ${resources_dir}/icons/check-solid.svg
-        ${resources_dir}/icons/circle-info-solid.svg
-        ${resources_dir}/icons/circle-xmark-solid.svg
-        ${resources_dir}/icons/copy-solid.svg
-        ${resources_dir}/icons/explosion-solid.svg
-        ${resources_dir}/icons/file-export-solid.svg
-        ${resources_dir}/icons/file-regular.svg
-        ${resources_dir}/icons/floppy-disk-solid.svg
-        ${resources_dir}/icons/folder-open-regular.svg
-        ${resources_dir}/icons/link-solid.svg
-        ${resources_dir}/icons/paste-solid.svg
-        ${resources_dir}/icons/play-solid.svg
-        ${resources_dir}/icons/plug-circle-xmark-solid.svg
-        ${resources_dir}/icons/plug-solid.svg
-        ${resources_dir}/icons/plus-solid.svg
-        ${resources_dir}/icons/print-solid.svg
-        ${resources_dir}/icons/rotate-left-solid.svg
-        ${resources_dir}/icons/rotate-right-solid.svg
-        ${resources_dir}/icons/rotate-solid.svg
-        ${resources_dir}/icons/scissors-solid.svg
-        ${resources_dir}/icons/trash-solid.svg
-        ${resources_dir}/icons/xmark-solid.svg
-)
+        FILES ${all_icons})
 
-qt_add_resources(Silicon "ANSI_icons" BASE ${resources_dir}
-        FILES
-        ${resources_dir}/gates/AND_ANSI.svg
-        ${resources_dir}/gates/OR_ANSI.svg
-        ${resources_dir}/gates/NOT_ANSI.svg
-        ${resources_dir}/gates/NAND_ANSI.svg
-        ${resources_dir}/gates/NOR_ANSI.svg
-        ${resources_dir}/gates/XOR_ANSI.svg
-)
 
-qt_add_resources(Silicon "other_components" BASE ${resources_dir}
-        FILES
-        ${resources_dir}/other_components/input_off.svg
-        ${resources_dir}/other_components/output_off.svg
-        ${resources_dir}/other_components/input_on.svg
-        ${resources_dir}/other_components/output_on.svg
-)
-
+qt_add_resources(Silicon "licenses" BASE ${resources_dir}
+        FILES ${licenses_file})
 
 if (SILICON_BUILD_TESTS)
     find_package(GTest QUIET)
@@ -161,6 +130,7 @@ if (SILICON_BUILD_TESTS)
         FetchContent_Declare(
                 GTest
                 GIT_REPOSITORY https://github.com/google/googletest.git
+                GIT_TAG main
         )
         FetchContent_MakeAvailable(GTest)
 

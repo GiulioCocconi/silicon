@@ -87,6 +87,8 @@ public:
   Bus(std::initializer_list<Wire> initList);
   Bus(std::initializer_list<Wire_ptr> initList);
 
+  void setSize(unsigned short size);
+
   int forceSetCurrentValue(const unsigned int value);
 
   int setCurrentValue(unsigned int value, const Component_weakPtr& requestedBy);
