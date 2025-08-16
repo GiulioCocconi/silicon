@@ -253,36 +253,101 @@ void GraphicalComponent::setPortLine(Port* port)
 {
   assert(itemShape);
 
-  const auto shapeRect    = itemShape->boundingRect();
+  // Get the shapeRect and its size
+  const auto shapeRect = itemShape->boundingRect();
+  assert(!shapeRect.isEmpty());
+
+  const auto shapeSize = shapeRect.size().toSize();
+  assert(shapeSize.width() > 0 && shapeSize.height() > 0);
+
+  // Create an image that supports transparency in order to alpha-scan
+  auto image = QImage(shapeSize, QImage::Format_ARGB32);
+
+  image.fill(Qt::transparent);
+
+  // Paint the shape on the image
+  {
+    QPainter painter(&image);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.translate(-shapeRect.topLeft());
+
+    const auto options = QStyleOptionGraphicsItem();
+    itemShape->paint(&painter, &options, nullptr);
+  }
+
+  // Get image coordinates
   const auto topLeftX     = shapeRect.topLeft().x();
   const auto topLeftY     = shapeRect.topLeft().y();
   const auto bottomRightX = shapeRect.bottomRight().x();
   const auto bottomRightY = shapeRect.bottomRight().y();
 
+  // Get port position
   const auto portPos = port->getPosition();
   const auto portX   = portPos.x();
   const auto portY   = portPos.y();
 
+  // Find the projection of the port on the shape
   QPoint projectionOnShape{};
+
+  /* TODO: FIX BUG, ANDGATE GIVES
+  /* QImage::pixel: coordinate (60,20) out of range
+  /* QImage::pixel: coordinate (60,20) out of range */
 
   // Left side
   if (portX < topLeftX) {
-    projectionOnShape = QPoint(topLeftX, portY);
+    // Scan starting from the left and going to the right. We use the rectangular bounding
+    // as fallback
+
+    auto foundX = topLeftX;
+
+    for (qreal x = foundX; x < bottomRightX; x++) {
+      // When a non-transparent pixel is found we have found the correct projection
+      if (qAlpha(image.pixel(x, portY)) != 0) {
+        foundX = x;
+        break;
+      }
+    }
+    // Set the projection to the found point coordinates
+    projectionOnShape = QPoint(foundX, portY);
   }
   // Right side
-  else if (portX > bottomRightX)
-    projectionOnShape = QPoint(bottomRightX, portY);
+  else if (portX > bottomRightX) {
+    auto foundX = bottomRightX;
+    for (qreal x = foundX; x > topLeftX; x--) {
+      if (qAlpha(image.pixel(x, portY)) != 0) {
+        foundX = x;
+        break;
+      }
+    }
+    projectionOnShape = QPoint(foundX, portY);
+  }
 
   // Up side
-  else if (portY < topLeftY)
-    projectionOnShape = QPoint(portX, topLeftY);
+  else if (portY < topLeftY) {
+    qreal foundY = topLeftY;
+    for (qreal y = foundY; y < bottomRightY; y++) {
+      if (qAlpha(image.pixel(portX, y)) != 0) {
+        foundY = y;
+        break;
+      }
+    }
+    projectionOnShape = QPoint(portX, foundY);
+  }
 
   // Down side
-  else if (portY > bottomRightY)
-    projectionOnShape = QPoint(portX, bottomRightY);
-  else
+  else if (portY > bottomRightY) {
+    auto foundY = bottomRightY;
+    for (qreal y = bottomRightY; y > topLeftY; y--) {
+      if (qAlpha(image.pixel(portX, y)) != 0) {
+        foundY = y;
+        break;
+      }
+    }
+    projectionOnShape = QPoint(portX, foundY);
+  } else
     assert(false);
 
+  // Create the line from port position to the projection
   port->setLine(new QGraphicsLineItem(QLineF(portPos, projectionOnShape), this));
 }
 
