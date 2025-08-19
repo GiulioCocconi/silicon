@@ -10,6 +10,7 @@ void GraphicalWireSplitter::setSize(const unsigned int size)
 {
   assert(size > 1);
   this->size = size;
+
   this->associatedComponent->setInput(0, Bus(size));
   this->associatedComponent->setOutputs(std::vector(size, Bus(1)));
 
@@ -23,8 +24,7 @@ void GraphicalWireSplitter::setSize(const unsigned int size)
     QPoint portLoc(10, -20 * i + 10);
     path.lineTo(portLoc);
 
-    outputPorts.emplace_back(std::pair<std::string, QPoint>{std::format("b[{}]", i - 1),
-                                                            portLoc + QPoint(20, 0)});
+    outputPorts.emplace_back(std::format("b[{}]", i - 1), portLoc + QPoint(20, 0));
   }
 
   auto shape = new QGraphicsPathItem(path);
@@ -59,8 +59,7 @@ void GraphicalWireMerger::setSize(const unsigned int size)
     QPoint portLoc(-10, -20 * i + 10);
     path.lineTo(portLoc);
 
-    inputPorts.emplace_back(std::pair<std::string, QPoint>{std::format("b[{}]", i - 1),
-                                                           portLoc + QPoint(-20, 0)});
+    inputPorts.emplace_back(std::format("b[{}]", i - 1), portLoc + QPoint(-20, 0));
   }
 
   auto shape = new QGraphicsPathItem(path);

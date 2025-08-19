@@ -20,7 +20,8 @@
 
 #include <QLabel>
 
-GraphicalComponent::GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* parent)
+GraphicalComponent::GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* parent,
+                                       bool scanShape)
   : QGraphicsObject(parent)
 {
   this->collidingStatus = CollidingStatus::NOT_COLLIDING;
@@ -32,6 +33,8 @@ GraphicalComponent::GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* pare
 
   if (shape)
     setItemShape(shape);
+
+  this->scanShape = scanShape;
 }
 
 void GraphicalComponent::setItemShape(QGraphicsItem* shape)
@@ -249,6 +252,33 @@ void GraphicalComponent::showPropertiesDialog()
     propertiesDialog->show();
 }
 
+QPoint GraphicalComponent::scanImage(const QImage& image, const QPoint& initialPoint,
+                                     const bool coordinate, const bool direction) const
+{
+  if (!this->scanShape) {
+    return initialPoint;
+  }
+
+  const int initialCoord = coordinate ? initialPoint.x() : initialPoint.y();
+
+  const QPoint topLeft     = image.rect().topLeft();
+  const QPoint bottomRight = image.rect().bottomRight();
+
+  const int leftUp    = coordinate ? topLeft.x() : topLeft.y();
+  const int rightDown = coordinate ? bottomRight.x() : bottomRight.y();
+
+  for (qreal coord = initialCoord; direction ? coord < rightDown : coord > leftUp;
+       coord += direction ? 1 : -1) {
+    auto p =
+        coordinate ? QPoint(coord, initialPoint.y()) : QPoint(initialPoint.x(), coord);
+
+    if (qAlpha(image.pixel(p)) != 0) {
+      return p;
+    }
+  }
+  return initialPoint;
+}
+
 void GraphicalComponent::setPortLine(Port* port)
 {
   assert(itemShape);
@@ -263,10 +293,9 @@ void GraphicalComponent::setPortLine(Port* port)
   // Create an image that supports transparency in order to alpha-scan
   auto image = QImage(shapeSize, QImage::Format_ARGB32);
 
-  image.fill(Qt::transparent);
-
   // Paint the shape on the image
-  {
+  if (this->scanShape) {
+    image.fill(Qt::transparent);
     QPainter painter(&image);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.translate(-shapeRect.topLeft());
@@ -289,61 +318,21 @@ void GraphicalComponent::setPortLine(Port* port)
   // Find the projection of the port on the shape
   QPoint projectionOnShape{};
 
-  /* TODO: FIX BUG, ANDGATE GIVES
-  /* QImage::pixel: coordinate (60,20) out of range
-  /* QImage::pixel: coordinate (60,20) out of range */
-
   // Left side
   if (portX < topLeftX) {
-    // Scan starting from the left and going to the right. We use the rectangular bounding
-    // as fallback
-
-    auto foundX = topLeftX;
-
-    for (qreal x = foundX; x < bottomRightX; x++) {
-      // When a non-transparent pixel is found we have found the correct projection
-      if (qAlpha(image.pixel(x, portY)) != 0) {
-        foundX = x;
-        break;
-      }
-    }
-    // Set the projection to the found point coordinates
-    projectionOnShape = QPoint(foundX, portY);
+    projectionOnShape = scanImage(image, QPoint(topLeftX, portY), true, true);
   }
   // Right side
   else if (portX > bottomRightX) {
-    auto foundX = bottomRightX;
-    for (qreal x = foundX; x > topLeftX; x--) {
-      if (qAlpha(image.pixel(x, portY)) != 0) {
-        foundX = x;
-        break;
-      }
-    }
-    projectionOnShape = QPoint(foundX, portY);
+    projectionOnShape = scanImage(image, QPoint(bottomRightX, portY), true, false);
   }
-
   // Up side
   else if (portY < topLeftY) {
-    qreal foundY = topLeftY;
-    for (qreal y = foundY; y < bottomRightY; y++) {
-      if (qAlpha(image.pixel(portX, y)) != 0) {
-        foundY = y;
-        break;
-      }
-    }
-    projectionOnShape = QPoint(portX, foundY);
+    projectionOnShape = scanImage(image, QPoint(portX, topLeftY), false, true);
   }
-
   // Down side
   else if (portY > bottomRightY) {
-    auto foundY = bottomRightY;
-    for (qreal y = bottomRightY; y > topLeftY; y--) {
-      if (qAlpha(image.pixel(portX, y)) != 0) {
-        foundY = y;
-        break;
-      }
-    }
-    projectionOnShape = QPoint(portX, foundY);
+    projectionOnShape = scanImage(image, QPoint(portX, bottomRightY), false, false);
   } else
     assert(false);
 

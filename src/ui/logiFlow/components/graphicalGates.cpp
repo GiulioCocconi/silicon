@@ -18,8 +18,8 @@
 #include "graphicalGates.hpp"
 
 GraphicalGate::GraphicalGate(const std::shared_ptr<Gate> gate, QGraphicsItem* shape,
-                             QGraphicsItem* parent)
-  : GraphicalLogicComponent(gate, shape, parent)
+                             QGraphicsItem* parent, bool scanShape)
+  : GraphicalLogicComponent(gate, shape, parent, scanShape)
 {
   // TODO: ADD SUPPORT FOR OVER 2 INPUTS GATES
   assert(associatedComponent->getInputs().size() == 2);

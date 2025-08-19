@@ -20,8 +20,8 @@
 
 GraphicalLogicComponent::GraphicalLogicComponent(const Component_ptr& component,
                                                  QGraphicsItem*       shape,
-                                                 QGraphicsItem*       parent)
-  : GraphicalComponent(shape, parent)
+                                                 QGraphicsItem* parent, bool scanShape)
+  : GraphicalComponent(shape, parent, scanShape)
 {
   this->associatedComponent = component;
 }

@@ -92,6 +92,8 @@ protected:
 
   void setPortLine(Port* port);
 
+  bool scanShape = false;
+
   PropertiesDialog* propertiesDialog = nullptr;
 
 public slots:
@@ -101,7 +103,8 @@ public slots:
   virtual void propertiesDialogRejected();
 
 public:
-  GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* parent = nullptr);
+  GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* parent = nullptr,
+                     bool scanShape = false);
 
   void rotate();
   bool isColliding() { return collidingStatus != NOT_COLLIDING; }
@@ -116,5 +119,7 @@ public:
   [[nodiscard]] std::vector<Port*> getOutputPorts() const { return outputPorts; };
 
 private:
+  QPoint scanImage(const QImage& image, const QPoint& initialPoint, bool coordinate,
+                   bool direction) const;
   QGraphicsItem* itemShape = nullptr;
 };
