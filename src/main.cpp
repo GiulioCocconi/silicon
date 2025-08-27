@@ -25,8 +25,6 @@
 #include <QMainWindow>
 #include <QSplashScreen>
 
-#include <core/gates.hpp>
-#include <core/wire.hpp>
 #include <ui/common/icons.hpp>
 #include <ui/logiFlow/logiFlowWindow.hpp>
 
