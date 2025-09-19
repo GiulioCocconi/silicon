@@ -61,7 +61,7 @@ public:
 
   void setLine(QGraphicsLineItem* line);
 
-  QRectF collisionRect() const;
+  [[nodiscard]] QRectF collisionRect() const;
 };
 
 class PropertiesDialog : public QDialog {
@@ -72,15 +72,15 @@ public:
 class GraphicalComponent : public QGraphicsObject {
   Q_OBJECT
 protected:
-  void           setItemShape(QGraphicsItem* shape);
-  QGraphicsItem* getItemShape() const { return itemShape; }
+  void                         setItemShape(QGraphicsItem* shape);
+  [[nodiscard]] QGraphicsItem* getItemShape() const { return itemShape; }
 
-  QRectF boundingRect() const override;
-  QRectF boundingRectWithoutMargins() const;
+  [[nodiscard]] QRectF boundingRect() const override;
+  [[nodiscard]] QRectF boundingRectWithoutMargins() const;
 
-  void   paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
-               QWidget* widget) override;
-  QRectF collisionRect() const;
+  void                 paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+                             QWidget* widget) override;
+  [[nodiscard]] QRectF collisionRect() const;
 
   QVariant itemChange(GraphicsItemChange change, const QVariant& value) override;
   void     mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event) override;
@@ -103,11 +103,11 @@ public slots:
   virtual void propertiesDialogRejected();
 
 public:
-  GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* parent = nullptr,
-                     bool scanShape = false);
+  explicit GraphicalComponent(QGraphicsItem* shape, QGraphicsItem* parent = nullptr,
+                              bool scanShape = false);
 
-  void rotate();
-  bool isColliding() { return collidingStatus != NOT_COLLIDING; }
+  void               rotate();
+  [[nodiscard]] bool isColliding() const { return collidingStatus != NOT_COLLIDING; }
 
   virtual void
   setPorts(const std::vector<std::pair<std::string, QPoint>>& busToPortInputs,

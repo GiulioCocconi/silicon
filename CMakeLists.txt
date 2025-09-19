@@ -22,7 +22,6 @@ project("SILICON"
 include(GNUInstallDirs)
 include(InstallRequiredSystemLibraries)
 include(FetchContent)
-include(GoogleTest)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
@@ -95,6 +94,7 @@ target_sources(Silicon
         ${EXTRA_COMPONENTS_SOURCE_FILES}
         ${UI_SOURCE_FILES})
 
+target_compile_options(Silicon PRIVATE -Werror)
 target_link_libraries(Silicon PRIVATE Qt6::Widgets Qt6::SvgWidgets)
 
 file(GLOB image_resources CONFIGURE_DEPENDS "${resources_dir}/*.jpg" "${resources_dir}/*.png")
@@ -122,6 +122,7 @@ qt_add_resources(Silicon "licenses" BASE ${resources_dir}
         FILES ${licenses_file})
 
 if (SILICON_BUILD_TESTS)
+    include(GoogleTest)
     find_package(GTest QUIET)
 
     if (NOT GTest_FOUND)
