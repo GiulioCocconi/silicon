@@ -18,9 +18,7 @@ add_executable(logic_tests logic.cpp)
 add_executable(arithmetic_tests arithmetic.cpp)
 add_executable(utils_tests utils.cpp)
 
-target_link_libraries(logic_tests GTest::gtest_main)
-target_link_libraries(arithmetic_tests GTest::gtest_main)
-target_link_libraries(utils_tests GTest::gtest_main)
+
 
 target_sources(logic_tests
         PRIVATE
@@ -37,11 +35,7 @@ target_sources(utils_tests
         ${src_dir}/extraComponents/utils.cpp
         ${COMMON_SOURCE_FILES})
 
-gtest_discover_tests(logic_tests)
-gtest_discover_tests(arithmetic_tests)
-gtest_discover_tests(utils_tests)
-
-
-
-
-
+foreach (target logic_tests arithmetic_tests utils_tests)
+    target_link_libraries(${target} GTest::gtest_main GTest::gtest)
+    gtest_discover_tests(${target})
+endforeach ()

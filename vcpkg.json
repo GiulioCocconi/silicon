@@ -1,0 +1,26 @@
+{
+  "name": "silicon",
+  "version": "0.1.0",
+
+  "builtin-baseline": "84bab45d415d22042bd0b9081aea57f362da3f35",
+  "dependencies": [
+    {
+      "name": "gtest",
+      "version>=": "1.14.0"
+    },
+    {
+      "name": "qtbase",
+      "default-features": false,
+      "features": [
+        "widgets",
+        "gui",
+        "png",
+        "freetype",
+        "harfbuzz"
+      ]
+    },
+    {
+      "name": "qtsvg"
+    }
+  ]
+}
