@@ -51,9 +51,26 @@ This project is currently being developed using EMACS. The following packages wi
 - [lsp-mode](https://emacs-lsp.github.io/) for clangd integration.
 - [dir-config.el](https://github.com/jamescherti/dir-config.el) to load this project specific config.
 
+Clangd uses the file `compile_commands.json`, that should be placed in the project root. CMAKE generates it in the build subdirectory so you need to symlink it:
+
+```
+cd <project-root>
+ln -s ./build/compile_commands.json compile_commands.json
+```
+
+## Git Hooks
+
+In order to be able to use the `git hooks` written for this project you need to set a specific config value (it's local to the project so you shouldn't need to worry):
+
+```shell
+git config core.hooksPath hooks/
+```
+
 ## Compiling develop edition
 
-SILICON uses [Nix](https://nixos.org) and [CMAKE](https://cmake.org) in order to manage dependencies. It's recomended to use [Ninja Build](https://ninja-build.org) as a generator.
+### On Linux
+
+SILICON uses [Nix](https://nixos.org) and [CMake](https://cmake.org) in order to manage dependencies. It's recomended to use [Ninja Build](https://ninja-build.org) as a generator.
 
 You can install Nix using the [official instructions](https://nixos.org/download.html),
 however I personally recommend using [Lix](https://lix.systems/install), a modern Nix fork, which can be installed running the following command in a Linux system:
@@ -62,9 +79,7 @@ however I personally recommend using [Lix](https://lix.systems/install), a moder
 curl -sSf -L https://install.lix.systems/lix | sh -s -- install
 ```
 
-*Building on Windows is not supported yet, MacOS is untested.*
-
-Run the commands below to compile the develop edition of SILICON:
+Run the commands below to compile the develop edition of SILICON on Linux:
 
 ```shell
 git clone https://github.com/GiulioCocconi/silicon
@@ -76,15 +91,9 @@ cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -Bbuild
 ninja -C build
 ```
 
-Clangd uses the file `compile_commands.json`, that should be placed in the project root. CMAKE generates it in the build subdirectory so you need to symlink it:
+### On Windows
 
-```
-cd <project-root>
-ln -s ./build/compile_commands.json compile_commands.json
-```
+Only recent version of the MinGW compiler are supported (tested using version `13.0`), you can install them via this [graphical installer](https://github.com/Vuniverse0/mingwInstaller/releases/tag/1.2.1).
 
-In order to be able to use the `git hooks` written for this project you need to set a specific config value (it's local to the project so you shouldn't need to worry):
-
-```shell
-git config core.hooksPath hooks/
-```
+The only thing you need to install is [CMake](https://cmake.org), since the `CMakeLists` take care of installing the dependency manager [vcpkg](https://vcpkg.io).
+Since all dependencies are built from source, the first time you run CMake you might need to wait a few minutes (or hours, depending on your compute power).

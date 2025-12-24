@@ -49,7 +49,7 @@ endif ()
 
 if (MSVC)
     message(FATAL_ERROR "MSVC is not currently supported!")
-endif()
+endif ()
 
 option(SILICON_USE_VCPKG "Bootstrap and use bundled vcpkg for dependencies (if using Nix, this option has no effect" ON)
 
@@ -74,7 +74,7 @@ if (SILICON_USE_VCPKG AND NOT USING_NIX)
         if (CMAKE_GENERATOR MATCHES "MinGW" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
             set(VCPKG_TARGET_TRIPLET "x64-mingw-dynamic" CACHE STRING "" FORCE)
             set(VCPKG_HOST_TRIPLET "x64-mingw-dynamic" CACHE STRING "" FORCE)
-        endif()
+        endif ()
     else ()
         set(VCPKG_BOOTSTRAP_SCRIPT "${vcpkg_SOURCE_DIR}/bootstrap-vcpkg.sh")
         set(VCPKG_EXECUTABLE "${vcpkg_SOURCE_DIR}/vcpkg")
@@ -107,15 +107,15 @@ function(enable_runtime_dll_copy_qt target)
     if (WIN32)
         # 1. Locate windeployqt.exe
         # We find it relative to the Qt6::qmake location provided by find_package(Qt6)
-        if(NOT TARGET Qt6::qmake)
+        if (NOT TARGET Qt6::qmake)
             find_package(Qt6 REQUIRED COMPONENTS Core)
-        endif()
+        endif ()
 
         get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
         get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
         find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS "${_qt_bin_dir}")
 
-        if(WINDEPLOYQT_EXECUTABLE)
+        if (WINDEPLOYQT_EXECUTABLE)
             message(STATUS "Found windeployqt: ${WINDEPLOYQT_EXECUTABLE}")
 
             # 2. Add post-build step to run windeployqt
@@ -131,11 +131,11 @@ function(enable_runtime_dll_copy_qt target)
                     COMMAND_EXPAND_LISTS
             )
 
-        else()
+        else ()
             message(WARNING "windeployqt not found")
         endif ()
     endif ()
-endfunction ()
+endfunction()
 
 set(COMMON_SOURCE_FILES
         ${src_dir}/core/wire.cpp
@@ -185,14 +185,14 @@ if (CMAKE_EXPORT_COMPILE_COMMANDS)
             ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
 endif ()
 
-if(MSVC)
+if (MSVC)
     add_compile_options(/W4)
-elseif(UNIX AND NOT APPLE)
+elseif (UNIX AND NOT APPLE)
     add_compile_options(-Wall -Wextra -Wno-unused-parameter -fsanitize=address -fsanitize=undefined)
     add_link_options(-fsanitize=address -fsanitize=undefined)
-elseif(WIN32 AND MINGW)
+elseif (WIN32 AND MINGW)
     add_compile_options(-Wall -Wextra -Wno-unused-parameter)
-endif()
+endif ()
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets SvgWidgets)
 qt_standard_project_setup()
@@ -249,7 +249,7 @@ if (WIN32)
         file(MAKE_DIRECTORY "${OUTPUT_BIN_DIR}")
     endif ()
 
-    if(EXISTS "${VCPKG_BIN_DIR}")
+    if (EXISTS "${VCPKG_BIN_DIR}")
         message(STATUS "Copying DLLs from vcpkg: ${VCPKG_BIN_DIR} -> ${OUTPUT_BIN_DIR}")
         file(GLOB VCPKG_DLLS "${VCPKG_BIN_DIR}/*.dll")
         file(COPY ${VCPKG_DLLS} DESTINATION "${OUTPUT_BIN_DIR}")
