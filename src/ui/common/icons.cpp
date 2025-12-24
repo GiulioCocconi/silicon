@@ -46,9 +46,9 @@ Icon::Icon(const QString& commonName, const std::vector<QSize> targetSizes)
 
 QString Icon::getPathFromCommonName(const QString& commonName)
 {
-  auto it = commonToAwesomeMap.find(commonName);
+  auto it = getCommonToAwesomeMap().find(commonName);
 
-  if (it == commonToAwesomeMap.end())
+  if (it == getCommonToAwesomeMap().end())
     return "NOT_FOUND";
 
   auto path = QString(":/icons/%1.svg").arg(it->second);

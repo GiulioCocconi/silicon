@@ -58,7 +58,7 @@ void GraphicalInput::setState(State state)
 {
   this->skinState = state;
 
-  const QString shapePath = (skinState == HIGH) ? ON_SHAPE_PATH : OFF_SHAPE_PATH;
+  const QString shapePath = (skinState == HIGH) ? getOnShapePath() : getOffShapePath();
   setItemShape(new QGraphicsSvgItem(shapePath));
   this->getComponent()->getOutputs()[0].setCurrentValue(state == HIGH,
                                                         getComponent()->weak_from_this());
@@ -111,7 +111,7 @@ GraphicalOutputSingle::GraphicalOutputSingle(std::string name, QGraphicsItem* pa
 
 void GraphicalOutputSingle::setState(State state)
 {
-  QString shapePath = (state == HIGH) ? ON_SHAPE_PATH : OFF_SHAPE_PATH;
+  QString shapePath = (state == HIGH) ? getOnShapePath() : getOffShapePath();
   setItemShape(new QGraphicsSvgItem(shapePath));
 }
 

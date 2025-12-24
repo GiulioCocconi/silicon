@@ -59,8 +59,18 @@ private:
 
   QLineEdit* nameInput = new QLineEdit();
 
-  static inline QString ON_SHAPE_PATH  = ":/other_components/input_on.svg";
-  static inline QString OFF_SHAPE_PATH = ":/other_components/input_off.svg";
+  const static QString& getOnShapePath()
+  {
+    static QString ON_SHAPE_PATH  = ":/other_components/input_on.svg";
+    return ON_SHAPE_PATH;
+  }
+
+  const static QString& getOffShapePath()
+  {
+    static QString OFF_SHAPE_PATH  = ":/other_components/input_off.svg";
+    return OFF_SHAPE_PATH;
+  }
+
 
   QRectF boundingRect() const override;
 };
@@ -80,8 +90,17 @@ public:
   void setState(State state);
 
 private:
-  static inline QString ON_SHAPE_PATH  = ":/other_components/output_on.svg";
-  static inline QString OFF_SHAPE_PATH = ":/other_components/output_off.svg";
+  const static QString& getOnShapePath()
+  {
+    static QString ON_SHAPE_PATH  = ":/other_components/output_on.svg";
+    return ON_SHAPE_PATH;
+  }
+
+  const static QString& getOffShapePath()
+  {
+    static QString OFF_SHAPE_PATH  = ":/other_components/output_off.svg";
+    return OFF_SHAPE_PATH;
+  }
 };
 
 class DummyOutputComponent : public Component {
