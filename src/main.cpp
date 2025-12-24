@@ -62,6 +62,7 @@ int siliconMain(int argc, char** argv)
   app.processEvents();
 
   LogiFlowWindow lfWin{};
+  lfWin.resize(QGuiApplication::primaryScreen()->size() * 0.6);
   lfWin.show();
 
   splashScreen.finish(&lfWin);
