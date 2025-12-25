@@ -53,89 +53,10 @@ endif ()
 
 option(SILICON_USE_VCPKG "Bootstrap and use bundled vcpkg for dependencies (if using Nix, this option has no effect" ON)
 
-if (SILICON_USE_VCPKG AND NOT USING_NIX)
-    message(STATUS "SILICON_USE_VCPKG is ON. Bootstrapping bundled vcpkg...")
-
-    set(ENV{VCPKG_USE_SYSTEM_BINARIES} "1")
-
-    # Download Vcpkg source
-    FetchContent_Declare(
-            vcpkg
-            GIT_REPOSITORY https://github.com/microsoft/vcpkg.git
-            GIT_TAG 2025.12.12 # Pinning ensures reproducible builds (when is changed then the latest commit hash should be put in vcpkg.json)
-    )
-    FetchContent_MakeAvailable(vcpkg)
-
-    # Determine script path
-    if (WIN32)
-        set(VCPKG_BOOTSTRAP_SCRIPT "${vcpkg_SOURCE_DIR}/bootstrap-vcpkg.bat")
-        set(VCPKG_EXECUTABLE "${vcpkg_SOURCE_DIR}/vcpkg.exe")
-
-        if (CMAKE_GENERATOR MATCHES "MinGW" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-            set(VCPKG_TARGET_TRIPLET "x64-mingw-dynamic" CACHE STRING "" FORCE)
-            set(VCPKG_HOST_TRIPLET "x64-mingw-dynamic" CACHE STRING "" FORCE)
-        endif ()
-    else ()
-        set(VCPKG_BOOTSTRAP_SCRIPT "${vcpkg_SOURCE_DIR}/bootstrap-vcpkg.sh")
-        set(VCPKG_EXECUTABLE "${vcpkg_SOURCE_DIR}/vcpkg")
-    endif ()
-
-    # Run Bootstrap if executable is missing
-    if (NOT EXISTS "${VCPKG_EXECUTABLE}")
-        message(STATUS "Running vcpkg bootstrap script...")
-        execute_process(
-                COMMAND "${VCPKG_BOOTSTRAP_SCRIPT}" -disableMetrics
-                WORKING_DIRECTORY "${vcpkg_SOURCE_DIR}"
-                RESULT_VARIABLE VCPKG_BOOTSTRAP_RESULT
-        )
-        if (NOT VCPKG_BOOTSTRAP_RESULT EQUAL 0)
-            message(FATAL_ERROR "Failed to bootstrap vcpkg.")
-        endif ()
-    endif ()
-
-    # Enable Manifest Mode (uses vcpkg.json)
-    set(VCPKG_MANIFEST_INSTALL ON)
-    set(VCPKG_MANIFEST_DIR "${CMAKE_SOURCE_DIR}")
-
-    # Inject toolchain so find_package works
-    include("${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
-    set(X_VCPKG_APPLOCAL_COPY_DLLS ON CACHE INTERNAL "")
-
-endif ()
-
-function(enable_runtime_dll_copy_qt target)
-    if (WIN32)
-        # 1. Locate windeployqt.exe
-        # We find it relative to the Qt6::qmake location provided by find_package(Qt6)
-        if (NOT TARGET Qt6::qmake)
-            find_package(Qt6 REQUIRED COMPONENTS Core)
-        endif ()
-
-        get_target_property(_qmake_executable Qt6::qmake IMPORTED_LOCATION)
-        get_filename_component(_qt_bin_dir "${_qmake_executable}" DIRECTORY)
-        find_program(WINDEPLOYQT_EXECUTABLE windeployqt HINTS "${_qt_bin_dir}")
-
-        if (WINDEPLOYQT_EXECUTABLE)
-            message(STATUS "Found windeployqt: ${WINDEPLOYQT_EXECUTABLE}")
-
-            # 2. Add post-build step to run windeployqt
-            # --compiler-runtime: Automatically copies libstdc++, libgcc_s, etc. (replaces your MinGW manual logic)
-            # --no-translations: Optional, skips copying .qm files to keep the folder clean
-            add_custom_command(TARGET ${target} POST_BUILD
-                    COMMAND "${WINDEPLOYQT_EXECUTABLE}"
-                    --verbose 1
-                    --compiler-runtime
-                    --dir "$<TARGET_FILE_DIR:${target}>"
-                    "$<TARGET_FILE:${target}>"
-                    COMMENT "Deploying Qt dependencies for ${target}..."
-                    COMMAND_EXPAND_LISTS
-            )
-
-        else ()
-            message(WARNING "windeployqt not found")
-        endif ()
-    endif ()
-endfunction()
+# Include our custom CMake modules
+include(cmake/vcpkg.cmake)
+include(cmake/windows.cmake)
+include(cmake/resources.cmake)
 
 set(COMMON_SOURCE_FILES
         ${src_dir}/core/wire.cpp
@@ -206,55 +127,12 @@ target_sources(Silicon
         ${EXTRA_COMPONENTS_SOURCE_FILES}
         ${UI_SOURCE_FILES})
 
-
 target_compile_options(Silicon PRIVATE -Werror)
 target_link_libraries(Silicon PRIVATE Qt6::Widgets Qt6::SvgWidgets)
-enable_runtime_dll_copy_qt(Silicon)
+win_deploy_qt(Silicon)
 
-file(GLOB image_resources CONFIGURE_DEPENDS "${resources_dir}/*.jpg" "${resources_dir}/*.png")
-file(GLOB font_resources CONFIGURE_DEPENDS "${resources_dir}/fonts/*.ttf" "${resources_dir}/fonts/*.otf")
-file(GLOB licenses_file CONFIGURE_DEPENDS "${resources_dir}/licenses/*.txt")
-
-file(GLOB app_icons CONFIGURE_DEPENDS "${resources_dir}/*.svg")
-file(GLOB ui_icons CONFIGURE_DEPENDS "${resources_dir}/icons/*.svg")
-file(GLOB gate_icons CONFIGURE_DEPENDS "${resources_dir}/gates/*.svg")
-file(GLOB component_icons CONFIGURE_DEPENDS "${resources_dir}/other_components/*.svg")
-
-set(all_icons ${ui_icons} ${gate_icons} ${component_icons})
-
-qt_add_resources(Silicon "images" BASE ${resources_dir}
-        FILES ${image_resources})
-
-qt_add_resources(Silicon "fonts" BASE ${resources_dir}
-        FILES ${font_resources})
-
-qt_add_resources(Silicon "icons" BASE ${resources_dir}
-        FILES ${all_icons})
-
-
-qt_add_resources(Silicon "licenses" BASE ${resources_dir}
-        FILES ${licenses_file})
-
-
-# Copy the DLLs if on Windows
-if (WIN32)
-    set(VCPKG_BIN_DIR "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin")
-    set(OUTPUT_BIN_DIR "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
-
-    if (NOT EXISTS "${VCPKG_BIN_DIR}")
-        message(FATAL_ERROR "${VCPKG_BIN_DIR} does not exist, cannot proceed!")
-    endif ()
-
-    if (NOT EXISTS "${OUTPUT_BIN_DIR}")
-        file(MAKE_DIRECTORY "${OUTPUT_BIN_DIR}")
-    endif ()
-
-    if (EXISTS "${VCPKG_BIN_DIR}")
-        message(STATUS "Copying DLLs from vcpkg: ${VCPKG_BIN_DIR} -> ${OUTPUT_BIN_DIR}")
-        file(GLOB VCPKG_DLLS "${VCPKG_BIN_DIR}/*.dll")
-        file(COPY ${VCPKG_DLLS} DESTINATION "${OUTPUT_BIN_DIR}")
-    endif ()
-endif ()
+# Add resources after Qt setup
+add_silicon_resources(Silicon)
 
 if (SILICON_BUILD_TESTS)
     include(GoogleTest)
