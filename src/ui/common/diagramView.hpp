@@ -1,4 +1,7 @@
 #pragma once
+
+#include <algorithm>
+
 #include <QGraphicsView>
 #include <QWheelEvent>
 
@@ -12,7 +15,7 @@ public:
 
   bool zoom(bool dir);
   bool zoom(int level);
-  int  getZoomLevel();
+  int  getZoomLevel() const;
 
 protected:
   void wheelEvent(QWheelEvent* event) override;
@@ -21,8 +24,8 @@ public slots:
   void modeChanged(InteractionMode mode);
 
 private:
-  static const int MIN_ZOOM_LEVEL = 60;
-  static const int MAX_ZOOM_LEVEL = 200;
-  int              zoomLevel      = 100;
-  void             updateZoom();
+  static constexpr int MIN_ZOOM_LEVEL = 60;
+  static constexpr int MAX_ZOOM_LEVEL = 200;
+  int                  zoomLevel      = 100;
+  void                 updateZoom();
 };

@@ -36,8 +36,8 @@ DiagramScene::DiagramScene(QObject* parent) : QGraphicsScene(parent)
 
 QPointF DiagramScene::snapToGrid(const QPointF point)
 {
-  auto x = round(point.x() / DiagramScene::GRID_SIZE) * DiagramScene::GRID_SIZE;
-  auto y = round(point.y() / DiagramScene::GRID_SIZE) * DiagramScene::GRID_SIZE;
+  const auto x = round(point.x() / DiagramScene::GRID_SIZE) * DiagramScene::GRID_SIZE;
+  const auto y = round(point.y() / DiagramScene::GRID_SIZE) * DiagramScene::GRID_SIZE;
 
   return {x, y};
 }
@@ -81,10 +81,8 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
       removeItem(wireSegmentToBeDrawn);
       delete wireSegmentToBeDrawn;
       wireSegmentToBeDrawn = nullptr;
-    } else if (!wireSegmentToBeDrawn->getGraphicalWire()) {
-      // Create wire for orphan segments :(
-      qDebug() << "Creating wire";
-
+    } else if (!wireSegmentToBeDrawn->getGraphicalWire()) {  // Create the wire for
+                                                             // orphans
       // Create the bus
       const auto b = Bus(1);
       auto*      w = new GraphicalWire();
@@ -230,7 +228,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
     case COMPONENT_PLACING_MODE: {
       if (componentToBeDrawn) {
         // Next components should inherit the type and rotation of the previous one
-        const auto type     = (SiliconTypes)componentToBeDrawn->type();
+        const auto type     = static_cast<SiliconTypes>(componentToBeDrawn->type());
         const auto rotation = componentToBeDrawn->rotation();
 
         clearComponentShadow();
@@ -413,7 +411,11 @@ void DiagramScene::calculateWiresForComponents() const
 
 bool DiagramScene::manageJunctionCreation(const QPointF cursorPos) const
 {
-  // Using Qt::IntersectsItemBoundingRect cause we don't care about the shape of the wire
+  // This function DOES NOT create the junction itself. It checks for collisions within
+  // two or more GraphicalWireSegments and then assigns them the same GraphicalWire
+
+  // Using Qt::IntersectsItemBoundingRect cause the shape of the wire is managed by the
+  // subsequently called segmentAtPoint()
   for (const auto item : items(cursorPos, Qt::IntersectsItemBoundingRect)) {
     if (item->type() == WIRE) {
       const auto wire = qgraphicsitem_cast<GraphicalWire*>(item);

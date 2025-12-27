@@ -35,15 +35,30 @@
 
 class GraphicalWire;
 
+/* 1 GraphicalWire <-> GraphicalWireSegment
+ * A GraphicalWire contains a collection of GraphicalWireSegment objects (stored in a
+ * vector).
+ * Each GraphicalWireSegment knows its parent GraphicalWire via a pointer.
+ * Segments are added/removed dynamically using addSegment() and removeSegment(). */
+
+/* 2 GraphicalWire <-> Bus
+ * A GraphicalWire holds a Bus object, representing the logical connection (e.g., a bundle
+ * of Wire objects). The Bus can be set/resized via setBus() or setBusSize(). */
+
+/* 3 GraphicalWire <-> Junctions
+ * Junctions are points where multiple GraphicalWireSegment objects connect
+ * The getJunctions() method extracts these points by checking for overlapping segment
+ * endpoints. Junctions are rendered as part of the wire's visual representation. */
+
 class GraphicalWireSegment : public QGraphicsItem {
 public:
-  GraphicalWireSegment(QPointF firstPoint, QGraphicsItem* parent = nullptr);
+  explicit GraphicalWireSegment(QPointF firstPoint, QGraphicsItem* parent = nullptr);
   int type() const override { return SiliconTypes::WIRE_SEGMENT; }
 
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;
 
-  QPainterPath shape() const override;
+  [[nodiscard]] QPainterPath shape() const override;
 
   bool isCompleted() { return false; };
   bool isPointOnPath(const QPointF point);

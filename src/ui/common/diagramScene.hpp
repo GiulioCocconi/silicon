@@ -98,6 +98,7 @@ private:
 
   ComponentSearchBox* csb = nullptr;
 
+  // Completion map to be used with ComponentSearchBox
   static const inline std::map<std::string, SiliconTypes> completionMap = {
       {"INPUT", SiliconTypes::SINGLE_INPUT},
       {"OUTPUT", SiliconTypes::SINGLE_OUTPUT},

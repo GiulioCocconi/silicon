@@ -37,7 +37,6 @@ void GraphicalWire::addSegment(GraphicalWireSegment* segment)
   prepareGeometryChange();
   segments.push_back(segment);
 
-  qDebug() << segments;
   if (segments.size() > 1) {
     std::ranges::sort(segments);
     segments.erase(std::ranges::unique(segments).begin(), segments.end());
