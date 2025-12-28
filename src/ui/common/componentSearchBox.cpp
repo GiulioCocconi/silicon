@@ -18,8 +18,8 @@
 
 #include "componentSearchBox.hpp"
 
-ComponentSearchBox::ComponentSearchBox(std::map<std::string, SiliconTypes> map,
-                                       QString title, QGraphicsItem* parent)
+ComponentSearchBox::ComponentSearchBox(SearchMap map, QString title,
+                                       QGraphicsItem* parent)
   : QGraphicsProxyWidget(parent)
 {
   assert(!map.empty());

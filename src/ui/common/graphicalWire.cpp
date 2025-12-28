@@ -71,7 +71,7 @@ QRectF GraphicalWire::boundingRect() const
 {
   QRectF rect{};
 
-  for (QGraphicsItem* child : childItems())
+  for (const QGraphicsItem* child : childItems())
     rect = rect.united(child->boundingRect());
 
   return rect;
@@ -347,8 +347,8 @@ void GraphicalWireSegment::paint(QPainter*                       painter,
         if (pathAngle == 180)
           painter->rotate(180);
 
-        const QRect   box  = QRect(-boxWidth / 2, -boxHeight / 2, boxWidth, boxHeight);
-        const QString text = QString("%1").arg(size);
+        const auto box  = QRect(-boxWidth / 2, -boxHeight / 2, boxWidth, boxHeight);
+        const auto text = QString("%1").arg(size);
 
         painter->setBrush(AppColors::INTERNAL);
         painter->drawRoundedRect(box, 5, 5);

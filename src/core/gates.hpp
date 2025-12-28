@@ -29,7 +29,7 @@ class Gate : public Component {
 public:
   using Component::setAction;
   Gate(const std::vector<Wire_ptr>& inputs, Wire_ptr output, std::string name);
-  Gate() {};
+  Gate() = default;
 };
 
 class AndGate : public Gate {

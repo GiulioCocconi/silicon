@@ -149,7 +149,7 @@ void Wire::safeSetCurrentState(const std::weak_ptr<Wire>& w, State newState,
 State Wire::safeGetCurrentState(const std::weak_ptr<Wire>& w)
 {
   const auto lockedWire = w.lock();
-  return lockedWire ? lockedWire->getCurrentState() : ERROR;
+  return lockedWire ? lockedWire->getCurrentState() : State::ERROR;
 }
 
 void Wire::addUpdateAction(const action_ptr& a)
@@ -245,5 +245,6 @@ unsigned int Bus::getCurrentValue() const
 bool Bus::isInErrorState() const
 {
   using std::ranges::any_of;
-  return any_of(busData, [](const auto& el) { return el->getCurrentState() == ERROR; });
+  return any_of(busData,
+                [](const auto& el) { return el->getCurrentState() == State::ERROR; });
 }

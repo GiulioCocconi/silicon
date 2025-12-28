@@ -48,7 +48,7 @@ public:
   void setOutput(unsigned int index, const Bus& bus);
   void setOutputs(const std::vector<Bus>& newOutputs);
 
-  void setName(const std::string& newName) { this->name = newName; }
+  void setName(const std::string_view& newName) { this->name = newName; }
 
   void clearWires();
 

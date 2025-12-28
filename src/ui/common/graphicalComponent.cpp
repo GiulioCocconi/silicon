@@ -63,7 +63,7 @@ QRectF GraphicalComponent::boundingRectWithoutMargins() const
 {
   QRectF rect = itemShape->boundingRect();  // Start with shape bounds
 
-  for (QGraphicsItem* child : childItems())
+  for (const QGraphicsItem* child : childItems())
     rect = rect.united(child->boundingRect());
 
   return rect;
@@ -191,15 +191,15 @@ void GraphicalComponent::mouseDoubleClickEvent(QGraphicsSceneMouseEvent* event)
 void GraphicalComponent::modeChanged(InteractionMode mode)
 {
   switch (mode) {
-    case DiagramScene::NORMAL_MODE:
+    case InteractionMode::NORMAL_MODE:
       setFlag(QGraphicsItem::ItemIsMovable);
       setFlag(QGraphicsItem::ItemIsFocusable);
       setFlag(QGraphicsItem::ItemIsSelectable);
       break;
-    case DiagramScene::WIRE_CREATION_MODE:
-    case DiagramScene::COMPONENT_PLACING_MODE:
-    case DiagramScene::SIMULATION_MODE:
-    case DiagramScene::PAN_MODE:
+    case InteractionMode::WIRE_CREATION_MODE:
+    case InteractionMode::COMPONENT_PLACING_MODE:
+    case InteractionMode::SIMULATION_MODE:
+    case InteractionMode::PAN_MODE:
       setFlag(QGraphicsItem::ItemIsSelectable, false);
       setFlag(QGraphicsItem::ItemIsMovable, false);
       setFlag(QGraphicsItem::ItemIsFocusable, false);
@@ -207,8 +207,6 @@ void GraphicalComponent::modeChanged(InteractionMode mode)
     default: assert(false);
   }
 }
-
-void GraphicalComponent::propertiesDialogAccepted() {}
 
 void GraphicalComponent::propertiesDialogRejected()
 {

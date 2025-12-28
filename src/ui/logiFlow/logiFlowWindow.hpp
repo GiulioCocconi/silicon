@@ -82,7 +82,7 @@ private slots:
   void setComponentPlacingMode();
 
   void updateStatus() const;
-  void selectionChanged();
+  void selectionChanged() const;
 
 private:
   void createActions();

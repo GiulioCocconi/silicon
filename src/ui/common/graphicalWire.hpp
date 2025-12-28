@@ -79,7 +79,7 @@ public:
 
   QRectF boundingRect() const override;
 
-  ~GraphicalWireSegment();
+  ~GraphicalWireSegment() override;
 
 private:
   QPainterPath path;
@@ -101,9 +101,9 @@ private:
 
 class GraphicalWire : public QGraphicsItem {
 public:
-  GraphicalWire(QGraphicsItem* parent = nullptr) : QGraphicsItem(parent) {};
-  GraphicalWire(const std::vector<GraphicalWireSegment*>& segments,
-                QGraphicsItem*                            parent = nullptr);
+  explicit GraphicalWire(QGraphicsItem* parent = nullptr) : QGraphicsItem(parent) {};
+  explicit GraphicalWire(const std::vector<GraphicalWireSegment*>& segments,
+                         QGraphicsItem*                            parent = nullptr);
 
   int type() const override { return SiliconTypes::WIRE; }
 
@@ -123,7 +123,7 @@ public:
   [[nodiscard]] GraphicalWireSegment* segmentAtPoint(QPointF point) const;
   [[nodiscard]] std::vector<QPointF>  getJunctions() const;
   [[nodiscard]] std::vector<QPointF>  getVertices() const;
-  ~GraphicalWire();
+  ~GraphicalWire() override;
 
   QPainterPath shape() const override;
 

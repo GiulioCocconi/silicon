@@ -66,9 +66,9 @@ void AboutDialog::loadLicenses()
 
     for (const QString& fileName : fileList) {
       QString filePath = dir.filePath(fileName);
-      QFile   licenseFile(filePath);
 
-      if (licenseFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
+      if (auto licenseFile = QFile(filePath);
+          licenseFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         // Add a header for each license to separate them clearly
         this->licenseText.append(
             "=================================================================\n");

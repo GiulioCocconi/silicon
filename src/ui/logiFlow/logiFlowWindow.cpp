@@ -285,17 +285,17 @@ void LogiFlowWindow::updateStatus() const
   QString modeMsg = "Interaction Mode: ";
 
   switch (diagramScene->getInteractionMode()) {
-    case DiagramScene::NORMAL_MODE: modeMsg += "NORMAL"; break;
-    case DiagramScene::COMPONENT_PLACING_MODE: modeMsg += "COMPONENT PLACING"; break;
-    case DiagramScene::WIRE_CREATION_MODE: modeMsg += "WIRE CREATION"; break;
-    case DiagramScene::PAN_MODE: modeMsg += "PAN"; break;
-    case DiagramScene::SIMULATION_MODE: modeMsg += "SIMULATION"; break;
+    case InteractionMode::NORMAL_MODE: modeMsg += "NORMAL"; break;
+    case InteractionMode::COMPONENT_PLACING_MODE: modeMsg += "COMPONENT PLACING"; break;
+    case InteractionMode::WIRE_CREATION_MODE: modeMsg += "WIRE CREATION"; break;
+    case InteractionMode::PAN_MODE: modeMsg += "PAN"; break;
+    case InteractionMode::SIMULATION_MODE: modeMsg += "SIMULATION"; break;
     default: assert(false);
   }
 
   statusBar()->showMessage(modeMsg);
 }
-void LogiFlowWindow::selectionChanged()
+void LogiFlowWindow::selectionChanged() const
 {
   auto interactionMode = diagramScene->getInteractionMode();
   // Enable rotation only when a single component is selected or when in component placing

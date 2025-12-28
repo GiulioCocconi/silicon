@@ -31,11 +31,11 @@
 class ComponentSearchBox : public QGraphicsProxyWidget {
   Q_OBJECT
 public:
-  explicit ComponentSearchBox(std::map<std::string, SiliconTypes> completionMap =
-                                  {{"AND GATE", SiliconTypes::AND_GATE},
-                                   {"OR GATE", SiliconTypes::OR_GATE}},
-                              QString        title  = "Insert component...",
-                              QGraphicsItem* parent = nullptr);
+  using SearchMap = std::map<std::string, SiliconTypes, std::less<>>;
+  explicit ComponentSearchBox(
+      SearchMap completionMap = {{"AND GATE", SiliconTypes::AND_GATE},
+                                 {"OR GATE", SiliconTypes::OR_GATE}},
+      QString title = "Insert component...", QGraphicsItem* parent = nullptr);
   void showCompleter();
 
   void keyPressEvent(QKeyEvent* event) override;
@@ -43,10 +43,7 @@ public:
   void focus() { le->setFocus(Qt::OtherFocusReason); }
   void clear() { le->clear(); }
 
-  void setCompletionMap(const std::map<std::string, SiliconTypes>& map)
-  {
-    this->completionMap = map;
-  }
+  void setCompletionMap(const SearchMap map) { this->completionMap = map; }
 
 signals:
 
@@ -58,5 +55,5 @@ private:
   QCompleter*        completer;
   QGraphicsTextItem* titleItem;
 
-  std::map<std::string, SiliconTypes> completionMap;
+  SearchMap completionMap;
 };

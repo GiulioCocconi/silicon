@@ -26,7 +26,7 @@ GraphicalInput::GraphicalInput(std::string name, QGraphicsItem* parent)
   isEditable = false;
 
   setPorts({}, {std::pair<std::string, QPoint>{"o", QPoint(20, 60)}});
-  setState(LOW);
+  setState(State::LOW);
 
   auto nameLayout = new QHBoxLayout();
   auto nameLabel  = new QLabel("Name:");
@@ -58,9 +58,10 @@ void GraphicalInput::setState(State state)
 {
   this->skinState = state;
 
-  const QString shapePath = (skinState == HIGH) ? getOnShapePath() : getOffShapePath();
+  const QString shapePath =
+      (skinState == State::HIGH) ? getOnShapePath() : getOffShapePath();
   setItemShape(new QGraphicsSvgItem(shapePath));
-  this->getComponent()->getOutputs()[0].setCurrentValue(state == HIGH,
+  this->getComponent()->getOutputs()[0].setCurrentValue(state == State::HIGH,
                                                         getComponent()->weak_from_this());
 }
 void GraphicalInput::paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
@@ -111,7 +112,7 @@ GraphicalOutputSingle::GraphicalOutputSingle(std::string name, QGraphicsItem* pa
 
 void GraphicalOutputSingle::setState(State state)
 {
-  QString shapePath = (state == HIGH) ? getOnShapePath() : getOffShapePath();
+  QString shapePath = (state == State::HIGH) ? getOnShapePath() : getOffShapePath();
   setItemShape(new QGraphicsSvgItem(shapePath));
 }
 

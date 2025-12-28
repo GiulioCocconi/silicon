@@ -17,13 +17,13 @@
 
 #include "textItem.hpp"
 
-TextItem::TextItem(const std::string text, QGraphicsItem* parent) : QGraphicsItem(parent)
+TextItem::TextItem(const std::string& text, QGraphicsItem* parent) : QGraphicsItem(parent)
 {
   this->setText(text);
 }
 
 void TextItem::setText(const std::string text)
 {
-  this->rect = QFontMetrics(qApp->font()).boundingRect(text);
+  this->rect = QFontMetrics(QApplication::font()).boundingRect(text);
   this->text = QString::fromStdString(text);
 }

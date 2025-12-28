@@ -25,7 +25,7 @@
 
 DiagramScene::DiagramScene(QObject* parent) : QGraphicsScene(parent)
 {
-  setInteractionMode(NORMAL_MODE, true);
+  setInteractionMode(InteractionMode::NORMAL_MODE, true);
 
   csb = new ComponentSearchBox(completionMap);
   csb->setParent(this);
@@ -75,7 +75,7 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
   if (currentMode == mode && !force)
     return;
 
-  if (wireSegmentToBeDrawn && mode != WIRE_CREATION_MODE) {
+  if (wireSegmentToBeDrawn && mode != InteractionMode::WIRE_CREATION_MODE) {
     // Remove the wireSegment if it's invisible
     if (wireSegmentToBeDrawn->empty()) {
       removeItem(wireSegmentToBeDrawn);
@@ -94,7 +94,7 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
     clearWireShadow();
   }
 
-  if (currentMode == COMPONENT_PLACING_MODE) {
+  if (currentMode == InteractionMode::COMPONENT_PLACING_MODE) {
     hideCSB();
     if (componentToBeDrawn) {
       // componentToBeDrawn shadow should be cleared BEFORE switching to another mode,
@@ -106,7 +106,7 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
       componentToBeDrawn = nullptr;
     }
 
-  } else if (mode == COMPONENT_PLACING_MODE) {
+  } else if (mode == InteractionMode::COMPONENT_PLACING_MODE) {
     // We need to show the CSB
 
     // ALGORITHM: If the cursor is inside the view then try to place the component.
@@ -134,9 +134,10 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
     showCSB(view->mapToScene(posForCSB));
   }
 
-  if (mode == SIMULATION_MODE || currentMode == SIMULATION_MODE) {
+  if (mode == InteractionMode::SIMULATION_MODE
+      || currentMode == InteractionMode::SIMULATION_MODE) {
     // If we are goint to simulation mode then calculate the wires
-    if (mode == SIMULATION_MODE) {
+    if (mode == InteractionMode::SIMULATION_MODE) {
       calculateWiresForComponents();
     }
 
@@ -153,11 +154,11 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
                                  | std::ranges::to<std::vector>();
 
     for (const auto inputComponent : inputComponents) {
-      inputComponent->setState(LOW);
+      inputComponent->setState(State::LOW);
     }
 
     // If we are exiting SIMULATION_MODE then restore outputs as well
-    if (currentMode == SIMULATION_MODE) {
+    if (currentMode == InteractionMode::SIMULATION_MODE) {
       const auto outputComponents =
           items() | std::views::filter([](auto item) {
             return item->type() == SiliconTypes::SINGLE_OUTPUT;
@@ -167,7 +168,7 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
           | std::ranges::to<std::vector>();
 
       for (const auto outputComponent : outputComponents) {
-        outputComponent->setState(LOW);
+        outputComponent->setState(State::LOW);
       }
     }
   }
@@ -181,14 +182,14 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
   const QPointF cursorPos = DiagramScene::snapToGrid(mouseEvent->scenePos());
 
   switch (currentInteractionMode) {
-    case COMPONENT_PLACING_MODE: {
+    case InteractionMode::COMPONENT_PLACING_MODE: {
       if (!componentToBeDrawn)
         break;
 
       componentToBeDrawn->setPos(cursorPos);
       break;
     }
-    case WIRE_CREATION_MODE: {
+    case InteractionMode::WIRE_CREATION_MODE: {
       // Let's wait the user to start drawing the wire
       if (!wireSegmentToBeDrawn)
         break;
@@ -211,9 +212,9 @@ void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
       break;
     }
 
-    case NORMAL_MODE:
-    case PAN_MODE:
-    case SIMULATION_MODE: break;
+    case InteractionMode::NORMAL_MODE:
+    case InteractionMode::PAN_MODE:
+    case InteractionMode::SIMULATION_MODE: break;
     default: assert(false);
   }
   QGraphicsScene::mouseMoveEvent(mouseEvent);
@@ -224,8 +225,8 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
   const QPointF cursorPos = DiagramScene::snapToGrid(mouseEvent->scenePos());
 
   switch (currentInteractionMode) {
-    case NORMAL_MODE: break;
-    case COMPONENT_PLACING_MODE: {
+    case InteractionMode::NORMAL_MODE: break;
+    case InteractionMode::COMPONENT_PLACING_MODE: {
       if (componentToBeDrawn) {
         // Next components should inherit the type and rotation of the previous one
         const auto type     = static_cast<SiliconTypes>(componentToBeDrawn->type());
@@ -239,8 +240,8 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
       }
       break;
     }
-    case PAN_MODE: break;
-    case WIRE_CREATION_MODE: {
+    case InteractionMode::PAN_MODE: break;
+    case InteractionMode::WIRE_CREATION_MODE: {
       if (!wireSegmentToBeDrawn) {
         // Let's start drawing the wire!
         wireSegmentToBeDrawn = new GraphicalWireSegment(cursorPos);
@@ -253,7 +254,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
         // the segment
 
         if (manageJunctionCreation(cursorPos)) {
-          setInteractionMode(NORMAL_MODE);
+          setInteractionMode(InteractionMode::NORMAL_MODE);
           return;
         }
 
@@ -261,7 +262,7 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
       }
       break;
     }
-    case SIMULATION_MODE: {
+    case InteractionMode::SIMULATION_MODE: {
       auto itemsAtPos = items(cursorPos);
 
       for (auto item : itemsAtPos) {
@@ -281,7 +282,7 @@ void DiagramScene::keyPressEvent(QKeyEvent* event)
 {
   switch (event->key()) {
     case Qt::Key_Escape: {
-      setInteractionMode(NORMAL_MODE);
+      setInteractionMode(InteractionMode::NORMAL_MODE);
       break;
     }
     default: break;
@@ -460,7 +461,7 @@ void DiagramScene::placeComponent(const SiliconTypes type)
   }
 
   // TODO: IMPLEMENT COMPONENT SHADOW
-  setInteractionMode(COMPONENT_PLACING_MODE);
+  setInteractionMode(InteractionMode::COMPONENT_PLACING_MODE);
   setComponentShadow();
   hideCSB();
 }

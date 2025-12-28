@@ -35,7 +35,7 @@
 class GraphicalInput : public GraphicalLogicComponent {
   Q_OBJECT
 public:
-  GraphicalInput(std::string name = "in", QGraphicsItem* parent = nullptr);
+  explicit GraphicalInput(std::string name = "in", QGraphicsItem* parent = nullptr);
   int type() const override { return SiliconTypes::SINGLE_INPUT; }
 
   State getState();
@@ -55,22 +55,21 @@ private slots:
   void propertiesDialogAccepted() override;
 
 private:
-  State skinState = LOW;
+  State skinState = State::LOW;
 
   QLineEdit* nameInput = new QLineEdit();
 
   const static QString& getOnShapePath()
   {
-    static QString ON_SHAPE_PATH  = ":/other_components/input_on.svg";
+    static QString ON_SHAPE_PATH = ":/other_components/input_on.svg";
     return ON_SHAPE_PATH;
   }
 
   const static QString& getOffShapePath()
   {
-    static QString OFF_SHAPE_PATH  = ":/other_components/input_off.svg";
+    static QString OFF_SHAPE_PATH = ":/other_components/input_off.svg";
     return OFF_SHAPE_PATH;
   }
-
 
   QRectF boundingRect() const override;
 };
@@ -92,13 +91,13 @@ public:
 private:
   const static QString& getOnShapePath()
   {
-    static QString ON_SHAPE_PATH  = ":/other_components/output_on.svg";
+    static QString ON_SHAPE_PATH = ":/other_components/output_on.svg";
     return ON_SHAPE_PATH;
   }
 
   const static QString& getOffShapePath()
   {
-    static QString OFF_SHAPE_PATH  = ":/other_components/output_off.svg";
+    static QString OFF_SHAPE_PATH = ":/other_components/output_off.svg";
     return OFF_SHAPE_PATH;
   }
 };

@@ -51,6 +51,6 @@ QString Icon::getPathFromCommonName(const QString& commonName)
   if (it == getCommonToAwesomeMap().end())
     return "NOT_FOUND";
 
-  auto path = QString(":/icons/%1.svg").arg(it->second);
+  auto path = QString(":/icons/%1.svg").arg(it.value());
   return path;
 }

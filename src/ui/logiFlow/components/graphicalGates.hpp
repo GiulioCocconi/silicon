@@ -35,7 +35,7 @@ protected:
 class GraphicalAnd : public GraphicalGate {
   Q_OBJECT
 public:
-  GraphicalAnd(QGraphicsItem* parent = nullptr)
+  explicit GraphicalAnd(QGraphicsItem* parent = nullptr)
     : GraphicalGate(
           std::make_shared<AndGate>(std::vector<Wire_ptr>{nullptr, nullptr}, nullptr),
           new QGraphicsSvgItem(":/gates/AND_ANSI.svg"), parent)
@@ -48,7 +48,7 @@ public:
 class GraphicalOr : public GraphicalGate {
   Q_OBJECT
 public:
-  GraphicalOr(QGraphicsItem* parent = nullptr)
+  explicit GraphicalOr(QGraphicsItem* parent = nullptr)
     : GraphicalGate(
           std::make_shared<OrGate>(std::vector<Wire_ptr>{nullptr, nullptr}, nullptr),
           new QGraphicsSvgItem(":/gates/OR_ANSI.svg"), parent)
@@ -61,14 +61,14 @@ public:
 class GraphicalNot : public GraphicalLogicComponent {
   Q_OBJECT
 public:
-  GraphicalNot(QGraphicsItem* parent = nullptr);
+  explicit GraphicalNot(QGraphicsItem* parent = nullptr);
   int type() const override { return SiliconTypes::NOT_GATE; }
 };
 
 class GraphicalNand : public GraphicalGate {
   Q_OBJECT
 public:
-  GraphicalNand(QGraphicsItem* parent = nullptr)
+  explicit GraphicalNand(QGraphicsItem* parent = nullptr)
     : GraphicalGate(
           std::make_shared<NandGate>(std::vector<Wire_ptr>{nullptr, nullptr}, nullptr),
           new QGraphicsSvgItem(":/gates/NAND_ANSI.svg"), parent)
@@ -81,7 +81,7 @@ public:
 class GraphicalNor : public GraphicalGate {
   Q_OBJECT
 public:
-  GraphicalNor(QGraphicsItem* parent = nullptr)
+  explicit GraphicalNor(QGraphicsItem* parent = nullptr)
     : GraphicalGate(
           std::make_shared<NorGate>(std::vector<Wire_ptr>{nullptr, nullptr}, nullptr),
           new QGraphicsSvgItem(":/gates/NOR_ANSI.svg"), parent)
@@ -94,7 +94,7 @@ public:
 class GraphicalXor : public GraphicalGate {
   Q_OBJECT
 public:
-  GraphicalXor(QGraphicsItem* parent = nullptr)
+  explicit GraphicalXor(QGraphicsItem* parent = nullptr)
 
     : GraphicalGate(
           std::make_shared<XorGate>(std::array<Wire_ptr, 2>{nullptr, nullptr}, nullptr),

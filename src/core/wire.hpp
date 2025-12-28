@@ -29,7 +29,7 @@
 #include <vector>
 
 // Each wire could hold one of three states
-enum State {
+enum class State {
   LOW,
   HIGH,
   ERROR,
@@ -59,7 +59,7 @@ private:
 
 public:
   Wire();
-  Wire(State s);
+  explicit Wire(State s);
 
   State getCurrentState() const;
   void  forceSetCurrentState(const State newState);
@@ -81,9 +81,9 @@ private:
   std::vector<Wire_ptr> busData;
 
 public:
-  Bus() {};
-  Bus(unsigned short size);
-  Bus(std::vector<Wire_ptr> busData);
+  Bus() = default;
+  explicit Bus(unsigned short size);
+  explicit Bus(std::vector<Wire_ptr> busData);
   Bus(std::initializer_list<Wire> initList);
   Bus(std::initializer_list<Wire_ptr> initList);
 
@@ -98,8 +98,8 @@ public:
   [[nodiscard]] bool isInErrorState() const;
 
   Wire_ptr& operator[](unsigned short index) { return this->busData.at(index); }
-  operator std::vector<Wire_ptr>() const { return this->busData; }
-  operator std::vector<Wire_ptr>() { return this->busData; }
+  explicit  operator std::vector<Wire_ptr>() const { return this->busData; }
+  explicit  operator std::vector<Wire_ptr>() { return this->busData; }
 
   auto begin() { return this->busData.begin(); }
   auto end() { return this->busData.end(); }

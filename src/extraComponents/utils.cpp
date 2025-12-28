@@ -16,7 +16,7 @@
 
 #include "utils.hpp"
 
-WireSplitter::WireSplitter(Bus input, std::vector<Bus> outputs)
+WireSplitter::WireSplitter(Bus input, const std::vector<Bus>& outputs)
   : Component({input}, outputs, "WireSplitter")
 {
   this->setAction([this] {

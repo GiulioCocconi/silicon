@@ -28,7 +28,7 @@ Copyright (c) 2025. Giulio Cocconi
 
 class GraphicalWireSplitter : public GraphicalLogicComponent {
 public:
-  GraphicalWireSplitter(unsigned int size = 2, QGraphicsItem* parent = nullptr);
+  explicit GraphicalWireSplitter(unsigned int size = 2, QGraphicsItem* parent = nullptr);
   int  type() const override { return SiliconTypes::WIRE_SPLITTER; }
   void setSize(const unsigned int size);
 
@@ -38,7 +38,8 @@ private:
 
 class GraphicalWireMerger : public GraphicalLogicComponent {
 public:
-  GraphicalWireMerger(const unsigned int size = 2, QGraphicsItem* parent = nullptr);
+  explicit GraphicalWireMerger(const unsigned int size   = 2,
+                               QGraphicsItem*     parent = nullptr);
   int  type() const override { return SiliconTypes::WIRE_MERGER; }
   void setSize(const unsigned int size);
 

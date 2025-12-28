@@ -28,7 +28,7 @@
 
 class TextItem : public QGraphicsItem {
 public:
-  TextItem(const std::string text, QGraphicsItem* parent = nullptr);
+  explicit TextItem(const std::string& text, QGraphicsItem* parent = nullptr);
 
   void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
              QWidget* widget) override;

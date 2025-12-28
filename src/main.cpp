@@ -31,16 +31,16 @@
 int siliconMain(int argc, char** argv)
 {
   const QApplication app(argc, argv);
-  app.setApplicationName("SILICON");
-  app.setStyle("Fusion");
-  app.setApplicationVersion(SILICON_VERSION);
+  QApplication::setApplicationName("SILICON");
+  QApplication::setStyle("Fusion");
+  QApplication::setApplicationVersion(SILICON_VERSION);
 
   // LOAD THE FONTS
   QFontDatabase::addApplicationFont(":/fonts/Chango.ttf");
   QFontDatabase::addApplicationFont(":/fonts/Quicksand.ttf");
   QFontDatabase::addApplicationFont(":/fonts/NovaMono.ttf");
 
-  app.setFont(QFont("Quicksand", app.font().pointSize() * 1.2, QFont::Medium));
+  QApplication::setFont(QFont("Quicksand", app.font().pointSize() * 1.2, QFont::Medium));
 
   QApplication::setWindowIcon(Icon("silicon", {QSize(32, 32), QSize(128, 128)}));
 
@@ -59,14 +59,14 @@ int siliconMain(int argc, char** argv)
   splashScreen.showMessage("Loading...", Qt::AlignBottom | Qt::AlignHCenter, Qt::white);
 
   // Force processing of events to show the splash screen immediately
-  app.processEvents();
+  QApplication::processEvents();
 
   LogiFlowWindow lfWin{};
   lfWin.resize(QGuiApplication::primaryScreen()->size() * 0.6);
   lfWin.show();
 
   splashScreen.finish(&lfWin);
-  return app.exec();
+  return QApplication::exec();
 }
 
 #if 0

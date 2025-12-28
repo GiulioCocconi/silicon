@@ -22,7 +22,7 @@
 
 class WireSplitter : public Component {
 public:
-  WireSplitter(Bus input, std::vector<Bus> outputs);
+  WireSplitter(Bus input, const std::vector<Bus>& outputs);
 };
 
 class WireMerger : public Component {

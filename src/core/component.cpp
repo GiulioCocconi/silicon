@@ -50,7 +50,7 @@ void Component::setInputs(const std::vector<Bus>& newInputs)
   if (this->inputs == newInputs)
     return;
 
-  if (this->inputs.size() == 0) {
+  if (this->inputs.empty()) {
     this->inputs = newInputs;
   }
 

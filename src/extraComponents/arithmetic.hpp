@@ -25,18 +25,18 @@
 
 class HalfAdder : public Component {
 public:
-  HalfAdder() {};
+  HalfAdder() = default;
   HalfAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr sum, Wire_ptr cout);
 };
 
 class FullAdder : public Component {
 public:
-  FullAdder() {};
+  FullAdder() = default;
   FullAdder(std::array<Wire_ptr, 2> inputs, Wire_ptr cin, Wire_ptr sum, Wire_ptr cout);
 };
 
 class AdderNBits : public Component {
 public:
-  AdderNBits() {};
+  AdderNBits() = default;
   AdderNBits(std::array<Bus, 2> inputs, Bus sum, Wire_ptr cout);
 };

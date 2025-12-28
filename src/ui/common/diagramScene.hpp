@@ -37,7 +37,7 @@ class GraphicalComponent;
 class DiagramScene : public QGraphicsScene {
   Q_OBJECT
 public:
-  enum InteractionMode {
+  enum class InteractionMode {
     NORMAL_MODE,
     PAN_MODE,
     WIRE_CREATION_MODE,
@@ -99,7 +99,7 @@ private:
   ComponentSearchBox* csb = nullptr;
 
   // Completion map to be used with ComponentSearchBox
-  static const inline std::map<std::string, SiliconTypes> completionMap = {
+  static const inline ComponentSearchBox::SearchMap completionMap = {
       {"INPUT", SiliconTypes::SINGLE_INPUT},
       {"OUTPUT", SiliconTypes::SINGLE_OUTPUT},
       {"AND GATE", SiliconTypes::AND_GATE},

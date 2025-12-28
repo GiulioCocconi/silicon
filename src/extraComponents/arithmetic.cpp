@@ -77,7 +77,7 @@ AdderNBits::AdderNBits(std::array<Bus, 2> inputs, Bus sum, Wire_ptr cout)
      sum  = outputs[0][0:N];
      cout = outputs[1][ 0 ]; */
 
-  assert(inputs.size() == 2);
+  static_assert(inputs.size() == 2);
   assert(inputs[0].size() == sum.size());
 
   this->setAction([this] {
