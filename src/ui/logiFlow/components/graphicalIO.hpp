@@ -22,6 +22,9 @@
 #include <QGraphicsSvgItem>
 #include <QPainter>
 
+#include <QHBoxLayout>
+#include <QLabel>
+
 #include <core/component.hpp>
 #include <core/wire.hpp>
 
@@ -29,10 +32,10 @@
 #include <ui/common/graphicalComponent.hpp>
 #include <ui/logiFlow/components/graphicalLogicComponent.hpp>
 
-class GraphicalInputSingle : public GraphicalLogicComponent {
+class GraphicalInput : public GraphicalLogicComponent {
   Q_OBJECT
 public:
-  GraphicalInputSingle(std::string name = "in", QGraphicsItem* parent = nullptr);
+  GraphicalInput(std::string name = "in", QGraphicsItem* parent = nullptr);
   int type() const override { return SiliconTypes::SINGLE_INPUT; }
 
   State getState();
@@ -41,11 +44,35 @@ public:
 
   void setState(State state);
 
+  void paint(QPainter* painter, const QStyleOptionGraphicsItem* option,
+             QWidget* widget) override;
+
+  void showPropertiesDialog() override;
+
+  const QFont font = QFont("NovaMono", 12);
+
+private slots:
+  void propertiesDialogAccepted() override;
+
 private:
   State skinState = LOW;
 
-  static inline QString ON_SHAPE_PATH  = ":/other_components/input_on.svg";
-  static inline QString OFF_SHAPE_PATH = ":/other_components/input_off.svg";
+  QLineEdit* nameInput = new QLineEdit();
+
+  const static QString& getOnShapePath()
+  {
+    static QString ON_SHAPE_PATH  = ":/other_components/input_on.svg";
+    return ON_SHAPE_PATH;
+  }
+
+  const static QString& getOffShapePath()
+  {
+    static QString OFF_SHAPE_PATH  = ":/other_components/input_off.svg";
+    return OFF_SHAPE_PATH;
+  }
+
+
+  QRectF boundingRect() const override;
 };
 
 class DummyInputComponent : public Component {
@@ -63,8 +90,17 @@ public:
   void setState(State state);
 
 private:
-  static inline QString ON_SHAPE_PATH  = ":/other_components/output_on.svg";
-  static inline QString OFF_SHAPE_PATH = ":/other_components/output_off.svg";
+  const static QString& getOnShapePath()
+  {
+    static QString ON_SHAPE_PATH  = ":/other_components/output_on.svg";
+    return ON_SHAPE_PATH;
+  }
+
+  const static QString& getOffShapePath()
+  {
+    static QString OFF_SHAPE_PATH  = ":/other_components/output_off.svg";
+    return OFF_SHAPE_PATH;
+  }
 };
 
 class DummyOutputComponent : public Component {

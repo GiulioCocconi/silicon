@@ -1,7 +1,7 @@
 <component name="CopyrightManager">
-  <settings>
+  <settings default="SiliconCopyright">
     <module2copyright>
-      <element module="SiliconSrc" copyright="SiliconCopyright" />
+      <element module="Project Files" copyright="SiliconCopyright" />
     </module2copyright>
     <LanguageOptions name="C/C++">
       <option name="prefixLines" value="false" />

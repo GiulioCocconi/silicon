@@ -17,7 +17,7 @@
 
 #include "icons.hpp"
 
-Icon::Icon(const QString& commonName, const QSize targetSize)
+Icon::Icon(const QString& commonName, const std::vector<QSize> targetSizes)
 {
   QSvgRenderer renderer{};
 
@@ -33,22 +33,24 @@ Icon::Icon(const QString& commonName, const QSize targetSize)
     return;
   }
 
-  QPixmap pixmap(targetSize);
-  pixmap.fill(Qt::transparent);
+  for (auto ts : targetSizes) {
+    QPixmap pixmap(ts);
+    pixmap.fill(Qt::transparent);
 
-  QPainter painter(&pixmap);
+    QPainter painter(&pixmap);
 
-  renderer.render(&painter, pixmap.rect());
-  addPixmap(pixmap);
+    renderer.render(&painter, pixmap.rect());
+    addPixmap(pixmap);
+  }
 }
 
 QString Icon::getPathFromCommonName(const QString& commonName)
 {
-  auto it = commonToAwesomeMap.find(commonName);
+  auto it = getCommonToAwesomeMap().find(commonName);
 
-  if (it == commonToAwesomeMap.end())
+  if (it == getCommonToAwesomeMap().end())
     return "NOT_FOUND";
 
-  QString path = ":/icons/" + it->second + ".svg";
+  auto path = QString(":/icons/%1.svg").arg(it->second);
   return path;
 }

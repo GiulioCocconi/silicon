@@ -41,7 +41,7 @@ protected:
 
 public:
   GraphicalLogicComponent(const Component_ptr& component, QGraphicsItem* shape,
-                          QGraphicsItem* parent);
+                          QGraphicsItem* parent, bool scanShape = false);
 
   void
   setPorts(const std::vector<std::pair<std::string, QPoint>>& busToPortInputs,

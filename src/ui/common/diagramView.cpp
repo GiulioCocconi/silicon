@@ -21,12 +21,13 @@ void DiagramView::wheelEvent(QWheelEvent* event)
   const bool zoomDirection = event->angleDelta().y() > 0;
 
   // If the scene is in Wire Creation mode then the mouse wheel shouldn't do anything
-  auto dg = (DiagramScene*)scene();
+  const auto dg = dynamic_cast<DiagramScene*>(scene());
   if (dg->getInteractionMode() == InteractionMode::WIRE_CREATION_MODE) {
     event->ignore();
     return;
   }
 
+  // If the zoom level changes the scene should be centered to the pointer position
   if (zoom(zoomDirection))
     centerOn(mapToScene(event->position().toPoint()));
   event->accept();
@@ -40,10 +41,7 @@ bool DiagramView::zoom(bool dir)
 
 bool DiagramView::zoom(int level)
 {
-  if (level > MAX_ZOOM_LEVEL)
-    level = MAX_ZOOM_LEVEL;
-  else if (level < MIN_ZOOM_LEVEL)
-    level = MIN_ZOOM_LEVEL;
+  level = std::clamp(level, MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL);
 
   if (level != this->zoomLevel) {
     this->zoomLevel = level;
@@ -58,12 +56,12 @@ void DiagramView::updateZoom()
 {
   resetTransform();
 
-  const float FACTOR = (float)zoomLevel / 100;
+  const float FACTOR = static_cast<float>(zoomLevel) / 100;
 
   scale(FACTOR, FACTOR);
 }
 
-int DiagramView::getZoomLevel()
+int DiagramView::getZoomLevel() const
 {
   return zoomLevel;
 }

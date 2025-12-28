@@ -22,7 +22,6 @@ project("SILICON"
 include(GNUInstallDirs)
 include(InstallRequiredSystemLibraries)
 include(FetchContent)
-include(GoogleTest)
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/lib")
@@ -32,13 +31,41 @@ set(resources_dir "${CMAKE_SOURCE_DIR}/resources/app")
 
 include_directories(${src_dir})
 
+set(USING_NIX FALSE CACHE INTERNAL "Is the Nix package manager present?")
+
+if (APPLE)
+    message(WARNING "Building on Apple devices is untested, things might break")
+elseif (UNIX)
+    find_program(NIX_EXECUTABLE nix)
+
+    if (NIX_EXECUTABLE)
+        set(USING_NIX TRUE CACHE INTERNAL "Is the Nix package manager present?" FORCE)
+    endif ()
+
+    if (USING_NIX AND NOT DEFINED ENV{IN_NIX_SHELL})
+        message(WARNING "Nix detected, but not running inside a nix-shell/nix develop environment.")
+    endif ()
+endif ()
+
+if (MSVC)
+    message(FATAL_ERROR "MSVC is not currently supported!")
+endif ()
+
+option(SILICON_USE_VCPKG "Bootstrap and use bundled vcpkg for dependencies (if using Nix, this option has no effect" ON)
+
+# Include our custom CMake modules
+include(cmake/vcpkg.cmake)
+include(cmake/windows.cmake)
+include(cmake/resources.cmake)
+
 set(COMMON_SOURCE_FILES
         ${src_dir}/core/wire.cpp
         ${src_dir}/core/gates.cpp
         ${src_dir}/core/component.cpp)
 
 set(EXTRA_COMPONENTS_SOURCE_FILES
-        ${src_dir}/extraComponents/arithmetic.cpp)
+        ${src_dir}/extraComponents/arithmetic.cpp
+        ${src_dir}/extraComponents/utils.cpp)
 
 set(UI_SOURCE_FILES
         ${src_dir}/ui/common/componentSearchBox.cpp
@@ -47,9 +74,11 @@ set(UI_SOURCE_FILES
         ${src_dir}/ui/common/graphicalWire.cpp
         ${src_dir}/ui/common/graphicalComponent.cpp
         ${src_dir}/ui/common/icons.cpp
+        ${src_dir}/ui/common/aboutDialog.cpp
         ${src_dir}/ui/logiFlow/components/graphicalLogicComponent.cpp
         ${src_dir}/ui/logiFlow/components/graphicalIO.cpp
         ${src_dir}/ui/logiFlow/components/graphicalGates.cpp
+        ${src_dir}/ui/logiFlow/components/graphicalUtils.cpp
         ${src_dir}/ui/logiFlow/logiFlowWindow.cpp)
 
 set(CMAKE_COLOR_DIAGNOSTICS ON)
@@ -70,15 +99,21 @@ add_compile_definitions(
 )
 
 # Export compile_commands.json
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE BOOL "Export compile_commands.json")
 
 if (CMAKE_EXPORT_COMPILE_COMMANDS)
     set(CMAKE_CXX_STANDARD_INCLUDE_DIRECTORIES
             ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES})
 endif ()
 
-add_compile_options(-Wall -Wextra -Wno-unused-parameter -fsanitize=address -fsanitize=undefined)
-add_link_options(-fsanitize=address -fsanitize=undefined -static-libasan)
+if (MSVC)
+    add_compile_options(/W4)
+elseif (UNIX AND NOT APPLE)
+    add_compile_options(-Wall -Wextra -Wno-unused-parameter -fsanitize=address -fsanitize=undefined)
+    add_link_options(-fsanitize=address -fsanitize=undefined)
+elseif (WIN32 AND MINGW)
+    add_compile_options(-Wall -Wextra -Wno-unused-parameter)
+endif ()
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets SvgWidgets)
 qt_standard_project_setup()
@@ -92,80 +127,19 @@ target_sources(Silicon
         ${EXTRA_COMPONENTS_SOURCE_FILES}
         ${UI_SOURCE_FILES})
 
+target_compile_options(Silicon PRIVATE -Werror)
 target_link_libraries(Silicon PRIVATE Qt6::Widgets Qt6::SvgWidgets)
+win_deploy_qt(Silicon)
 
-qt_add_resources(Silicon "images" BASE ${resources_dir}
-        FILES
-        ${resources_dir}/splash.jpg)
-
-
-qt_add_resources(Silicon "fonts" BASE ${resources_dir}
-        FILES
-        ${resources_dir}/fonts/Chango.ttf
-        ${resources_dir}/fonts/Quicksand.ttf)
-
-qt_add_resources(Silicon "icons" BASE ${resources_dir}
-        FILES
-        ${resources_dir}/icons/arrow-pointer-solid.svg
-        ${resources_dir}/icons/arrows-up-down-left-right-solid.svg
-        ${resources_dir}/icons/chart-line-solid.svg
-        ${resources_dir}/icons/check-solid.svg
-        ${resources_dir}/icons/circle-info-solid.svg
-        ${resources_dir}/icons/circle-xmark-solid.svg
-        ${resources_dir}/icons/copy-solid.svg
-        ${resources_dir}/icons/explosion-solid.svg
-        ${resources_dir}/icons/file-export-solid.svg
-        ${resources_dir}/icons/file-regular.svg
-        ${resources_dir}/icons/floppy-disk-solid.svg
-        ${resources_dir}/icons/folder-open-regular.svg
-        ${resources_dir}/icons/link-solid.svg
-        ${resources_dir}/icons/paste-solid.svg
-        ${resources_dir}/icons/play-solid.svg
-        ${resources_dir}/icons/plug-circle-xmark-solid.svg
-        ${resources_dir}/icons/plug-solid.svg
-        ${resources_dir}/icons/plus-solid.svg
-        ${resources_dir}/icons/print-solid.svg
-        ${resources_dir}/icons/rotate-left-solid.svg
-        ${resources_dir}/icons/rotate-right-solid.svg
-        ${resources_dir}/icons/rotate-solid.svg
-        ${resources_dir}/icons/scissors-solid.svg
-        ${resources_dir}/icons/trash-solid.svg
-        ${resources_dir}/icons/xmark-solid.svg
-)
-
-qt_add_resources(Silicon "ANSI_icons" BASE ${resources_dir}
-        FILES
-        ${resources_dir}/gates/AND_ANSI.svg
-        ${resources_dir}/gates/OR_ANSI.svg
-        ${resources_dir}/gates/NOT_ANSI.svg
-        ${resources_dir}/gates/NAND_ANSI.svg
-        ${resources_dir}/gates/NOR_ANSI.svg
-        ${resources_dir}/gates/XOR_ANSI.svg
-)
-
-qt_add_resources(Silicon "other_components" BASE ${resources_dir}
-        FILES
-        ${resources_dir}/other_components/input_off.svg
-        ${resources_dir}/other_components/output_off.svg
-        ${resources_dir}/other_components/input_on.svg
-        ${resources_dir}/other_components/output_on.svg
-)
-
+# Add resources after Qt setup
+add_silicon_resources(Silicon)
 
 if (SILICON_BUILD_TESTS)
-    find_package(GTest QUIET)
+    include(GoogleTest)
+    find_package(GTest REQUIRED)
 
-    if (NOT GTest_FOUND)
-        message(STATUS "googletest not found, fetching with FetchContent...")
-
-        FetchContent_Declare(
-                GTest
-                GIT_REPOSITORY https://github.com/google/googletest.git
-        )
-        FetchContent_MakeAvailable(GTest)
-
-    else ()
-        message(STATUS "GOOGLETEST ALREADY INSTALLED!")
+    if (WIN32)
+        set(GTEST_LINKED_AS_SHARED_LIBRARY ON)
     endif ()
 
     add_subdirectory("${CMAKE_SOURCE_DIR}/tests")

@@ -53,7 +53,7 @@ public:
     return currentInteractionMode;
   }
 
-  [[nodiscard]] GraphicalComponent* getComponentToBeDrawn();
+  [[nodiscard]] GraphicalComponent* getComponentToBeDrawn() const;
 
   void showCSB(QPointF pos);
 
@@ -98,11 +98,18 @@ private:
 
   ComponentSearchBox* csb = nullptr;
 
+  // Completion map to be used with ComponentSearchBox
   static const inline std::map<std::string, SiliconTypes> completionMap = {
-      {"INPUT", SiliconTypes::SINGLE_INPUT},  {"OUTPUT", SiliconTypes::SINGLE_OUTPUT},
-      {"AND GATE", SiliconTypes::AND_GATE},   {"OR GATE", SiliconTypes::OR_GATE},
-      {"NAND GATE", SiliconTypes::NAND_GATE}, {"NOR GATE", SiliconTypes::NOR_GATE},
-      {"NOT GATE", SiliconTypes::NOT_GATE},   {"XOR GATE", SiliconTypes::XOR_GATE}};
+      {"INPUT", SiliconTypes::SINGLE_INPUT},
+      {"OUTPUT", SiliconTypes::SINGLE_OUTPUT},
+      {"AND GATE", SiliconTypes::AND_GATE},
+      {"OR GATE", SiliconTypes::OR_GATE},
+      {"NAND GATE", SiliconTypes::NAND_GATE},
+      {"NOR GATE", SiliconTypes::NOR_GATE},
+      {"NOT GATE", SiliconTypes::NOT_GATE},
+      {"XOR GATE", SiliconTypes::XOR_GATE},
+      {"WIRE SPLITTER", SiliconTypes::WIRE_SPLITTER},
+      {"WIRE MERGER", SiliconTypes::WIRE_MERGER}};
 };
 
 using InteractionMode = DiagramScene::InteractionMode;

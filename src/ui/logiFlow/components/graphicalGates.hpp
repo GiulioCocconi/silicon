@@ -27,7 +27,7 @@ class GraphicalGate : public GraphicalLogicComponent {
   Q_OBJECT
 protected:
   GraphicalGate(const std::shared_ptr<Gate> gate, QGraphicsItem* shape,
-                QGraphicsItem* parent = nullptr);
+                QGraphicsItem* parent = nullptr, bool scanShape = false);
 
   int type() const override { return SiliconTypes::UNKNOWN; }
 };
@@ -98,7 +98,7 @@ public:
 
     : GraphicalGate(
           std::make_shared<XorGate>(std::array<Wire_ptr, 2>{nullptr, nullptr}, nullptr),
-          new QGraphicsSvgItem(":/gates/XOR_ANSI.svg"), parent)
+          new QGraphicsSvgItem(":/gates/XOR_ANSI.svg"), parent, true)
   {
   }
 

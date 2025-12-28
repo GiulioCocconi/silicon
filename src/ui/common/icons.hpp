@@ -30,35 +30,40 @@
 
 class Icon : public QIcon {
 public:
-  Icon(const QString& commonName, const QSize targetSize = QSize(32, 32));
+  Icon(const QString& commonName, const std::vector<QSize> targetSizes = {QSize(32, 32)});
 
 private:
-  static const inline std::unordered_map<QString, QString> commonToAwesomeMap{
-      {"mouse-pointer", "arrow-pointer-solid"},
-      {"pan", "arrows-up-down-left-right-solid"},
-      {"chart", "chart-line-solid"},
-      {"check", "check-solid"},
-      {"info", "circle-info-solid"},
-      {"xmark", "circle-xmark-solid"},
-      {"copy", "copy-solid"},
-      {"explosion", "explosion-solid"},
-      {"export", "file-export-solid"},
-      {"file", "file-regular"},
-      {"save", "floppy-disk-solid"},
-      {"open", "folder-open-regular"},
-      {"link", "link-solid"},
-      {"paste", "paste-solid"},
-      {"plug-error", "plug-circle-xmark-solid"},
-      {"play", "play-solid"},
-      {"plug", "plug-solid"},
-      {"plus", "plus-solid"},
-      {"print", "print-solid"},
-      {"undo", "rotate-left-solid"},
-      {"redo", "rotate-right-solid"},
-      {"rotate", "rotate-solid"},
-      {"cut", "scissors-solid"},
-      {"delete", "trash-solid"},
-      {"xmark", "xmark-solid"}};
+  // Little hack to prevent static initialization order issues
+  static const std::unordered_map<QString, QString>& getCommonToAwesomeMap() {
+    static const std::unordered_map<QString, QString> commonToAwesomeMap{
+          {"silicon", "silicon-icon"},
+          {"mouse-pointer", "arrow-pointer-solid"},
+          {"pan", "arrows-up-down-left-right-solid"},
+          {"chart", "chart-line-solid"},
+          {"check", "check-solid"},
+          {"info", "circle-info-solid"},
+          {"xmark", "circle-xmark-solid"},
+          {"copy", "copy-solid"},
+          {"explosion", "explosion-solid"},
+          {"export", "file-export-solid"},
+          {"file", "file-regular"},
+          {"save", "floppy-disk-solid"},
+          {"open", "folder-open-regular"},
+          {"link", "link-solid"},
+          {"paste", "paste-solid"},
+          {"plug-error", "plug-circle-xmark-solid"},
+          {"play", "play-solid"},
+          {"plug", "plug-solid"},
+          {"plus", "plus-solid"},
+          {"print", "print-solid"},
+          {"undo", "rotate-left-solid"},
+          {"redo", "rotate-right-solid"},
+          {"rotate", "rotate-solid"},
+          {"cut", "scissors-solid"},
+          {"delete", "trash-solid"},
+          {"xmark", "xmark-solid"}};
+    return commonToAwesomeMap;
+  }
 
   static QString getPathFromCommonName(const QString& commonName);
 };
