@@ -7,7 +7,6 @@ on:
 permissions:
   contents: read
   pull-requests: write
-  issues: write
 
 jobs:
   check-compliance:
@@ -16,179 +15,173 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history for all branches
+          fetch-depth: 0
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Fetch base branch
-        run: |
-          git fetch origin ${{ github.event.pull_request.base.ref }}
+        run: git fetch origin ${{ github.event.pull_request.base.ref }}
 
-      - name: Check commit sign-offs
-        id: signoff
+      - name: Check and fix whitespace issues
+        id: whitespace
         run: |
-          echo "Checking commits for sign-offs..."
-          UNSIGNED_COMMITS=""
+          set +e
           
-          # Get list of commits in the PR
-          COMMITS=$(git log --format="%H" origin/${{ github.event.pull_request.base.ref }}..HEAD)
+          echo "Checking for whitespace issues..."
           
-          for commit in $COMMITS; do
-            # Check if commit message contains "Signed-off-by"
-            if ! git log --format=%B -n 1 $commit | grep -q "^Signed-off-by:"; then
-              COMMIT_MSG=$(git log --format="%s" -n 1 $commit)
-              COMMIT_AUTHOR=$(git log --format="%an" -n 1 $commit)
-              UNSIGNED_COMMITS="${UNSIGNED_COMMITS}* ${commit:0:7} - \"$COMMIT_MSG\" by $COMMIT_AUTHOR\n"
-            fi
-          done
+          BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
           
-          if [ -n "$UNSIGNED_COMMITS" ]; then
-            echo "has_unsigned=true" >> $GITHUB_OUTPUT
-            echo -e "$UNSIGNED_COMMITS" > unsigned_commits.txt
+          # Check for trailing whitespace, spaces before tabs, etc.
+          git diff --check $BASE_REF...HEAD > whitespace_errors.txt 2>&1
+
+          if [ $? -ne 0 ]; then
+            echo "has_whitespace_issues=true" >> $GITHUB_OUTPUT
+            echo "Whitespace issues found"
+            cat whitespace_errors.txt
             exit 1
           else
-            echo "has_unsigned=false" >> $GITHUB_OUTPUT
-            echo "All commits are signed off ✓"
+            echo "has_whitespace_issues=false" >> $GITHUB_OUTPUT
+            echo "No whitespace issues found ✓"
           fi
 
-      - name: Check commit message format
-        id: commit_format
-        if: always()
+      - name: Check compliance
+        id: check
         run: |
-          echo "Checking commit message format..."
-          INVALID_COMMITS=""
+          set +e  # Don't exit on error
+
+          BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
+          COMMITS=$(git log --format="%H" $BASE_REF..HEAD)
           
           # Allowed types from CONTRIBUTING.md
           TYPES="feat|fix|docs|style|refactor|perf|test|build|chore|revert|contributors|misc"
           
-          COMMITS=$(git log --format="%H" origin/${{ github.event.pull_request.base.ref }}..HEAD)
+          UNSIGNED=""
+          INVALID=""
           
-          for commit in $COMMITS; do
-            COMMIT_MSG=$(git log --format=%s -n 1 $commit)
+          while IFS= read -r commit; do
+            [[ -z "$commit" ]] && continue
+
+            msg=$(git log --format=%B -n 1 "$commit")
+            subject=$(git log --format=%s -n 1 "$commit")
+            author=$(git log --format=%an -n 1 "$commit")
+            short="${commit:0:7}"
             
-            # Check if commit message follows the format: type(scope): description or type: description
-            if ! echo "$COMMIT_MSG" | grep -qE "^($TYPES)(\(.+\))?: .+"; then
-              COMMIT_AUTHOR=$(git log --format="%an" -n 1 $commit)
-              INVALID_COMMITS="${INVALID_COMMITS}* ${commit:0:7} - \"$COMMIT_MSG\" by $COMMIT_AUTHOR\n"
+            # Check sign-off
+            if ! echo "$msg" | grep -q "^Signed-off-by:"; then
+              UNSIGNED+="* $short - \"$subject\" by $author"$'\n'
             fi
-          done
+
+            # Check commit format
+            if ! echo "$subject" | grep -qE "^($TYPES)(\(.+\))?: .+"; then
+              INVALID+="* $short - \"$subject\" by $author"$'\n'
+            fi
+          done <<< "$COMMITS"
+
+          # Set outputs
+          if [[ -n "$UNSIGNED" ]]; then
+            echo "has_unsigned=true" >> $GITHUB_OUTPUT
+            echo "$UNSIGNED" > unsigned_commits.txt
+          else
+            echo "has_unsigned=false" >> $GITHUB_OUTPUT
+            echo "All commits are signed off ✓"
+          fi
           
-          if [ -n "$INVALID_COMMITS" ]; then
+          if [[ -n "$INVALID" ]]; then
             echo "has_invalid=true" >> $GITHUB_OUTPUT
-            echo -e "$INVALID_COMMITS" > invalid_commits.txt
-            exit 1
+            echo "$INVALID" > invalid_commits.txt
           else
             echo "has_invalid=false" >> $GITHUB_OUTPUT
             echo "All commit messages follow the format ✓"
           fi
 
-      - name: Comment on PR with issues
-        if: failure()
+          # Exit with error if any issues found
+          [[ -n "$UNSIGNED" || -n "$INVALID" ]] && exit 1 || exit 0
+
+      - name: Update PR comment
+        if: always()
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
-            let comment = '## ⚠️ PR Compliance Issues\n\n';
-            let hasIssues = false;
+            const hasUnsigned = '${{ steps.check.outputs.has_unsigned }}' === 'true';
+            const hasInvalid = '${{ steps.check.outputs.has_invalid }}' === 'true';
+            const hasWhitespace = '${{ steps.whitespace.outputs.has_whitespace_issues }}' === 'true';
             
-            // Check for unsigned commits
-            if (fs.existsSync('unsigned_commits.txt')) {
-              const unsigned = fs.readFileSync('unsigned_commits.txt', 'utf8');
-              comment += '### Missing Sign-offs\n\n';
-              comment += 'The following commits are missing the required sign-off:\n\n';
-              comment += unsigned;
-              comment += '\n**How to fix:**\n';
-              comment += '```bash\n';
-              comment += 'git rebase --signoff origin/${{ github.event.pull_request.base.ref }}\n';
-              comment += 'git push --force-with-lease\n';
-              comment += '```\n\n';
-              hasIssues = true;
-            }
+            let comment = '';
             
-            // Check for invalid commit messages
-            if (fs.existsSync('invalid_commits.txt')) {
-              const invalid = fs.readFileSync('invalid_commits.txt', 'utf8');
-              comment += '### Invalid Commit Message Format\n\n';
-              comment += 'The following commits do not follow the [Conventional Commits](https://www.conventionalcommits.org/) format:\n\n';
-              comment += invalid;
-              comment += '\n**Expected format:** `type(scope): description`\n\n';
-              comment += '**Allowed types:** feat, fix, docs, style, refactor, perf, test, build, chore, revert, contributors, misc\n\n';
-              comment += '**How to fix:**\n';
-              comment += '```bash\n';
-              comment += 'git rebase -i origin/${{ github.event.pull_request.base.ref }}\n';
-              comment += '# Edit commit messages to follow the format\n';
-              comment += 'git push --force-with-lease\n';
-              comment += '```\n\n';
-              hasIssues = true;
-            }
-            
-            if (hasIssues) {
+            if (hasUnsigned || hasInvalid || hasWhitespace) {
+              comment = '## ⚠️ PR Compliance Issues\n\n';
+              
+              if (hasWhitespace && fs.existsSync('whitespace_errors.txt')) {
+                const whitespaceErrors = fs.readFileSync('whitespace_errors.txt', 'utf8');
+                comment += '### Whitespace Issues\n\n';
+                comment += 'The following files have whitespace issues:\n\n';
+                comment += '```\n' + whitespaceErrors + '```\n\n';
+                comment += '**Fix:**\n';
+                comment += '```bash\n';
+                comment += '# Automatically fix whitespace issues\n';
+                comment += 'git rebase --whitespace=fix origin/${{ github.event.pull_request.base.ref }}\n';
+                comment += 'git push --force-with-lease\n';
+                comment += '```\n\n';
+              }
+              
+              if (hasUnsigned) {
+                const unsigned = fs.readFileSync('unsigned_commits.txt', 'utf8');
+                comment += '### Missing Sign-offs\n\n';
+                comment += 'The following commits are missing the required sign-off:\n\n';
+                comment += unsigned;
+                comment += '\n**Fix:**\n';
+                comment += '```bash\n';
+                comment += 'git rebase --signoff origin/${{ github.event.pull_request.base.ref }}\n';
+                comment += 'git push --force-with-lease\n';
+                comment += '```\n\n';
+              }
+              
+              if (hasInvalid) {
+                const invalid = fs.readFileSync('invalid_commits.txt', 'utf8');
+                comment += '### Invalid Commit Message Format\n\n';
+                comment += 'The following commits do not follow the [Conventional Commits](https://www.conventionalcommits.org/) format:\n\n';
+                comment += invalid;
+                comment += '\n**Expected format:** `type(scope): description`\n\n';
+                comment += '**Allowed types:** feat, fix, docs, style, refactor, perf, test, build, chore, revert, contributors, misc\n\n';
+                comment += '**Fix:**\n';
+                comment += '```bash\n';
+                comment += 'git rebase -i origin/${{ github.event.pull_request.base.ref }}\n';
+                comment += '# Edit commit messages to follow the format\n';
+                comment += 'git push --force-with-lease\n';
+                comment += '```\n\n';
+              }
+
               comment += '---\n\n';
               comment += 'Please fix these issues before your PR can be merged. ';
-              comment += 'See [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md) for more details.\n';
-              
-              // Find existing bot comment and update or create new one
-              const { data: comments } = await github.rest.issues.listComments({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-              });
-              
-              const botComment = comments.find(comment => 
-                comment.user.type === 'Bot' && 
-                comment.body.includes('PR Compliance Issues')
-              );
-              
-              if (botComment) {
-                await github.rest.issues.updateComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  comment_id: botComment.id,
-                  body: comment
-                });
-              } else {
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: context.issue.number,
-                  body: comment
-                });
-              }
+              comment += 'See [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md) for details.\n';
+            } else {
+              comment = '## ✅ PR Compliance Check Passed\n\n' +
+                       'All commits are properly signed off, follow the required format, and have no whitespace issues.\n';
             }
-
-      - name: Comment success on PR
-        if: success()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const comment = '## ✅ PR Compliance Check Passed\n\n' +
-                          'All commits are properly signed off and follow the required format.\n';
             
-            // Find and delete old bot comments about issues
+            // Find existing bot comment
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
             });
             
-            const botComment = comments.find(comment => 
-              comment.user.type === 'Bot' && 
-              comment.body.includes('PR Compliance')
+            const botComment = comments.find(c =>
+              c.user.type === 'Bot' && c.body.includes('PR Compliance')
             );
             
             if (botComment) {
-              if (botComment.body.includes('Issues')) {
-                // Delete old issue comment and post success
-                await github.rest.issues.deleteComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  comment_id: botComment.id,
-                });
-                
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: context.issue.number,
-                  body: comment
-                });
-              }
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: comment
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: comment
+              });
             }
