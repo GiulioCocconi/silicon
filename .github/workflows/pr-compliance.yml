@@ -36,20 +36,18 @@ jobs:
           if [ $? -ne 0 ]; then
             echo "has_whitespace_issues=true" >> $GITHUB_OUTPUT
             echo "Whitespace issues found"
-            cat whitespace_errors.txt
-            exit 1
           else
             echo "has_whitespace_issues=false" >> $GITHUB_OUTPUT
             echo "No whitespace issues found ✓"
           fi
 
-      - name: Check compliance
+      - name: Check commit compliance
         id: check
         run: |
           set +e  # Don't exit on error
 
           BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
-          COMMITS=$(git log --format="%H" $BASE_REF..HEAD)
+          COMMITS=$(git log --no-merges --format="%H" $BASE_REF..HEAD)
           
           # Allowed types from CONTRIBUTING.md
           TYPES="feat|fix|docs|style|refactor|perf|test|build|chore|revert|contributors|misc"
@@ -82,7 +80,6 @@ jobs:
             echo "$UNSIGNED" > unsigned_commits.txt
           else
             echo "has_unsigned=false" >> $GITHUB_OUTPUT
-            echo "All commits are signed off ✓"
           fi
           
           if [[ -n "$INVALID" ]]; then
@@ -90,11 +87,46 @@ jobs:
             echo "$INVALID" > invalid_commits.txt
           else
             echo "has_invalid=false" >> $GITHUB_OUTPUT
-            echo "All commit messages follow the format ✓"
           fi
 
-          # Exit with error if any issues found
-          [[ -n "$UNSIGNED" || -n "$INVALID" ]] && exit 1 || exit 0
+      - name: Check AUTHORS.md file for first-time contributors
+        id: authors
+        run: |
+          set +e
+          PR_USER="${{ github.actor }}"
+          BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
+
+          echo "Checking if @$PR_USER is in AUTHORS.md..."
+
+          # Check if user exists in base AUTHORS.md file
+          # We use git show to check the file content in the base branch
+          if git show "$BASE_REF:AUTHORS.md" | grep -q "@$PR_USER"; then
+            echo "User already found in AUTHORS.md. Skipping check."
+            echo "is_missing=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "User not found in base AUTHORS.md. Verifying addition..."
+
+          # 1. Check if AUTHORS.md file is modified in this PR
+          if ! git diff --name-only "$BASE_REF...HEAD" | grep -q "^AUTHORS\.md$"; then
+            echo "Error: AUTHORS.md file not modified."
+            echo "is_missing=true" >> $GITHUB_OUTPUT
+            echo "error_type=no_file_change" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # 2. Check if the specific commit message exists
+          REQUIRED_MSG="contributors: add @$PR_USER to AUTHORS.md"
+          if ! git log "$BASE_REF..HEAD" --format=%s | grep -Fq "$REQUIRED_MSG"; then
+            echo "Error: specific commit message missing."
+            echo "is_missing=true" >> $GITHUB_OUTPUT
+            echo "error_type=bad_message" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "New contributor checks passed."
+          echo "is_missing=false" >> $GITHUB_OUTPUT
 
       - name: Update PR comment
         if: always()
@@ -102,61 +134,95 @@ jobs:
         with:
           script: |
             const fs = require('fs');
+
+            // Collect status
             const hasUnsigned = '${{ steps.check.outputs.has_unsigned }}' === 'true';
             const hasInvalid = '${{ steps.check.outputs.has_invalid }}' === 'true';
             const hasWhitespace = '${{ steps.whitespace.outputs.has_whitespace_issues }}' === 'true';
-            
+            const authorsMissing = '${{ steps.authors.outputs.is_missing }}' === 'true';
+            const authorsErrorType = '${{ steps.authors.outputs.error_type }}';
+            const prUser = '${{ github.actor }}';
+
             let comment = '';
             
-            if (hasUnsigned || hasInvalid || hasWhitespace) {
+            if (hasUnsigned || hasInvalid || hasWhitespace || authorsMissing) {
               comment = '## ⚠️ PR Compliance Issues\n\n';
+              comment += 'Please fix the following issues before your PR can be merged.\n\n';
               
-              if (hasWhitespace && fs.existsSync('whitespace_errors.txt')) {
-                const whitespaceErrors = fs.readFileSync('whitespace_errors.txt', 'utf8');
-                comment += '### Whitespace Issues\n\n';
-                comment += 'The following files have whitespace issues:\n\n';
-                comment += '```\n' + whitespaceErrors + '```\n\n';
-                comment += '**Fix:**\n';
-                comment += '```bash\n';
-                comment += '# Automatically fix whitespace issues\n';
-                comment += 'git rebase --whitespace=fix origin/${{ github.event.pull_request.base.ref }}\n';
-                comment += 'git push --force-with-lease\n';
-                comment += '```\n\n';
+              // 1. AUTHORS.md File (First-time contributors)
+              if (authorsMissing) {
+                comment += '### ❌ AUTHORS.md Check\n\n';
+                comment += `It looks like your username (**@${prUser}**) is not in the \`AUTHORS.md\` file.\n\n`;
+
+                if (authorsErrorType === 'no_file_change') {
+                  comment += '- You must add yourself to the `AUTHORS.md` file.\n';
+                }
+
+                if (authorsErrorType === 'bad_message') {
+                   comment += '- You modified the `AUTHORS.md` file, but the commit message format is incorrect.\n';
+                }
+
+                comment += '\nPlease ensure you have a separate commit with the exact subject:\n';
+                comment += `\`contributors: add @${prUser} to AUTHORS.md\`\n\n`;
               }
-              
-              if (hasUnsigned) {
-                const unsigned = fs.readFileSync('unsigned_commits.txt', 'utf8');
-                comment += '### Missing Sign-offs\n\n';
-                comment += 'The following commits are missing the required sign-off:\n\n';
-                comment += unsigned;
-                comment += '\n**Fix:**\n';
-                comment += '```bash\n';
-                comment += 'git rebase --signoff origin/${{ github.event.pull_request.base.ref }}\n';
-                comment += 'git push --force-with-lease\n';
-                comment += '```\n\n';
-              }
-              
+
+
+              // 2. Invalid Commit Format
               if (hasInvalid) {
                 const invalid = fs.readFileSync('invalid_commits.txt', 'utf8');
-                comment += '### Invalid Commit Message Format\n\n';
-                comment += 'The following commits do not follow the [Conventional Commits](https://www.conventionalcommits.org/) format:\n\n';
+                comment += '### ❌ Invalid Commit Message Format\n\n';
+                comment += 'The following commits do not follow the required format:\n\n';
                 comment += invalid;
-                comment += '\n**Expected format:** `type(scope): description`\n\n';
+                comment += '\n**Expected format:** `type(scope): description`\n';
                 comment += '**Allowed types:** feat, fix, docs, style, refactor, perf, test, build, chore, revert, contributors, misc\n\n';
-                comment += '**Fix:**\n';
+                comment += '<details><summary><b>Click to see how to fix</b></summary>\n\n';
                 comment += '```bash\n';
                 comment += 'git rebase -i origin/${{ github.event.pull_request.base.ref }}\n';
                 comment += '# Edit commit messages to follow the format\n';
                 comment += 'git push --force-with-lease\n';
-                comment += '```\n\n';
+                comment += '```\n';
+                comment += '</details>\n\n';
               }
 
-              comment += '---\n\n';
-              comment += 'Please fix these issues before your PR can be merged. ';
+
+              // 3. Unsigned Commits
+              if (hasUnsigned) {
+                const unsigned = fs.readFileSync('unsigned_commits.txt', 'utf8');
+                comment += '### ❌ Missing Sign-offs\n\n';
+                comment += 'The following commits are missing the required sign-off:\n\n';
+                comment += unsigned;
+                comment += '\n<details><summary><b>Click to see how to fix</b></summary>\n\n';
+                comment += '```bash\n';
+                comment += 'git rebase --signoff origin/${{ github.event.pull_request.base.ref }}\n';
+                comment += 'git push --force-with-lease\n';
+                comment += '```\n';
+                comment += '</details>\n\n';
+              }
+
+              // 4. Whitespace
+              if (hasWhitespace) {
+                const whitespaceErrors = fs.readFileSync('whitespace_errors.txt', 'utf8');
+                comment += '### ❌ Whitespace Issues\n\n';
+                comment += 'The following files have whitespace issues:\n\n';
+                comment += '```\n' + whitespaceErrors + '```\n\n';
+                comment += '<details><summary><b>Click to see how to fix</b></summary>\n\n';
+                comment += '```bash\n';
+                comment += 'git rebase --whitespace=fix origin/${{ github.event.pull_request.base.ref }}\n';
+                comment += 'git push --force-with-lease\n';
+                comment += '```\n';
+                comment += '</details>\n\n';
+              }
+
+
+
+              comment += '---\n';
               comment += 'See [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md) for details.\n';
             } else {
               comment = '## ✅ PR Compliance Check Passed\n\n' +
-                       'All commits are properly signed off, follow the required format, and have no whitespace issues.\n';
+                       'All checks passed:\n' +
+                       '- [x] No whitespace issues\n' +
+                       '- [x] All commits signed off + formatted correctly\n' +
+                       "- [x] `AUTHORS.md` file contains the PR's author username\n";
             }
             
             // Find existing bot comment
@@ -185,3 +251,13 @@ jobs:
                 body: comment
               });
             }
+
+      - name: Fail workflow if issues found
+        if: |
+          steps.whitespace.outputs.has_whitespace_issues == 'true' ||
+          steps.check.outputs.has_unsigned == 'true' ||
+          steps.check.outputs.has_invalid == 'true' ||
+          steps.authors.outputs.is_missing == 'true'
+        run: |
+          echo "Compliance checks failed. See the PR comment for details."
+          exit 1
