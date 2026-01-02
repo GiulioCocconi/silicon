@@ -89,11 +89,19 @@ jobs:
             echo "has_invalid=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Check AUTHORS.md file for first-time contributors
+      - name: Check AUTHORS.md file
         id: authors
         run: |
           set +e
           PR_USER="${{ github.actor }}"
+
+          # Check if user is a bot (e.g., dependabot[bot])
+          if [[ "$PR_USER" == *"[bot]"* ]]; then
+            echo "User is a bot ($PR_USER). Skipping AUTHORS.md check."
+            echo "is_missing=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
           BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
 
           echo "Checking if @$PR_USER is in AUTHORS.md..."
