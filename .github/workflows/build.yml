@@ -1,0 +1,101 @@
+name: Build CI
+
+on:
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - '**.cpp'
+      - '**.hpp'
+      - '**/CMakeLists.txt'
+      - '**.cmake'
+      - 'shell.nix'
+      - '.github/workflows/build.yml'
+
+
+
+jobs:
+  set-label:
+    name: Set build label
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr edit ${{ github.event.pull_request.number }} \
+            --add-label "build" \
+            --repo ${{ github.repository }}
+
+
+  # -----------------------------------------------------------------------------
+  # LINUX BUILD (Nix)
+  # -----------------------------------------------------------------------------
+  build-linux:
+    name: Linux (Nix)
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: "write"
+      contents: "read"
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install Nix
+        # uses: wimpysworld/nothing-but-nix@v6
+        uses: DeterminateSystems/nix-installer-action@v21
+
+      - name: Cache Nix store
+        uses: DeterminateSystems/magic-nix-cache-action@v13
+        with:
+          diagnostic-endpoint: ""
+          use-flakehub: "false"
+
+      - name: Configure CMake
+        run: nix-shell --run "cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -Bbuild"
+
+      - name: Build
+        run: nix-shell --run "ninja -C build"
+
+  # -----------------------------------------------------------------------------
+  # WINDOWS BUILD (MinGW + vcpkg)
+  # -----------------------------------------------------------------------------
+  build-windows:
+    name: Windows (MinGW)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup MinGW
+        uses: egor-tensin/setup-mingw@v3
+
+      - name: Install Ninja
+        run: choco install ninja
+
+      # Caching is critical for Windows/vcpkg to avoid hour-long builds
+      - name: Restore vcpkg Cache
+        uses: actions/cache@v4
+        id: vcpkg-cache
+        with:
+          path: |
+            build/vcpkg_installed
+            ~/.cache/vcpkg/archives
+            %LOCALAPPDATA%/vcpkg/archives
+          # Invalidate cache if vcpkg manifest changes
+          key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
+          restore-keys: |
+            ${{ runner.os }}-vcpkg-
+
+      - name: Configure CMake
+        # Setting CC/CXX ensures CMake picks up MinGW instead of MSVC
+        run: |
+          cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -Bbuild
+        env:
+          CC: gcc
+          CXX: g++
+
+      - name: Build
+        run: ninja -C build
