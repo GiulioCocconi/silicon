@@ -21,11 +21,17 @@ if (SILICON_USE_VCPKG AND NOT USING_NIX)
 
     set(ENV{VCPKG_USE_SYSTEM_BINARIES} "1")
 
+    # Get the correct commit hash from vcpkg.json
+    file(READ "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg.json" VCPKG_JSON_CONTENT)
+
+    # 2. Extract the "builtin-baseline" field
+    string(JSON VCPKG_BASELINE_SHA GET "${VCPKG_JSON_CONTENT}" "builtin-baseline")
+
     # Download Vcpkg source
     FetchContent_Declare(
             vcpkg
             GIT_REPOSITORY https://github.com/microsoft/vcpkg.git
-            GIT_TAG 2025.12.12 # Pinning ensures reproducible builds (when is changed then the latest commit hash should be put in vcpkg.json)
+            GIT_TAG ${VCPKG_BASELINE_SHA}
     )
     FetchContent_MakeAvailable(vcpkg)
 
