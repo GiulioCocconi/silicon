@@ -58,14 +58,6 @@ cd <project-root>
 ln -s ./build/compile_commands.json compile_commands.json
 ```
 
-## Git Hooks
-
-In order to be able to use the `git hooks` written for this project you need to set a specific config value (it's local to the project so you shouldn't need to worry):
-
-```shell
-git config core.hooksPath hooks/
-```
-
 ## Compiling
 
 ### On Linux

@@ -38,7 +38,7 @@ protected:
 
 public:
   Component() = default;
-  Component(std::vector<Bus> inputs, std::vector<Bus> outputs, std::string name);
+    Component(std::vector<Bus> inputs, std::vector<Bus> outputs, std::string name);
 
   void setAction(const action& a);
 
