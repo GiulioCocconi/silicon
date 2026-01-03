@@ -33,14 +33,14 @@ int siliconMain(int argc, char** argv)
   const QApplication app(argc, argv);
   QApplication::setApplicationName("SILICON");
   QApplication::setStyle("Fusion");
-  QApplication::setApplicationVersion(SILICON_VERSION);
+    QApplication::setApplicationVersion(SILICON_VERSION);
 
   // LOAD THE FONTS
   QFontDatabase::addApplicationFont(":/fonts/Chango.ttf");
-  QFontDatabase::addApplicationFont(":/fonts/Quicksand.ttf");
+QFontDatabase::addApplicationFont(":/fonts/Quicksand.ttf");
   QFontDatabase::addApplicationFont(":/fonts/NovaMono.ttf");
 
-  QApplication::setFont(QFont("Quicksand", app.font().pointSize() * 1.2, QFont::Medium));
+    QApplication::setFont(QFont("Quicksand", app.font().pointSize() * 1.2, QFont::Medium));
 
   QApplication::setWindowIcon(Icon("silicon", {QSize(32, 32), QSize(128, 128)}));
 
