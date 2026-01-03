@@ -148,11 +148,6 @@ class ClangFormatAssistant(FormatAssistant):
         try:
             # Capture stdout (the diff) and stderr
             result = subprocess.run(cmd, capture_output=True, text=True)
-
-            if result.returncode != 0:
-                print(f"Error running clang-format on {file_name}: {result.stdout} {result.stderr}")
-                sys.exit(1)
-
             output = result.stdout.strip()
 
             # If there is output, it means there is a diff

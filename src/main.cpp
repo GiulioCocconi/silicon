@@ -50,13 +50,13 @@ int siliconMain(int argc, char** argv)
   parser.setApplicationDescription("SILICON: Simulation of Interconnected Logical\
   Inputs, Circuits, and Output Nodes");
   parser.addHelpOption();
-  parser.addVersionOption();
+    parser.addVersionOption();
   parser.process(app);
 
   // Splash screen
-  QSplashScreen splashScreen(QPixmap(":/splash.jpg"));
+    QSplashScreen splashScreen(QPixmap(":/splash.jpg"));
   splashScreen.show();
-  splashScreen.showMessage("Loading...", Qt::AlignBottom | Qt::AlignHCenter, Qt::white);
+      splashScreen.showMessage("Loading...", Qt::AlignBottom | Qt::AlignHCenter, Qt::white);
 
   // Force processing of events to show the splash screen immediately
   QApplication::processEvents();
