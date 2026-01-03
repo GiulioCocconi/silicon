@@ -66,7 +66,7 @@ In order to be able to use the `git hooks` written for this project you need to 
 git config core.hooksPath hooks/
 ```
 
-## Compiling develop edition
+## Compiling
 
 ### On Linux
 
@@ -84,10 +84,9 @@ Run the commands below to compile the develop edition of SILICON on Linux:
 ```shell
 git clone https://github.com/GiulioCocconi/silicon
 cd silicon
-git checkout develop
-nix-shell # It automatically installs CMake and Ninja
+nix-shell # It automatically installs CMake, Ninja and all the required dependencies
 mkdir build
-cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -Bbuild
+cmake -G Ninja -Bbuild
 ninja -C build
 ```
 
@@ -97,3 +96,12 @@ Only recent version of the MinGW compiler are supported (tested using version `1
 
 The only thing you need to install is [CMake](https://cmake.org), since the `CMakeLists` take care of installing the dependency manager [vcpkg](https://vcpkg.io).
 Since all dependencies are built from source, the first time you run CMake you might need to wait a few minutes (or hours, depending on your compute power).
+
+To start the compilation process, once you have installed the compiler and CMake, run the following commands:
+```shell
+ git clone https://github.com/GiulioCocconi/silicon
+ cd silicon
+ mkdir build
+ cmake -G "MinGW Makefiles" -Bbuild
+ make -C build
+```
