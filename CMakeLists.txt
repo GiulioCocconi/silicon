@@ -58,6 +58,9 @@ include(cmake/vcpkg.cmake)
 include(cmake/windows.cmake)
 include(cmake/resources.cmake)
 
+add_subdirectory(libfst)
+message("aDDED")
+
 set(COMMON_SOURCE_FILES
         ${src_dir}/core/wire.cpp
         ${src_dir}/core/gates.cpp
@@ -128,7 +131,7 @@ target_sources(Silicon
         ${UI_SOURCE_FILES})
 
 target_compile_options(Silicon PRIVATE -Werror)
-target_link_libraries(Silicon PRIVATE Qt6::Widgets Qt6::SvgWidgets)
+target_link_libraries(Silicon PRIVATE Qt6::Widgets Qt6::SvgWidgets fst)
 win_deploy_qt(Silicon)
 
 # Add resources after Qt setup
