@@ -16,6 +16,7 @@ on:
 
 jobs:
   set-label:
+    if: github.event_name == 'pull_request'
     name: Set build label
     runs-on: ubuntu-latest
     permissions:
