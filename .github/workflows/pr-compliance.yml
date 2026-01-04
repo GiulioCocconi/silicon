@@ -21,6 +21,13 @@ jobs:
       - name: Fetch base branch
         run: git fetch origin ${{ github.event.pull_request.base.ref }}
 
+      - name: Compute PR merge-base
+        id: base
+        run: |
+          BASE_REF=$(git merge-base HEAD origin/${{ github.event.pull_request.base.ref }})
+          echo "BASE_REF=$BASE_REF" >> $GITHUB_ENV
+          echo "base_ref=$BASE_REF" >> $GITHUB_OUTPUT
+
       - name: Check and fix whitespace issues
         id: whitespace
         run: |
@@ -28,10 +35,7 @@ jobs:
           
           echo "Checking for whitespace issues..."
           
-          BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
-          
-          # Check for trailing whitespace, spaces before tabs, etc.
-          git diff --check $BASE_REF...HEAD > whitespace_errors.txt 2>&1
+          git diff --check "$BASE_REF...HEAD" > whitespace_errors.txt 2>&1
 
           if [ $? -ne 0 ]; then
             echo "has_whitespace_issues=true" >> $GITHUB_OUTPUT
@@ -44,13 +48,12 @@ jobs:
       - name: Check commit compliance
         id: check
         run: |
-          set +e  # Don't exit on error
+          set +e
 
-          BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
-          COMMITS=$(git log --no-merges --format="%H" $BASE_REF..HEAD)
+          COMMITS=$(git log --no-merges --format="%H" "$BASE_REF..HEAD")
           
           # Allowed types from CONTRIBUTING.md
-          TYPES="feat|fix|docs|style|refactor|perf|test|build|chore|revert|contributors|misc"
+          TYPES="feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert|contributors|misc"
           
           UNSIGNED=""
           INVALID=""
@@ -102,13 +105,7 @@ jobs:
             exit 0
           fi
 
-          BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
-
-          echo "Checking if @$PR_USER is in AUTHORS.md..."
-
-          # Check if user exists in base AUTHORS.md file
-          # We use git show to check the file content in the base branch
-          if git show "$BASE_REF:AUTHORS.md" | grep -q "@$PR_USER"; then
+          if git show "$BASE_REF:AUTHORS.md" 2>/dev/null | grep -q "@$PR_USER"; then
             echo "User already found in AUTHORS.md. Skipping check."
             echo "is_missing=false" >> $GITHUB_OUTPUT
             exit 0
@@ -143,6 +140,8 @@ jobs:
           script: |
             const fs = require('fs');
 
+            const baseRef = '${{ steps.base.outputs.base_ref }}';
+
             // Collect status
             const hasUnsigned = '${{ steps.check.outputs.has_unsigned }}' === 'true';
             const hasInvalid = '${{ steps.check.outputs.has_invalid }}' === 'true';
@@ -174,7 +173,6 @@ jobs:
                 comment += `\`contributors: add @${prUser} to AUTHORS.md\`\n\n`;
               }
 
-
               // 2. Invalid Commit Format
               if (hasInvalid) {
                 const invalid = fs.readFileSync('invalid_commits.txt', 'utf8');
@@ -185,13 +183,12 @@ jobs:
                 comment += '**Allowed types:** feat, fix, docs, style, refactor, perf, test, build, chore, revert, contributors, misc\n\n';
                 comment += '<details><summary><b>Click to see how to fix</b></summary>\n\n';
                 comment += '```bash\n';
-                comment += 'git rebase -i origin/${{ github.event.pull_request.base.ref }}\n';
+                comment += `git rebase -i ${baseRef}\n`;
                 comment += '# Edit commit messages to follow the format\n';
                 comment += 'git push --force-with-lease\n';
                 comment += '```\n';
                 comment += '</details>\n\n';
               }
-
 
               // 3. Unsigned Commits
               if (hasUnsigned) {
@@ -201,7 +198,7 @@ jobs:
                 comment += unsigned;
                 comment += '\n<details><summary><b>Click to see how to fix</b></summary>\n\n';
                 comment += '```bash\n';
-                comment += 'git rebase --signoff origin/${{ github.event.pull_request.base.ref }}\n';
+                comment += `git rebase --signoff ${baseRef}\n`;
                 comment += 'git push --force-with-lease\n';
                 comment += '```\n';
                 comment += '</details>\n\n';
@@ -215,13 +212,11 @@ jobs:
                 comment += '```\n' + whitespaceErrors + '```\n\n';
                 comment += '<details><summary><b>Click to see how to fix</b></summary>\n\n';
                 comment += '```bash\n';
-                comment += 'git rebase --whitespace=fix origin/${{ github.event.pull_request.base.ref }}\n';
+                comment += `git rebase --whitespace=fix ${baseRef}\n`;
                 comment += 'git push --force-with-lease\n';
                 comment += '```\n';
                 comment += '</details>\n\n';
               }
-
-
 
               comment += '---\n';
               comment += 'See [CONTRIBUTING.md](../blob/main/CONTRIBUTING.md) for details.\n';
