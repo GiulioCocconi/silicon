@@ -10,8 +10,9 @@ on:
       - '**.cmake'
       - 'shell.nix'
       - '.github/workflows/build.yml'
-
-
+      - 'vcpkg.json'
+  push:
+    branches: [ "main" ]
 
 jobs:
   set-label:
