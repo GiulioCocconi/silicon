@@ -8,6 +8,12 @@
 #
 # ===----------------------------------------------------------------------=== #
 
+# Modified by Giulio Cocconi for use in the SILICON project (2026)
+# to see the diff between the current version and the one in the llvm repo run:
+
+# LINK=https://raw.githubusercontent.com/llvm/llvm-project/refs/heads/release/21.x/clang/tools/clang-format/git-clang-format
+# diff <(curl $LINK) ci/git-clang-format -u
+
 r"""
 clang-format git integration
 ============================
