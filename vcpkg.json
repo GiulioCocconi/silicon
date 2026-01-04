@@ -20,6 +20,12 @@
     },
     {
       "name": "qtsvg"
+    },
+    {
+      "name": "bzip2"
+    },
+    {
+      "name": "zlib"
     }
   ]
 }
