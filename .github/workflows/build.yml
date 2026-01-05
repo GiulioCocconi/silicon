@@ -49,11 +49,11 @@ jobs:
         # uses: wimpysworld/nothing-but-nix@v6
         uses: DeterminateSystems/nix-installer-action@v21
 
-      - name: Cache Nix store
-        uses: DeterminateSystems/magic-nix-cache-action@v13
-        with:
-          diagnostic-endpoint: ""
-          use-flakehub: "false"
+#      - name: Cache Nix store
+#        uses: DeterminateSystems/magic-nix-cache-action@v13
+#        with:
+#          diagnostic-endpoint: ""
+#          use-flakehub: "false"
 
       - name: Configure CMake
         run: nix-shell --run "cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -Bbuild"
@@ -84,8 +84,7 @@ jobs:
         with:
           path: |
             build/vcpkg_installed
-            ~/.cache/vcpkg/archives
-            %LOCALAPPDATA%/vcpkg/archives
+            build/_deps
           # Invalidate cache if vcpkg manifest changes
           key: ${{ runner.os }}-vcpkg-${{ hashFiles('**/vcpkg.json') }}
           restore-keys: |
