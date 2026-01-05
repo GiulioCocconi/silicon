@@ -1,4 +1,4 @@
-#  Copyright (C) 2025 Giulio Cocconi
+#  Copyright (C) 2026 Giulio Cocconi
 
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@ enable_testing()
 add_executable(logic_tests logic.cpp)
 add_executable(arithmetic_tests arithmetic.cpp)
 add_executable(utils_tests utils.cpp)
+add_executable(libfst_tests fstlib.cpp)
 
 
 
@@ -35,7 +36,9 @@ target_sources(utils_tests
         ${src_dir}/extraComponents/utils.cpp
         ${COMMON_SOURCE_FILES})
 
-foreach (target logic_tests arithmetic_tests utils_tests)
+foreach (target logic_tests arithmetic_tests utils_tests libfst_tests)
     target_link_libraries(${target} GTest::gtest_main GTest::gtest)
     gtest_discover_tests(${target})
 endforeach ()
+
+target_link_libraries(libfst_tests fst)
