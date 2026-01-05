@@ -189,3 +189,12 @@ TEST(LogicTest, CircuitEditing2) {
   c->forceSetCurrentState(State::LOW);
   EXPECT_EQ(o->getCurrentState(), State::LOW);
 }
+
+TEST(LogicTest, BusSettingReading)
+{
+  auto a = Bus(4);
+  for (int i = 0; i <= 0b1111; i++) {
+    a.forceSetCurrentValue(i);
+    EXPECT_EQ(a.getCurrentValue(), i);
+  }
+}
