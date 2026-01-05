@@ -165,13 +165,20 @@ void Wire::addUpdateAction(const action_ptr& a)
 
 Bus::Bus(const unsigned short size)
 {
-  this->busData = std::vector(size, std::make_shared<Wire>(State::ERROR));
+  this->busData.reserve(size);
+  for (unsigned short i = 0; i < size; i++)
+    this->busData.push_back(std::make_shared<Wire>(State::ERROR));
 }
 
 void Bus::setSize(const unsigned short size)
 {
-  this->busData.resize(size, std::make_shared<Wire>(State::ERROR));
-  assert(this->busData.size() == size);
+  const size_t oldSize = this->busData.size();
+
+  this->busData.resize(size);
+
+  // `resize` adds nullpointers if the new size is greater, so we need to fill them up
+  for (size_t i = oldSize; i < size; i++)
+    this->busData[i] = std::make_shared<Wire>(State::ERROR);
 }
 
 Bus::Bus(std::vector<Wire_ptr> busData)
