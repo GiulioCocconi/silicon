@@ -53,7 +53,7 @@ endfunction()
 if (WIN32 AND SILICON_USE_VCPKG)
     # Copy the DLLs
 
-    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if (VCPKG_BUILD_TYPE STREQUAL "debug")
         set(VCPKG_BIN_DIR "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/debug/bin")
     else ()
         set(VCPKG_BIN_DIR "${VCPKG_INSTALLED_DIR}/${VCPKG_TARGET_TRIPLET}/bin")

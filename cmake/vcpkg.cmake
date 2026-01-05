@@ -14,8 +14,6 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# VCPKG bootstrapping and configuration
-
 if (SILICON_USE_VCPKG AND NOT USING_NIX)
     message(STATUS "SILICON_USE_VCPKG is ON. Bootstrapping bundled vcpkg...")
 
@@ -47,6 +45,13 @@ if (SILICON_USE_VCPKG AND NOT USING_NIX)
     else ()
         set(VCPKG_BOOTSTRAP_SCRIPT "${vcpkg_SOURCE_DIR}/bootstrap-vcpkg.sh")
         set(VCPKG_EXECUTABLE "${vcpkg_SOURCE_DIR}/vcpkg")
+    endif ()
+
+    # TODO: Differenciate between build-types in order to download release or debug dependencies but not both
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+        set(VCPKG_BUILD_TYPE "debug")
+    else ()
+        set(VCPKG_BUILD_TYPE "release")
     endif ()
 
     # Run Bootstrap if executable is missing
