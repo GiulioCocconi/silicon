@@ -20,3 +20,13 @@ inline void __tsan_on_report() {
     FAIL() << "Encountered a thread sanitizer error";
   }
 }  // extern "C"
+
+void PrintTo(const State& s, std::ostream* os)
+{
+  switch (s) {
+    case State::HIGH: *os << "HIGH"; break;
+    case State::LOW: *os << "LOW"; break;
+    case State::ERROR: *os << "ERROR"; break;
+    default: assert(false);
+  }
+}
