@@ -30,7 +30,7 @@ TEST(UtilsTest, WireMergerCase)
   WireMerger wm = WireMerger({{a}, {b}}, bus);
   a->forceSetCurrentState(State::HIGH);
 
-  ASSERT_EQ(bus.getCurrentValue(), 3);
+  EXPECT_EQ(bus.getCurrentValue(), 3);
 }
 
 TEST(UtilsTest, WireSplitterCase)
@@ -42,6 +42,6 @@ TEST(UtilsTest, WireSplitterCase)
   bus.forceSetCurrentValue(2);
 
   WireSplitter ws = WireSplitter(bus, {{a}, {b}});
-  ASSERT_EQ(a->getCurrentState(), State::LOW);
-  ASSERT_EQ(b->getCurrentState(), State::HIGH);
+  EXPECT_EQ(a->getCurrentState(), State::LOW);
+  EXPECT_EQ(b->getCurrentState(), State::HIGH);
 }

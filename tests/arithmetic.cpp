@@ -30,16 +30,16 @@ TEST(ArithmeticTest, HalfAdderCase) {
   auto cout = std::make_shared<Wire>();
 
   HalfAdder ha({a,b}, sum, cout);
-  ASSERT_EQ(sum->getCurrentState(),  State::LOW);
-  ASSERT_EQ(cout->getCurrentState(), State::LOW);
+  EXPECT_EQ(sum->getCurrentState(),  State::LOW);
+  EXPECT_EQ(cout->getCurrentState(), State::LOW);
 
   b->forceSetCurrentState(State::HIGH);
-  ASSERT_EQ(sum->getCurrentState(),  State::HIGH);
-  ASSERT_EQ(cout->getCurrentState(), State::LOW);
+  EXPECT_EQ(sum->getCurrentState(),  State::HIGH);
+  EXPECT_EQ(cout->getCurrentState(), State::LOW);
 
   a->forceSetCurrentState(State::HIGH);
-  ASSERT_EQ(sum->getCurrentState(),  State::LOW);
-  ASSERT_EQ(cout->getCurrentState(), State::HIGH);
+  EXPECT_EQ(sum->getCurrentState(),  State::LOW);
+  EXPECT_EQ(cout->getCurrentState(), State::HIGH);
 }
 
 TEST(ArithmeticTest, AdderNBitsFromComponents) {
@@ -66,26 +66,26 @@ TEST(ArithmeticTest, AdderNBitsFromComponents) {
   a.forceSetCurrentValue(0);
   b.forceSetCurrentValue(0);
 
-  ASSERT_EQ(cout->getCurrentState(), State::LOW);
-  ASSERT_EQ(sum.getCurrentValue(),   0);
+  EXPECT_EQ(cout->getCurrentState(), State::LOW);
+  EXPECT_EQ(sum.getCurrentValue(),   0);
 
   a.forceSetCurrentValue(0b1100);
   b.forceSetCurrentValue(0b0011);
 
-  ASSERT_EQ(cout->getCurrentState(), State::LOW);
-  ASSERT_EQ(sum.getCurrentValue(),   0b1111);
+  EXPECT_EQ(cout->getCurrentState(), State::LOW);
+  EXPECT_EQ(sum.getCurrentValue(),   0b1111);
 
   b.forceSetCurrentValue(0b1100);
   a.forceSetCurrentValue(0b0011);
 
-  ASSERT_EQ(cout->getCurrentState(), State::LOW);
-  ASSERT_EQ(sum.getCurrentValue(),   0b1111);
+  EXPECT_EQ(cout->getCurrentState(), State::LOW);
+  EXPECT_EQ(sum.getCurrentValue(),   0b1111);
 
   a.forceSetCurrentValue(0b1111);
   b.forceSetCurrentValue(0b0001);
 
-  ASSERT_EQ(cout->getCurrentState(), State::HIGH);
-  ASSERT_EQ(sum.getCurrentValue(),   0);
+  EXPECT_EQ(cout->getCurrentState(), State::HIGH);
+  EXPECT_EQ(sum.getCurrentValue(),   0);
 }
 
 TEST(ArithmeticTest, AdderNBitsAtomic) {
@@ -100,25 +100,25 @@ TEST(ArithmeticTest, AdderNBitsAtomic) {
   AdderNBits adder({a, b}, sum, cout);
 
 
-  ASSERT_EQ(cout->getCurrentState(), State::LOW);
-  ASSERT_EQ(sum.getCurrentValue(),   0);
+  EXPECT_EQ(cout->getCurrentState(), State::LOW);
+  EXPECT_EQ(sum.getCurrentValue(),   0);
 
   a.forceSetCurrentValue(0b1100);
   b.forceSetCurrentValue(0b0011);
 
-  ASSERT_EQ(cout->getCurrentState(), State::LOW);
-  ASSERT_EQ(sum.getCurrentValue(),   0b1111);
+  EXPECT_EQ(cout->getCurrentState(), State::LOW);
+  EXPECT_EQ(sum.getCurrentValue(),   0b1111);
 
   b.forceSetCurrentValue(0b1100);
   a.forceSetCurrentValue(0b0011);
 
-  ASSERT_EQ(cout->getCurrentState(), State::LOW);
-  ASSERT_EQ(sum.getCurrentValue(),   0b1111);
+  EXPECT_EQ(cout->getCurrentState(), State::LOW);
+  EXPECT_EQ(sum.getCurrentValue(),   0b1111);
 
   a.forceSetCurrentValue(0b1111);
   b.forceSetCurrentValue(0b0001);
 
-  ASSERT_EQ(cout->getCurrentState(), State::HIGH);
-  ASSERT_EQ(sum.getCurrentValue(),   0);
+  EXPECT_EQ(cout->getCurrentState(), State::HIGH);
+  EXPECT_EQ(sum.getCurrentValue(),   0);
 
 }
