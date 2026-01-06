@@ -1,3 +1,6 @@
+# SILICON License
+The SILICON project is licensed under the terms of GPL, the license text is below.
+```
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
@@ -617,3 +620,21 @@ reviewing courts shall apply local law that most closely approximates
 an absolute waiver of all civil liability in connection with the
 Program, unless a warranty or assumption of liability accompanies a
 copy of the Program in return for a fee.
+```
+
+## Third Party Licenses
+This project also uses some licensed resources from third parties. These are listed below, the full license text
+for each of them is available inside the `resources/app/licenses` directory of the source code and inside the about dialog of the
+SILICON applications.
+
+### Font Resources
+Each font is licensed under `OFL`
+- Chango _Copyright (c) 2011 Fontstage (info@fontstage.com)_
+- NovaMono _Copyright (c) 2011, wmk69 (wmk69@o2.pl)_
+- Quicksand _Copyright 2011 The Quicksand Project Authors (https://github.com/andrew-paglinawan/QuicksandFamily)_
+
+### Libraries
+- FastLZ, under MIT, _Copyright (C) 2007 Ariya Hidayat (ariya@kde.org)_
+- LibFST, under MIT, _Copyright (c) 2009-2025 Tony Bybell_
+- LZ4, under BSD, _Copyright (C) 2011-2023, Yann Collet_
+- Qt, under GPL, _Copyright (C) 2018 The Qt Company Ltd. and other contributors_
