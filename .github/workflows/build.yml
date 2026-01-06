@@ -61,6 +61,9 @@ jobs:
       - name: Build
         run: nix-shell --run "ninja -C build"
 
+      - name: Test
+        run: nix-shell --run "ctest --test-dir build"
+
   # -----------------------------------------------------------------------------
   # WINDOWS BUILD (MinGW + vcpkg)
   # -----------------------------------------------------------------------------
@@ -100,3 +103,6 @@ jobs:
 
       - name: Build
         run: ninja -C build
+
+      - name: Test
+        run: ctest --test-dir build
