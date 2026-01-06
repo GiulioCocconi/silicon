@@ -13,6 +13,14 @@ on:
       - 'vcpkg.json'
   push:
     branches: [ "main" ]
+    paths:
+      - '**.cpp'
+      - '**.hpp'
+      - '**/CMakeLists.txt'
+      - '**.cmake'
+      - 'shell.nix'
+      - '.github/workflows/build.yml'
+      - 'vcpkg.json'
 
 jobs:
   set-label:
