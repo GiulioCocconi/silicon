@@ -56,7 +56,7 @@ class FormatAssistant:
             for wildcard in self.matching_files_wildcard:
                 if fnmatch(fn, wildcard):
                     print(f"[{self.name}] Processing {fn}...")
-                    self.format(fn)
+                    self.diff_buffer.append(self.format(fn))
                     break
 
         self.finalize()
@@ -119,7 +119,6 @@ class ClangFormatAssistant(FormatAssistant):
 
     def format(self, file_name: str):
         # We invoke the python script directly to ensure execution works regardless of chmod
-        print(f"Hey! {file_name}!")
         cmd = [
             self.GIT_CLANG_FORMAT_PATH,
             "--diff",
@@ -132,12 +131,11 @@ class ClangFormatAssistant(FormatAssistant):
         try:
             # Capture stdout (the diff) and stderr
             result = subprocess.run(cmd, capture_output=True, text=True)
-            output = result.stdout.strip()
+            output = result.stdout
 
             # If there is output, it means there is a diff
             if output and "no modified files to format" not in output:
-                # git-clang-format --diff prints headers; we append the output to our buffer
-                self.diff_buffer.append(output)
+                return f"{output}"
 
         except Exception as e:
             print(f"Failed to execute subprocess for {file_name}: {e}", file=sys.stderr)
