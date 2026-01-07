@@ -52,7 +52,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install Nix
         # uses: wimpysworld/nothing-but-nix@v6
         uses: DeterminateSystems/nix-installer-action@v21
@@ -80,7 +80,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup MinGW
         uses: egor-tensin/setup-mingw@v3
