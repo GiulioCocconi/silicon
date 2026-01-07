@@ -66,6 +66,9 @@ class FormatAssistant:
 
     def finalize(self):
         """Updates, creates, or deletes comments on the PR based on findings."""
+
+        self.diff_buffer = [diff for diff in self.diff_buffer if diff is not None]
+
         if not write_comments_on_pr or pr is None:
             if self.diff_buffer:
                 print(f"[{self.name}] Issues found, but comment writing is disabled.")
