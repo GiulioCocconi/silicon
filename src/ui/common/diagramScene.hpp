@@ -60,7 +60,7 @@ public:
   void clearWireShadow();
   void setComponentShadow();
   void clearComponentShadow();
-  bool manageJunctionCreation(QPointF cursorPos) const;
+  bool wireAlreadyPresentAtPos(QPointF cursorPos) const;
 
   void addComponent(GraphicalComponent* component, QPointF pos);
 
@@ -83,7 +83,7 @@ private:
 
   void calculateWiresForComponents() const;
 
-  void setInteractionMode(InteractionMode mode, bool force);
+  void setInteractionMode(InteractionMode newMode, bool force);
 
   void mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent) override;
   void mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent) override;

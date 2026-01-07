@@ -240,7 +240,7 @@ void GraphicalWireSegment::addPoints()
   }
 
   // Check for self intersecting
-  QPainterPathStroker stroker;
+  const QPainterPathStroker stroker;
 
   const auto showStroke = stroker.createStroke(showPath);
 
