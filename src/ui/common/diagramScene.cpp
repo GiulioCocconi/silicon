@@ -66,16 +66,16 @@ void DiagramScene::setInteractionMode(InteractionMode mode)
   setInteractionMode(mode, false);
 }
 
-void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
+void DiagramScene::setInteractionMode(const InteractionMode newMode, bool force)
 {
   if (!force)
     assert(views().size() == 1);
 
   const auto currentMode = getInteractionMode();
-  if (currentMode == mode && !force)
+  if (currentMode == newMode && !force)
     return;
 
-  if (wireSegmentToBeDrawn && mode != InteractionMode::WIRE_CREATION_MODE) {
+  if (wireSegmentToBeDrawn && newMode != InteractionMode::WIRE_CREATION_MODE) {
     // Remove the wireSegment if it's invisible
     if (wireSegmentToBeDrawn->empty()) {
       removeItem(wireSegmentToBeDrawn);
@@ -83,7 +83,7 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
       wireSegmentToBeDrawn = nullptr;
     } else if (!wireSegmentToBeDrawn->getGraphicalWire()) {  // Create the wire for
                                                              // orphans
-      // Create the bus
+      // Create the bus. Size 1 is the default, it will change if needed during simulation
       const auto b = Bus(1);
       auto*      w = new GraphicalWire();
       w->setBus(b);
@@ -97,16 +97,16 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
   if (currentMode == InteractionMode::COMPONENT_PLACING_MODE) {
     hideCSB();
     if (componentToBeDrawn) {
-      // componentToBeDrawn shadow should be cleared BEFORE switching to another mode,
-      // if it's not then it means the insertion has been aborted and the component should
-      // be removed
+      // componentToBeDrawn shadow should have been cleared BEFORE switching to another
+      // mode, if it's not then it means the insertion has been aborted and the component
+      // should be removed
 
       removeItem(componentToBeDrawn);
       delete componentToBeDrawn;
       componentToBeDrawn = nullptr;
     }
 
-  } else if (mode == InteractionMode::COMPONENT_PLACING_MODE) {
+  } else if (newMode == InteractionMode::COMPONENT_PLACING_MODE) {
     // We need to show the CSB
 
     // ALGORITHM: If the cursor is inside the view then try to place the component.
@@ -120,24 +120,27 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
 
     const auto view = this->views()[0];
 
-    // The default position is the center of the view
-    QPoint posForCSB = view->viewport()->rect().center();
+    // The position for the CSB should be the position of the cursor (if the cursor is
+    // inside the view) or the center of the view (every other case)
+
+    // Get center pos
+    const QPoint centerPos = view->viewport()->rect().center();
 
     // Get cursor pos within view
-    const QPoint viewCursorPos = view->mapFromGlobal(globalCursorPos);
+    const QPoint cursorPosWithinView = view->mapFromGlobal(globalCursorPos);
 
-    const bool isCursorInsideView = view->viewport()->rect().contains(viewCursorPos);
+    const bool isCursorInsideView =
+        view->viewport()->rect().contains(cursorPosWithinView);
 
-    if (isCursorInsideView)
-      posForCSB = viewCursorPos;
+    const QPoint posForCSB = isCursorInsideView ? cursorPosWithinView : centerPos;
 
     showCSB(view->mapToScene(posForCSB));
   }
 
-  if (mode == InteractionMode::SIMULATION_MODE
+  if (newMode == InteractionMode::SIMULATION_MODE
       || currentMode == InteractionMode::SIMULATION_MODE) {
     // If we are goint to simulation mode then calculate the wires
-    if (mode == InteractionMode::SIMULATION_MODE) {
+    if (newMode == InteractionMode::SIMULATION_MODE) {
       calculateWiresForComponents();
     }
 
@@ -148,33 +151,27 @@ void DiagramScene::setInteractionMode(InteractionMode mode, bool force)
     const auto inputComponents = items() | std::views::filter([](auto item) {
                                    return item->type() == SiliconTypes::SINGLE_INPUT;
                                  })
-                                 | std::views::transform([](auto item) {
-                                     return qgraphicsitem_cast<GraphicalInput*>(item);
-                                   })
                                  | std::ranges::to<std::vector>();
 
     for (const auto inputComponent : inputComponents) {
-      inputComponent->setState(State::LOW);
+      qgraphicsitem_cast<GraphicalInput*>(inputComponent)->setState(State::LOW);
     }
 
     // If we are exiting SIMULATION_MODE then restore outputs as well
     if (currentMode == InteractionMode::SIMULATION_MODE) {
-      const auto outputComponents =
-          items() | std::views::filter([](auto item) {
-            return item->type() == SiliconTypes::SINGLE_OUTPUT;
-          })
-          | std::views::transform(
-              [](auto item) { return qgraphicsitem_cast<GraphicalOutputSingle*>(item); })
-          | std::ranges::to<std::vector>();
+      const auto outputComponents = items() | std::views::filter([](auto item) {
+                                      return item->type() == SiliconTypes::SINGLE_OUTPUT;
+                                    })
+                                    | std::ranges::to<std::vector>();
 
       for (const auto outputComponent : outputComponents) {
-        outputComponent->setState(State::LOW);
+        qgraphicsitem_cast<GraphicalOutputSingle*>(outputComponent)->setState(State::LOW);
       }
     }
   }
 
-  this->currentInteractionMode = mode;
-  emit DiagramScene::modeChanged(mode);
+  this->currentInteractionMode = newMode;
+  emit DiagramScene::modeChanged(newMode);
 }
 
 void DiagramScene::mouseMoveEvent(QGraphicsSceneMouseEvent* mouseEvent)
@@ -246,14 +243,14 @@ void DiagramScene::mousePressEvent(QGraphicsSceneMouseEvent* mouseEvent)
         // Let's start drawing the wire!
         wireSegmentToBeDrawn = new GraphicalWireSegment(cursorPos);
         addItem(wireSegmentToBeDrawn);
-        manageJunctionCreation(cursorPos);
+        wireAlreadyPresentAtPos(cursorPos);
       } else {
         wireSegmentToBeDrawn->addPoints();
 
         // If the point to be created is a junction then we have finished drawing
         // the segment
 
-        if (manageJunctionCreation(cursorPos)) {
+        if (wireAlreadyPresentAtPos(cursorPos)) {
           setInteractionMode(InteractionMode::NORMAL_MODE);
           return;
         }
@@ -410,10 +407,10 @@ void DiagramScene::calculateWiresForComponents() const
   }
 }
 
-bool DiagramScene::manageJunctionCreation(const QPointF cursorPos) const
+bool DiagramScene::wireAlreadyPresentAtPos(const QPointF cursorPos) const
 {
-  // This function DOES NOT create the junction itself. It checks for collisions within
-  // two or more GraphicalWireSegments and then assigns them the same GraphicalWire
+  // This function checks for collisions within two or more GraphicalWireSegments and then
+  // assigns them the same GraphicalWire
 
   // Using Qt::IntersectsItemBoundingRect cause the shape of the wire is managed by the
   // subsequently called segmentAtPoint()
@@ -440,6 +437,7 @@ void DiagramScene::addComponent(GraphicalComponent* component, QPointF pos)
   addItem(component);
 }
 
+// TODO: Switch to auto memory management!
 void DiagramScene::placeComponent(const SiliconTypes type)
 {
   assert(!componentToBeDrawn);
@@ -460,7 +458,7 @@ void DiagramScene::placeComponent(const SiliconTypes type)
     default: assert(false && "Component not implemented");
   }
 
-  // TODO: IMPLEMENT COMPONENT SHADOW
+  // TODO: IMPLEMENT COMPONENT SHADOW TO BE SHOWN WHILE DRAGGING
   setInteractionMode(InteractionMode::COMPONENT_PLACING_MODE);
   setComponentShadow();
   hideCSB();
