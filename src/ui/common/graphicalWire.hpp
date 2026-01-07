@@ -60,8 +60,8 @@ public:
 
   [[nodiscard]] QPainterPath shape() const override;
 
-  bool isCompleted() { return false; };
-  bool isPointOnPath(const QPointF point);
+  bool isCompleted() { return false; };  // TODO: IMPLEMENT
+  bool isPointOnPath(const QPointF point) const;
 
   void addPoints();
 
@@ -108,7 +108,7 @@ public:
   int type() const override { return SiliconTypes::WIRE; }
 
   void addSegment(GraphicalWireSegment* segment);
-  void removeSegment(const GraphicalWireSegment* segment);
+  void removeSegment(GraphicalWireSegment* segment);
 
   void setBus(Bus bus) { this->bus = bus; }
   void setBusSize(const unsigned int size);
@@ -132,7 +132,7 @@ public:
 
 private:
   Bus                                bus;
-  std::vector<GraphicalWireSegment*> segments;
+  std::unordered_set<GraphicalWireSegment*> segments;
 
   QRectF boundingRect() const override;
 };
