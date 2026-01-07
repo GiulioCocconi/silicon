@@ -86,7 +86,7 @@ class FormatAssistant:
         body += "The following formatting changes are suggested:\n\n"
         body += "```diff\n"
         body += "\n".join(self.diff_buffer)
-        body += "\n```"
+        body += "\n\n```"
 
         if comment:
             print(f"[{self.name}] Updating existing comment.")
