@@ -34,30 +34,18 @@ GraphicalWire::GraphicalWire(const std::vector<GraphicalWireSegment*>& segments,
 
 void GraphicalWire::addSegment(GraphicalWireSegment* segment)
 {
-  prepareGeometryChange();
-  segments.push_back(segment);
-
-  if (segments.size() > 1) {
-    std::ranges::sort(segments);
-    segments.erase(std::ranges::unique(segments).begin(), segments.end());
-  }
-}
-
-void GraphicalWire::removeSegment(const GraphicalWireSegment* segment)
-{
-  const auto b = segments.begin();
-  const auto e = segments.end();
-
-  // If pointers are not valid then we can safely return. The segment won't be there
-  // anyway
-  if (!b.base() || !e.base())
+  if (segments.contains(segment))
     return;
 
-  const auto pos = std::find(b, e, segment);
+  prepareGeometryChange();
+  segments.insert(segment);
+}
 
-  if (pos != e) {
+void GraphicalWire::removeSegment(GraphicalWireSegment* segment)
+{
+  if (segments.contains(segment)) {
     prepareGeometryChange();
-    segments.erase(pos);
+    segments.erase(segment);
   }
 }
 
@@ -139,35 +127,44 @@ GraphicalWireSegment* GraphicalWire::segmentAtPoint(const QPointF point) const
 
 std::vector<QPointF> GraphicalWire::getJunctions() const
 {
-  std::vector<QPointF> junctions = {};
+  std::vector<QPointF> junctions;
+  junctions.reserve(segments.size());
 
-  const auto b = this->segments.begin();
-  const auto e = this->segments.end();
+  // Iterate unique pairs
+  for (auto it1 = segments.begin(); it1 != segments.end(); ++it1) {
+    for (auto it2 = std::next(it1); it2 != segments.end(); ++it2) {
+      const GraphicalWireSegment* s1 = *it1;
+      const GraphicalWireSegment* s2 = *it2;
 
-  // Unordered pairs of segments
-  for (auto first = b; first != e; ++first) {
-    for (auto second = first + 1; second != e; ++second) {
-      const QPointF firstPoint = (*second)->firstPoint();
-      const QPointF lastPoint  = (*second)->lastPoint();
+      // Bundle endpoints for cleaner iteration
+      const auto s1Extrema = std::array{s1->firstPoint(), s1->lastPoint()};
+      const auto s2Extrema = std::array{s2->firstPoint(), s2->lastPoint()};
 
-      const bool firstPointIntersects = (*first)->isPointOnPath(firstPoint);
-      const bool lastPointIntersects  = (*first)->isPointOnPath(lastPoint);
+      // 1. Check Tip-to-Tip Connection (Corner/Extension)
+      if (std::ranges::find_first_of(s1Extrema, s2Extrema) != s1Extrema.end()) {
+        // TODO: Add logic to merge wires
+        continue;
+      }
 
-      const bool intersects = firstPointIntersects || lastPointIntersects;
-      const bool isSameWire =
-          (*first)->firstPoint() == lastPoint || (*first)->lastPoint() == firstPoint;
+      // 2. Check T-Junctions (Intersection)
+      // Check if s2's tips are on s1's body
+      for (const auto& p : s2Extrema) {
+        if (s1->isPointOnPath(p)) {
+          junctions.push_back(p);
+        }
+      }
 
-      if (intersects && !isSameWire) {
-        junctions.push_back(firstPointIntersects ? firstPoint : lastPoint);
-      } else if (isSameWire) {
-        // TODO: MERGE WIRES
+      // Check if s1's tips are on s2's body
+      for (const auto& p : s1Extrema) {
+        if (s2->isPointOnPath(p)) {
+          junctions.push_back(p);
+        }
       }
     }
   }
 
   return junctions;
 }
-
 std::vector<QPointF> GraphicalWire::getVertices() const
 {
   const auto junctions = getJunctions();
@@ -379,7 +376,7 @@ QPainterPath GraphicalWireSegment::shape() const
   return stroker.createStroke(this->path);
 }
 
-bool GraphicalWireSegment::isPointOnPath(const QPointF point)
+bool GraphicalWireSegment::isPointOnPath(const QPointF point) const
 {
   // Add a small tolerance for point detection
   constexpr double tolerance = 5.0;
