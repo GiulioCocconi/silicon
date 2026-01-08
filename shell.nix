@@ -15,7 +15,6 @@ pkgs.mkShell {
     valgrind
     surelog
     yosys
-    yosys-synlig
   ];
 
 
