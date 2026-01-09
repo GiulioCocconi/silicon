@@ -45,21 +45,19 @@ elseif (UNIX)
     if (USING_NIX AND NOT DEFINED ENV{IN_NIX_SHELL})
         message(WARNING "Nix detected, but not running inside a nix-shell/nix develop environment.")
     endif ()
-endif ()
-
-if (MSVC)
+elseif (EMSCRIPTEN)
+    set(CMAKE_EXECUTABLE_SUFFIX ".html")
+elseif (MSVC)
     message(FATAL_ERROR "MSVC is not currently supported!")
 endif ()
 
-option(SILICON_USE_VCPKG "Bootstrap and use bundled vcpkg for dependencies (if using Nix, this option has no effect)" ON)
+option(SILICON_USE_VCPKG "Bootstrap and use bundled vcpkg for dependencies (if using Nix or WASM, this option has no effect)" ON)
 
 # Include our custom CMake modules
 include(cmake/vcpkg.cmake)
 include(cmake/windows.cmake)
 include(cmake/resources.cmake)
 
-add_subdirectory(libfst)
-message("aDDED")
 
 set(COMMON_SOURCE_FILES
         ${src_dir}/core/wire.cpp
@@ -111,12 +109,20 @@ endif ()
 
 if (MSVC)
     add_compile_options(/W4)
-elseif (UNIX AND NOT APPLE)
-    add_compile_options(-Wall -Wextra -Wno-unused-parameter -Wno-return-type -fsanitize=address -fsanitize=undefined)
-    add_link_options(-fsanitize=address -fsanitize=undefined)
+elseif (UNIX)
+    add_compile_options(-Wall -Wextra -Wno-unused-parameter -Wno-return-type)
 elseif (WIN32 AND MINGW)
     add_compile_options(-Wall -Wextra -Wno-unused-parameter)
+elseif (EMSCRIPTEN)
+    add_link_options(--emrun)
 endif ()
+
+if (UNIX AND NOT APPLE AND NOT EMSCRIPTEN)
+    add_compile_options(-fsanitize=address -fsanitize=undefined)
+    add_link_options(-fsanitize=address -fsanitize=undefined)
+endif ()
+
+
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets SvgWidgets)
 qt_standard_project_setup()
@@ -131,13 +137,42 @@ target_sources(Silicon
         ${UI_SOURCE_FILES})
 
 target_compile_options(Silicon PRIVATE -Werror)
-target_link_libraries(Silicon PRIVATE Qt6::Widgets Qt6::SvgWidgets fst)
+
+if (EMSCRIPTEN)
+    target_link_libraries(Silicon PRIVATE Qt6::Widgets Qt6::SvgWidgets)
+else ()
+    add_subdirectory(libfst)
+    target_link_libraries(Silicon PRIVATE Qt6::Widgets Qt6::SvgWidgets fst)
+endif ()
+
+if ((CMAKE_CXX_COMPILER_ID MATCHES "Clang") OR EMSCRIPTEN)
+    # Some view/ranges features are not yet implemented in clang libc++
+    # https://en.cppreference.com/w/cpp/compiler_support/23.html
+
+    if (NOT USING_NIX)
+        FetchContent_Declare(
+                Range-v3
+                GIT_REPOSITORY "https://github.com/ericniebler/range-v3"
+        )
+
+        # Ignore deprecation warnings
+        # see https://github.com/ericniebler/range-v3/pull/1859
+        add_compile_definitions(RANGES_DISABLE_DEPRECATED_WARNINGS)
+
+        fetchcontent_makeavailable(Range-v3)
+    else ()
+        find_package(range-v3 REQUIRED)
+    endif()
+
+    target_link_libraries(Silicon PRIVATE range-v3)
+endif ()
+
 win_deploy_qt(Silicon)
 
 # Add resources after Qt setup
 add_silicon_resources(Silicon)
 
-if (SILICON_BUILD_TESTS)
+if (SILICON_BUILD_TESTS AND NOT EMSCRIPTEN)
     include(GoogleTest)
     find_package(GTest REQUIRED)
 

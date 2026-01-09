@@ -14,7 +14,7 @@
 #  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-if (SILICON_USE_VCPKG AND NOT USING_NIX)
+ if (SILICON_USE_VCPKG AND NOT USING_NIX AND NOT EMSCRIPTEN)
     message(STATUS "SILICON_USE_VCPKG is ON. Bootstrapping bundled vcpkg...")
 
     set(ENV{VCPKG_USE_SYSTEM_BINARIES} "1")

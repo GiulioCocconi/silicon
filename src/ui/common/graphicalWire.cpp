@@ -387,7 +387,7 @@ bool GraphicalWireSegment::isPointOnPath(const QPointF point) const
   if (points.size() == 1)
     return QLineF(point, points[0]).length() <= tolerance;
 
-  const auto slide_view = points | std::views::slide(2);
+  const auto slide_view = points | silicon::views::slide(2);
 
   // For each sub-segment
   for (const auto el : slide_view) {  // NOLINT(*-use-anyofallof)

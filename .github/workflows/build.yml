@@ -107,3 +107,48 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build
+
+
+  # -----------------------------------------------------------------------------
+  # WASM BUILD (Linux + Emscripten)
+  # -----------------------------------------------------------------------------
+  build-wasm:
+    name: WASM (Emscripten)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+      - name: Install Emscripten
+        uses: mymindstorm/setup-emsdk@v13
+        with:
+          version: 4.0.7
+
+      - name: Install Qt for WASM
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: "6.11.0"
+          host: "all_os"
+          target: "wasm"
+          arch: "wasm_singlethread"
+
+      - name: Install Ninja and range-v3
+        run: sudo apt-get install ninja-build
+
+      - name: Configure CMake
+        run: |
+          chmod +x ~/work/silicon/Qt/6.11.0/wasm_singlethread/bin/qt-cmake
+          ~/work/silicon/Qt/6.11.0/wasm_singlethread/bin/qt-cmake -Bbuild -G Ninja
+          emcmake cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -Bbuild
+
+      - name: Build
+        run: ninja -C build
+
+      - name: Upload WASM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: silicon-wasm
+          path: |
+            bin/*.js
+            bin/*.wasm
+            bin/*.html
+          retention-days: 30
