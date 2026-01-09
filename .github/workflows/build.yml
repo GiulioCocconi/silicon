@@ -8,7 +8,8 @@ on:
       - '**.hpp'
       - '**/CMakeLists.txt'
       - '**.cmake'
-      - 'shell.nix'
+      - 'flake.nix'
+      - 'flake.lock'
       - '.github/workflows/build.yml'
       - 'vcpkg.json'
   push:
@@ -18,7 +19,8 @@ on:
       - '**.hpp'
       - '**/CMakeLists.txt'
       - '**.cmake'
-      - 'shell.nix'
+      - 'flake.nix'
+      - 'flake.lock'
       - '.github/workflows/build.yml'
       - 'vcpkg.json'
 
@@ -40,7 +42,7 @@ jobs:
 
 
   # -----------------------------------------------------------------------------
-  # LINUX BUILD (Nix)
+  # LINUX BUILD (Nix Flakes)
   # -----------------------------------------------------------------------------
   build-linux:
     name: Linux (Nix)
@@ -53,24 +55,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+
       - name: Install Nix
-        # uses: wimpysworld/nothing-but-nix@v6
         uses: DeterminateSystems/nix-installer-action@v21
 
-#      - name: Cache Nix store
-#        uses: DeterminateSystems/magic-nix-cache-action@v13
-#        with:
-#          diagnostic-endpoint: ""
-#          use-flakehub: "false"
+      - name: Cache Nix store
+        uses: DeterminateSystems/magic-nix-cache-action@v13
 
-      - name: Configure CMake
-        run: nix-shell --run "cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -Bbuild"
-
-      - name: Build
-        run: nix-shell --run "ninja -C build"
-
-      - name: Test
-        run: nix-shell --run "ctest --test-dir build"
+      - name: Build with Nix
+        run: nix build --print-build-logs
 
   # -----------------------------------------------------------------------------
   # WINDOWS BUILD (MinGW + vcpkg)
