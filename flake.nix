@@ -10,40 +10,56 @@
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};
-      in
-      {
-        devShells.default = pkgs.mkShell {
-          name = "Silicon";
 
-          packages = with pkgs; [
+        devPackages = with pkgs; [
             vulkan-headers
             libxkbcommon.dev
-            gtest.dev
-            qt6.qtbase
-            qt6.qtsvg
-            ninja
-            cmake
             clang-tools
             gdb
             ddd
             valgrind
             surelog
             yosys
-          ];
+        ];
 
-          hardeningDisable = [ "all" ];
-          NIX_LANG_CPP = "TRUE";
+        libraries = with pkgs; [
+            gtest.dev
+            qt6.qtbase
+            qt6.qtsvg
+        ];
 
-          shellHook = ''
-            echo "Silicon development environment"
-            echo "CMake version: $(cmake --version | head -n1)"
-            echo "Ninja version: $(ninja --version)"
-            echo ""
-            echo "To build:"
-            echo "  mkdir -p build"
-            echo "  cmake -G Ninja -Bbuild"
-            echo "  ninja -C build"
-          '';
+        nativeInputs = with pkgs; [
+            cmake
+            ninja
+        ];
+      in
+      {
+        devShells = {
+            default = pkgs.mkShell {
+              name = "Silicon";
+
+              packages = devPackages ++ libraries ++ nativeInputs;
+
+              hardeningDisable = [ "all" ];
+              NIX_LANG_CPP = "TRUE";
+
+              shellHook = ''
+                echo "Silicon development environment"
+                echo "CMake version: $(cmake --version | head -n1)"
+                echo "Ninja version: $(ninja --version)"
+                echo ""
+                echo "To build:"
+                echo "  mkdir -p build"
+                echo "  cmake -G Ninja -Bbuild"
+                echo "  ninja -C build"
+              '';
+            };
+
+            clang = (pkgs.mkShell.override { stdenv = pkgs.llvmPackages_20.libcxxStdenv; }) {
+                 name = "Silicon";
+                 packages = devPackages ++ libraries ++ nativeInputs;
+                 hardeningDisable = [ "all" ];
+            };
         };
 
         packages.default = pkgs.stdenv.mkDerivation {
@@ -52,17 +68,9 @@
 
           src = ./.;
 
-          nativeBuildInputs = with pkgs; [
-            cmake
-            ninja
-            qt6.wrapQtAppsHook
-          ];
+          nativeBuildInputs = nativeInputs ++ [pkgs.qt6.wrapQtAppsHook];
 
-          buildInputs = with pkgs; [
-            gtest.dev
-            qt6.qtbase
-            qt6.qtsvg
-          ];
+          buildInputs = libraries ++ [pkgs.range-v3];
 
           cmakeFlags = [
             "-DSILICON_USE_VCPKG=OFF"

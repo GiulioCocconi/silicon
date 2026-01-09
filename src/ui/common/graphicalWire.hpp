@@ -30,6 +30,7 @@
 #include <QRect>
 
 #include <ui/common/enums.hpp>
+#include <utils/ranges_wrapper.hpp>
 
 #include <core/wire.hpp>
 

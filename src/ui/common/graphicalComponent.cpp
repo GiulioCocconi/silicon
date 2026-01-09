@@ -224,7 +224,7 @@ void GraphicalComponent::setPorts(
     const std::vector<std::pair<std::string, QPoint>>& busToPortInputs,
     const std::vector<std::pair<std::string, QPoint>>& busToPortOutputs)
 {
-  for (const auto& [index, pair] : std::views::enumerate(busToPortInputs)) {
+  for (const auto& [index, pair] : busToPortInputs | silicon::views::enumerate) {
     const auto& [name, pos] = pair;
 
     // The memory is not leaked since the port address is freed by Qt Garbage collector
@@ -234,7 +234,7 @@ void GraphicalComponent::setPorts(
     this->setPortLine(p);
   }
 
-  for (const auto& [index, pair] : std::views::enumerate(busToPortOutputs)) {
+  for (const auto& [index, pair] : busToPortOutputs | silicon::views::enumerate) {
     const auto& [name, pos] = pair;
 
     // ReSharper disable once CppDFAMemoryLeak

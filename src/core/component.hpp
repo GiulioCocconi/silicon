@@ -25,6 +25,8 @@
 #include <string>
 #include <utility>
 
+#include <utils/ranges_wrapper.hpp>
+
 #include <core/wire.hpp>
 
 class Component : public std::enable_shared_from_this<Component> {

@@ -54,7 +54,7 @@ void Component::setInputs(const std::vector<Bus>& newInputs)
     this->inputs = newInputs;
   }
 
-  for (const auto& [index, bus] : std::views::enumerate(newInputs)) {
+  for (const auto& [index, bus] : newInputs | silicon::views::enumerate) {
     setInput(index, bus);
   }
 }
@@ -78,7 +78,7 @@ void Component::setOutputs(const std::vector<Bus>& newOutputs)
 }
 void Component::clearWires()
 {
-  for (const auto [index, bus] : std::views::enumerate(this->outputs)) {
+  for (const auto [index, bus] : this->outputs | silicon::views::enumerate) {
     const auto                  busSize = bus.size();
     const std::vector<Wire_ptr> wires(busSize);
 
@@ -87,7 +87,7 @@ void Component::clearWires()
     setOutput(index, newBus);
   }
 
-  for (const auto [index, bus] : std::views::enumerate(this->inputs)) {
+  for (const auto [index, bus] : this->inputs | silicon::views::enumerate) {
     const auto                  busSize = bus.size();
     const std::vector<Wire_ptr> wires(busSize);
 
