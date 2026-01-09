@@ -51,7 +51,7 @@ if (MSVC)
     message(FATAL_ERROR "MSVC is not currently supported!")
 endif ()
 
-option(SILICON_USE_VCPKG "Bootstrap and use bundled vcpkg for dependencies (if using Nix, this option has no effect" ON)
+option(SILICON_USE_VCPKG "Bootstrap and use bundled vcpkg for dependencies (if using Nix, this option has no effect)" ON)
 
 # Include our custom CMake modules
 include(cmake/vcpkg.cmake)
@@ -112,7 +112,7 @@ endif ()
 if (MSVC)
     add_compile_options(/W4)
 elseif (UNIX AND NOT APPLE)
-    add_compile_options(-Wall -Wextra -Wno-unused-parameter -fsanitize=address -fsanitize=undefined)
+    add_compile_options(-Wall -Wextra -Wno-unused-parameter -Wno-return-type -fsanitize=address -fsanitize=undefined)
     add_link_options(-fsanitize=address -fsanitize=undefined)
 elseif (WIN32 AND MINGW)
     add_compile_options(-Wall -Wextra -Wno-unused-parameter)
@@ -148,3 +148,9 @@ if (SILICON_BUILD_TESTS)
     add_subdirectory("${CMAKE_SOURCE_DIR}/tests")
     enable_testing()
 endif ()
+
+install(TARGETS Silicon
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
