@@ -56,7 +56,7 @@ Contributors are encouraged to use AI as a support tool rather than as a replace
 
 ## How to contribute
 1. Fork the repository.
-2. Create a new branch for your contribution.
+2. Create a new branch for your contribution (`git checkout -b my-contribution-s.
 3. Commit your changes **with the sign-off**.
 4. Push your branch to your fork.
 5. Create a pull request.
@@ -89,9 +89,10 @@ Where:
   - `chore`: Other changes that don't modify src or test files
   - `revert`: Reverts a previous commit
   - `contributors`: Changes to the AUTHORS file
-  - `misc`: Miscellaneous changes
+  - `ci`: Changes that involve continous integration
+  - `misc`: Miscellaneous changes (fallback, use with caution)
 
-- **scope**: The scope of the change. This is optional and can be used to specify the part of the project that is affected by the change.
+- **scope**: The scope of the change. This is optional and can be used to specify the part of the project or the specific feature that is affected by the change.
 
 - **description**: A brief description of the change. It must be written using imperative present tense.
 
