@@ -20,6 +20,8 @@
             valgrind
             surelog
             yosys
+	    doxygen
+	    graphviz
         ];
 
         libraries = with pkgs; [
