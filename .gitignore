@@ -5,6 +5,7 @@ lib/
 *.out
 vgcore.*
 Testing/
+docs/
 .cache/
 result*
 
