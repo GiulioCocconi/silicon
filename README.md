@@ -15,9 +15,9 @@ _Common_
 - [ ] Documentation
     * [ ] [Doxygen](https://www.doxygen.nl/index.html)?
     * [ ] [Read the Docs](https://readthedocs.org/)?
-- [ ] CI/CD
+- [X] CI/CD
     * [ ] [GitHub Actions](https://github.com/features/actions)
-    * [ ] Multi-OS support
+    * [ ] Multi-OS support (_kinda done: windows builds are now supported_)
         * [ ] Deployment (setup packages for Win & Mac). See [here](https://www.qt.io/blog/cmake-deployment-api).
 
 _Logic circuits (Silicon LogiFlow)_
@@ -25,7 +25,7 @@ _Logic circuits (Silicon LogiFlow)_
 - [ ] Multiplexers & demultiplexers
 - [ ] Timed simulation
 - [ ] Flip flops & synchronous components
-- [ ] Wires-to-bus & bus-to-wires
+- [x] Wires-to-bus & bus-to-wires
 - [x] INPUTS & OUTPUTS!!!!
 - [ ] Bus display
 - [ ] 7-segment display
@@ -64,27 +64,29 @@ ln -s ./build/compile_commands.json compile_commands.json
 
 SILICON uses [Nix](https://nixos.org) and [CMake](https://cmake.org) in order to manage dependencies. It's recomended to use [Ninja Build](https://ninja-build.org) as a generator.
 
-You can install Nix using the [official instructions](https://nixos.org/download.html),
+If you're not using NixOS as a distro, you can install Nix using the [official instructions](https://nixos.org/download.html),
 however I personally recommend using [Lix](https://lix.systems/install), a modern Nix fork, which can be installed running the following command in a Linux system:
 
 ```shell
 curl -sSf -L https://install.lix.systems/lix | sh -s -- install
 ```
 
-Run the commands below to compile the develop edition of SILICON on Linux:
+Then enable the experimental features required by SILICON running:
+```shell
+echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
+```
+
+Finally, run the commands below to compile the develop edition of SILICON on Linux:
 
 ```shell
 git clone https://github.com/GiulioCocconi/silicon
 cd silicon
-nix-shell # It automatically installs CMake, Ninja and all the required dependencies
-mkdir build
-cmake -G Ninja -Bbuild
-ninja -C build
+nix build # Downloads the dependencies and builds the software
 ```
 
 ### On Windows
 
-Only recent version of the MinGW compiler are supported (tested using version `13.0`), you can install them via this [graphical installer](https://github.com/Vuniverse0/mingwInstaller/releases/tag/1.2.1).
+Only recent versions of the MinGW compiler are supported (tested using version `13.0`), you can install them via this [graphical installer](https://github.com/Vuniverse0/mingwInstaller/releases/tag/1.2.1).
 
 The only thing you need to install is [CMake](https://cmake.org), since the `CMakeLists` take care of installing the dependency manager [vcpkg](https://vcpkg.io).
 Since all dependencies are built from source, the first time you run CMake you might need to wait a few minutes (or hours, depending on your compute power).
