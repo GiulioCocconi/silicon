@@ -1,4 +1,4 @@
-#  Copyright (C) 2025 Giulio Cocconi
+#  Copyright (C) 2025-2026 Giulio Cocconi
 
 #  This program is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@
     string(JSON VCPKG_BASELINE_SHA GET "${VCPKG_JSON_CONTENT}" "builtin-baseline")
 
     # Download Vcpkg source
+    message(STATUS "Downloading VCPKG @ ${VCPKG_BASELINE_SHA}")
     FetchContent_Declare(
             vcpkg
             GIT_REPOSITORY https://github.com/microsoft/vcpkg.git
@@ -70,6 +71,8 @@
     # Enable Manifest Mode (uses vcpkg.json)
     set(VCPKG_MANIFEST_INSTALL ON)
     set(VCPKG_MANIFEST_DIR "${CMAKE_SOURCE_DIR}")
+    list(APPEND VCPKG_INSTALL_OPTIONS "--debug")
+
 
     # Inject toolchain so find_package works
     include("${vcpkg_SOURCE_DIR}/scripts/buildsystems/vcpkg.cmake")
