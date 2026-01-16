@@ -119,7 +119,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
       - name: Install Emscripten
-        uses: mymindstorm/setup-emsdk@v13
+        uses: mymindstorm/setup-emsdk@v14
         with:
           version: 4.0.7
 
